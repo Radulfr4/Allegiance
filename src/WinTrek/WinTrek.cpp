@@ -34,7 +34,7 @@ const int c_nCountdownMax = 1000000; // just a big number
 const int c_nMinGain = -60;
 const int c_nMinFFGain = 0; //Imago
 
-// -Imago: manual AFK toggle flags for auto-AFK
+                            // -Imago: manual AFK toggle flags for auto-AFK
 extern bool g_bActivity = true;
 extern bool g_bAFKToggled = false;
 
@@ -114,15 +114,15 @@ struct  JoystickResults
 
 float   GetThrottle(ImodelIGC*  pmodel)
 {
-    assert (pmodel);
+    assert(pmodel);
     if (trekClient.GetShip()->GetParentShip() == NULL)
     {
-        float speed      = pmodel->GetVelocity().Length();
+        float speed = pmodel->GetVelocity().Length();
         float myMaxSpeed = trekClient.GetShip()->GetHullType()->GetMaxSpeed();
 
         return (speed >= myMaxSpeed)
-               ? 1.0f
-               : ((2.0f * speed / myMaxSpeed) - 1.0f);
+            ? 1.0f
+            : ((2.0f * speed / myMaxSpeed) - 1.0f);
     }
     else
         return 0.0f;
@@ -135,81 +135,83 @@ float   GetThrottle(ImodelIGC*  pmodel)
 //////////////////////////////////////////////////////////////////////////////
 //Imago 7/20/09
 TRef<IMessageBox> pmsgBoxPack;
-void DummyPackCreateCallback( int iCurrentFileIndex, int iMaxFileIndex )
+void DummyPackCreateCallback(int iCurrentFileIndex, int iMaxFileIndex)
 {
-	if (iCurrentFileIndex == -1 && iMaxFileIndex == -1) {
-		GetWindow()->GetPopupContainer()->ClosePopup(pmsgBoxPack);
-		GetWindow()->RestoreCursor();
-	}
+    if (iCurrentFileIndex == -1 && iMaxFileIndex == -1) {
+        GetWindow()->GetPopupContainer()->ClosePopup(pmsgBoxPack);
+        GetWindow()->RestoreCursor();
+    }
 }
 
-DWORD WINAPI DummyPackCreateThreadProc( LPVOID param )
+DWORD WINAPI DummyPackCreateThreadProc(LPVOID param)
 {
-	ZString strArtwork = ZString(UTL::artworkPath()); //duh
-	CDX9PackFile textures(strArtwork , "CommonTextures" );
-	textures.Create( DummyPackCreateCallback );
-	return 0;
+    ZString strArtwork = ZString(UTL::artworkPath()); //duh
+    CDX9PackFile textures(strArtwork, "CommonTextures");
+    textures.Create(DummyPackCreateCallback);
+    return 0;
 }
 
 //Imago 7/29/09
-DWORD WINAPI DDVidCreateThreadProc( LPVOID param ) {
-	
-	//windowed 7/10 #112
-	PlayVideoInfo * pData = (PlayVideoInfo*)param;
-	DDVideo *DDVid = new DDVideo();
-	bool bOk = true;
-	bool bHide = false;
-	HWND hwndFound = NULL;
-	if (pData->bWindowed) {
-		hwndFound=FindWindow(NULL, TrekWindow::GetWindowTitle()); // BT - 9/17 - Updated to dynamic value.
-	} else {
-		//this window will have our "intro" in it...
-		hwndFound = ::CreateWindow("MS_ZLib_Window", "Intro", WS_VISIBLE|WS_POPUP, 0, 0,
-			GetSystemMetrics(SM_CXFULLSCREEN),GetSystemMetrics(SM_CYFULLSCREEN),NULL, NULL,
-			::GetModuleHandle(NULL), NULL);
-		bHide = true;
-	}
-	
-	DDVid->m_hWnd = hwndFound;	
+DWORD WINAPI DDVidCreateThreadProc(LPVOID param) {
 
-	if( SUCCEEDED( DDVid->Play(pData->pathStr,pData->bWindowed))) //(WMV2 is good as most machines read it)
+    //windowed 7/10 #112
+    PlayVideoInfo * pData = (PlayVideoInfo*)param;
+    DDVideo *DDVid = new DDVideo();
+    bool bOk = true;
+    bool bHide = false;
+    HWND hwndFound = NULL;
+    if (pData->bWindowed) {
+        hwndFound = FindWindow(NULL, TrekWindow::GetWindowTitle()); // BT - 9/17 - Updated to dynamic value.
+    }
+    else {
+        //this window will have our "intro" in it...
+        hwndFound = ::CreateWindow("MS_ZLib_Window", "Intro", WS_VISIBLE | WS_POPUP, 0, 0,
+            GetSystemMetrics(SM_CXFULLSCREEN), GetSystemMetrics(SM_CYFULLSCREEN), NULL, NULL,
+            ::GetModuleHandle(NULL), NULL);
+        bHide = true;
+    }
+
+    DDVid->m_hWnd = hwndFound;
+
+    if (SUCCEEDED(DDVid->Play(pData->pathStr, pData->bWindowed))) //(WMV2 is good as most machines read it)
     {
-		::ShowCursor(FALSE);
-		
-		while (DDVid->m_Running && bOk) //we can now do other stuff while playing
-		{
-			if (!DDVid->m_pVideo->IsPlaying() || GetAsyncKeyState(VK_ESCAPE) ||
-				GetAsyncKeyState(VK_SPACE) || GetAsyncKeyState(VK_RETURN) ||
-				GetAsyncKeyState(VK_LBUTTON) || GetAsyncKeyState(VK_RBUTTON))
-			{
-				DDVid->m_Running = FALSE;
-				DDVid->m_pVideo->Stop();
-			}
-			else {
-				DDVid->m_pVideo->Draw(DDVid->m_lpDDSBack);
-				if (pData->bWindowed) {
-					bOk = DDVid->Flip(); //windowed #112 Imagooooo
-				}
-				else {
-					DDVid->m_lpDDSPrimary->Flip(0, DDFLIP_WAIT);
-				}
-			}
-		}
+        ::ShowCursor(FALSE);
+
+        while (DDVid->m_Running && bOk) //we can now do other stuff while playing
+        {
+            if (!DDVid->m_pVideo->IsPlaying() || GetAsyncKeyState(VK_ESCAPE) ||
+                GetAsyncKeyState(VK_SPACE) || GetAsyncKeyState(VK_RETURN) ||
+                GetAsyncKeyState(VK_LBUTTON) || GetAsyncKeyState(VK_RBUTTON))
+            {
+                DDVid->m_Running = FALSE;
+                DDVid->m_pVideo->Stop();
+            }
+            else {
+                DDVid->m_pVideo->Draw(DDVid->m_lpDDSBack);
+                if (pData->bWindowed) {
+                    bOk = DDVid->Flip(); //windowed #112 Imagooooo
+                }
+                else {
+                    DDVid->m_lpDDSPrimary->Flip(0, DDFLIP_WAIT);
+                }
+            }
+        }
 
 
-		::ShowCursor(TRUE);
-		DDVid->DestroyDDVid();
-	} else {
-		DDVid->DestroyDirectDraw();
-	}
+        ::ShowCursor(TRUE);
+        DDVid->DestroyDDVid();
+    }
+    else {
+        DDVid->DestroyDirectDraw();
+    }
 
-	delete pData;
+    delete pData;
 
-	if (bHide)
-		::DestroyWindow(hwndFound);
+    if (bHide)
+        ::DestroyWindow(hwndFound);
 
 
-	return 0;
+    return 0;
 }
 //
 
@@ -276,15 +278,15 @@ ImodelIGC*  GetCurrentTarget(void)
 
 int   GetSimilarTargetMask(ImodelIGC* pmodel)
 {
-    assert (pmodel);
+    assert(pmodel);
 
     ObjectType  type = pmodel->GetObjectType();
 
     int tt = GetTypebits(type);
     if ((type == OT_ship) || (type == OT_station) || (type == OT_probe))
-		tt |= ((trekClient.GetShip()->GetSide() == pmodel->GetSide()) || IsideIGC::AlliedSides(trekClient.GetShip()->GetSide(), pmodel->GetSide())) // #ALLY -was: == imago fixed 7/8/09
-              ? c_ttFriendly
-              : c_ttEnemy;
+        tt |= ((trekClient.GetShip()->GetSide() == pmodel->GetSide()) || IsideIGC::AlliedSides(trekClient.GetShip()->GetSide(), pmodel->GetSide())) // #ALLY -was: == imago fixed 7/8/09
+        ? c_ttFriendly
+        : c_ttEnemy;
     else
         tt |= c_ttAllSides;
 
@@ -294,358 +296,358 @@ int   GetSimilarTargetMask(ImodelIGC* pmodel)
 //This class wraps all the functionality for controlling a camera'a position, orientation, field of view & orientation
 class   CameraControl
 {
-    public:
-        CameraControl(void)
+public:
+    CameraControl(void)
         :
-            m_dtAnimate(0.0f),
-            m_jiggle(0.0f),
-            m_fov(s_fDefaultFOV),
-            m_oldHeadYaw(0.0f)
+        m_dtAnimate(0.0f),
+        m_jiggle(0.0f),
+        m_fov(s_fDefaultFOV),
+        m_oldHeadYaw(0.0f)
+    {
+        m_orientationHead.Reset();
+    }
+
+    ~CameraControl(void)
+    {
+    }
+
+    void    SetHeadOrientation(float    yaw)
+    {
+        if (yaw != m_oldHeadYaw)
         {
+            m_oldHeadYaw = yaw;
             m_orientationHead.Reset();
+            m_orientationHead.Yaw(-yaw);
         }
+    }
 
-        ~CameraControl(void)
-        {
-        }
+    const Orientation&  GetHeadOrientation(void) const
+    {
+        return m_orientationHead;
+    }
 
-        void    SetHeadOrientation(float    yaw)
+    void SetCameras(Camera* pcamera, Camera* pcameraPosters/*, Camera* pcameraTurret*/)
+    {
+        m_pcamera = pcamera;
+        m_pcameraPosters = pcameraPosters;
+        //m_pcameraTurret          = pcameraTurret;
+
+        SetZClip(5.0f, 10000.0f);
+
+        m_pcameraPosters->SetZClip(10, 10000);
+        //m_pcameraTurret->SetZClip(0.5, 10000);
+
+        m_pcameraTarget->SetZClip(1, 20);
+        m_pcamera->SetFOV(s_fDefaultFOV);
+        m_pcameraTarget->SetPosition(Vector(0, 0, 8.0f));
+    }
+
+    void    SetZClip(float  zMin, float zMax)
+    {
+        m_pcamera->SetZClip(zMin, zMax);
+    }
+
+    bool    Apply(float dt, bool bJiggle, bool bTarget)
+    {
+        bool    animatingF = false;
+        if (m_dtAnimate > 0.0f)
         {
-            if (yaw != m_oldHeadYaw)
+            float   tNext = m_tnowAnimate + dt;
+            if (tNext >= m_dtAnimate)
             {
-                m_oldHeadYaw = yaw;
-                m_orientationHead.Reset();
-                m_orientationHead.Yaw(-yaw);
-            }
-        }
-
-        const Orientation&  GetHeadOrientation(void) const
-        {
-            return m_orientationHead;
-        }
-
-        void SetCameras(Camera* pcamera, Camera* pcameraPosters/*, Camera* pcameraTurret*/)
-        {
-            m_pcamera                = pcamera;
-            m_pcameraPosters         = pcameraPosters;
-            //m_pcameraTurret          = pcameraTurret;
-
-            SetZClip(5.0f, 10000.0f);
-
-            m_pcameraPosters->SetZClip(10, 10000);
-            //m_pcameraTurret->SetZClip(0.5, 10000);
-
-            m_pcameraTarget->SetZClip(1, 20);
-            m_pcamera->SetFOV(s_fDefaultFOV);
-            m_pcameraTarget->SetPosition(Vector(0, 0, 8.0f));
-        }
-
-        void    SetZClip(float  zMin, float zMax)
-        {
-            m_pcamera->SetZClip(zMin, zMax);
-        }
-
-        bool    Apply(float dt, bool bJiggle, bool bTarget)
-        {
-            bool    animatingF = false;
-            if (m_dtAnimate > 0.0f)
-            {
-                float   tNext = m_tnowAnimate + dt;
-                if (tNext >= m_dtAnimate)
-                {
-                    //but the animation has finished
-                    if (m_bAnimatePosition)
-                        m_position = m_position2;
-                    m_orientation = m_quaternion2;
-                    m_fov = m_fov2;
-
-                    m_dtAnimate = 0.0f;
-                }
-                else
-                {
-                    float   interpolate = 0.5f - 0.5f * cos(pi * (tNext / m_dtAnimate));
-
-                    if (m_bAnimatePosition)
-                        m_position = (m_position1 * (1.0f - interpolate)) +
-                                     (m_position2 * interpolate);
-                    m_orientation = Slerp(m_quaternion1, m_quaternion2, interpolate);
-                    m_fov = (m_fov1 * (1.0f - interpolate)) +
-                            (m_fov2 * interpolate);
-
-                    m_tnowAnimate = tNext;
-
-                    animatingF = true;
-                }
-            }
-
-            m_pcamera->SetPosition(m_position);
-
-            //
-            // Jiggle the camera orientation based on the amount of afterburner and any residual effects
-            //
-            const double jiggleHalfLife = 0.25f;
-            m_jiggle *= (float)pow(jiggleHalfLife, (double)dt);
-
-            float               fov = m_fov;
-            Orientation         orientation;
-            const Orientation*  porientation = &m_orientation;
-            if (bJiggle)
-            {
-                IafterburnerIGC*    afterburner = (IafterburnerIGC*)(trekClient.GetShip()->GetSourceShip()->GetMountedPart(ET_Afterburner, 0));
-                if (afterburner || m_jiggle > 1.0)
-                {
-                    float power = m_jiggle + (afterburner ? afterburner->GetPower() : 0);
-                    if (power != 0.0f)
-                    {
-                        float amount = RadiansFromDegrees(0.5) * power;
-
-                        orientation = m_orientation;
-
-                        orientation.Yaw(random(-amount, amount));
-                        orientation.Pitch(random(-amount, amount));
-
-                        porientation = &orientation;
-                    }
-                }
-
-                //Hack alert ... find the closest aleph and use it to provide an override for the fov
-                IshipIGC*   pshipSource = trekClient.GetShip()->GetSourceShip();
-
-                ImodelIGC*  pmodelAleph = FindTarget(pshipSource, c_ttWarp | c_ttNearest | c_ttAllSides);
-                if (pmodelAleph)
-                {
-                    float   range = (pmodelAleph->GetPosition() - pshipSource->GetPosition()).Length() -
-                                    trekClient.GetShip()->GetRadius();
-
-                    float   radius = pmodelAleph->GetRadius();
-
-                    if (range < radius)
-                    {
-                        fov = (range / radius) * s_fDefaultFOV;
-                        if (fov < 0.1f)
-                            fov = 0.1f;
-                        else if (fov > m_fov)
-                            fov = m_fov;
-                    }
-                }
-            }
-
-            Orientation viewOrientation = m_orientationHead * *porientation;
-
-            m_pcamera->SetOrientation(viewOrientation);
-            m_pcameraPosters->SetOrientation(viewOrientation);
-
-
-            if (bTarget)
-            {
-                ImodelIGC* pmodelTarget = GetCurrentTarget();
-
-                if (pmodelTarget != NULL)
-                {
-                    Orientation orientTarget = *porientation;
-
-                    Vector  dp = pmodelTarget->GetPosition() - m_position;
-
-                    static const Vector c_dpDefault(0.0f, 1.0f, 5.0f);
-                    orientTarget.TurnTo(dp.LengthSquared() < 1.0f ? c_dpDefault : dp);
-                    orientTarget.Invert();
-
-                    m_porientTransformTarget->SetValue(Matrix(orientTarget, Vector(0, 0, 0), 1));
-                    m_pwrapGeoTarget->SetGeo(m_pgeoTarget);
-                }
-                else
-                {
-                    m_pwrapGeoTarget->SetGeo(Geo::GetEmpty());
-                }
-            }
-
-            m_pcamera->SetFOV(fov);
-            m_pcameraPosters->SetFOV(fov);
-            //m_pcameraTurret->SetFOV(m_fov);
-
-            m_pcamera->Update();
-            m_pcameraPosters->Update();
-            //m_pcameraTurret->Update();
-
-            return animatingF;
-        }
-
-        void    SetAnimation(float t)
-        {
-            if (t > 0.0f)
-            {
-                //Start a new animation
-                m_position1 = m_position;
-                m_quaternion1 = m_orientation;
-                m_fov1 = m_fov;
-
-                if (m_dtAnimate == 0.0f)
-                {
-                    //We were not animating ... so set default destinations for the things that animate
-                    m_position2 = m_position1;
-                    m_quaternion2 = m_quaternion1;
-                    m_fov2 = m_fov1;
-                }
-
-                m_tnowAnimate = 0.0f;
-                m_dtAnimate = t;
-
-                m_bAnimatePosition = true;  //by default
-            }
-            else if ((t == 0.0f) && (m_dtAnimate != 0.0f))
-            {
-                //Turn animations off
-                m_dtAnimate = 0.0f;
-
-                m_position = m_position2;
-                m_quaternion = m_quaternion2;
+                //but the animation has finished
+                if (m_bAnimatePosition)
+                    m_position = m_position2;
+                m_orientation = m_quaternion2;
                 m_fov = m_fov2;
-            }
-        }
 
-        float   GetAnimation(void) const
-        {
-            return m_dtAnimate;
-        }
-
-        void    SetJiggle(float jiggle)
-        {
-            ZAssert(jiggle >= 0.0f);
-            m_jiggle = jiggle;
-        }
-
-        void    SetToModel(ImodelIGC* pmodel)
-        {
-            assert (pmodel);
-            SetPosition(pmodel->GetPosition());
-            SetOrientation(pmodel->GetOrientation());
-        }
-
-        void    SetFOV(float   fov)
-        {
-            if (m_dtAnimate <= 0.0f)
-            {
-                //Snap to a position instantly
-                m_fov = fov;
+                m_dtAnimate = 0.0f;
             }
             else
             {
-                //Modify the endpoint of an existing animation
-                m_fov2 = fov;
+                float   interpolate = 0.5f - 0.5f * cos(pi * (tNext / m_dtAnimate));
+
+                if (m_bAnimatePosition)
+                    m_position = (m_position1 * (1.0f - interpolate)) +
+                    (m_position2 * interpolate);
+                m_orientation = Slerp(m_quaternion1, m_quaternion2, interpolate);
+                m_fov = (m_fov1 * (1.0f - interpolate)) +
+                    (m_fov2 * interpolate);
+
+                m_tnowAnimate = tNext;
+
+                animatingF = true;
             }
         }
 
-        void    SetPosition(const Vector&   position)
+        m_pcamera->SetPosition(m_position);
+
+        //
+        // Jiggle the camera orientation based on the amount of afterburner and any residual effects
+        //
+        const double jiggleHalfLife = 0.25f;
+        m_jiggle *= (float)pow(jiggleHalfLife, (double)dt);
+
+        float               fov = m_fov;
+        Orientation         orientation;
+        const Orientation*  porientation = &m_orientation;
+        if (bJiggle)
         {
-            if ((m_dtAnimate <= 0.0f) || !m_bAnimatePosition)
+            IafterburnerIGC*    afterburner = (IafterburnerIGC*)(trekClient.GetShip()->GetSourceShip()->GetMountedPart(ET_Afterburner, 0));
+            if (afterburner || m_jiggle > 1.0)
             {
-                //Snap to a position instantly
-                m_position = position;
+                float power = m_jiggle + (afterburner ? afterburner->GetPower() : 0);
+                if (power != 0.0f)
+                {
+                    float amount = RadiansFromDegrees(0.5) * power;
+
+                    orientation = m_orientation;
+
+                    orientation.Yaw(random(-amount, amount));
+                    orientation.Pitch(random(-amount, amount));
+
+                    porientation = &orientation;
+                }
+            }
+
+            //Hack alert ... find the closest aleph and use it to provide an override for the fov
+            IshipIGC*   pshipSource = trekClient.GetShip()->GetSourceShip();
+
+            ImodelIGC*  pmodelAleph = FindTarget(pshipSource, c_ttWarp | c_ttNearest | c_ttAllSides);
+            if (pmodelAleph)
+            {
+                float   range = (pmodelAleph->GetPosition() - pshipSource->GetPosition()).Length() -
+                    trekClient.GetShip()->GetRadius();
+
+                float   radius = pmodelAleph->GetRadius();
+
+                if (range < radius)
+                {
+                    fov = (range / radius) * s_fDefaultFOV;
+                    if (fov < 0.1f)
+                        fov = 0.1f;
+                    else if (fov > m_fov)
+                        fov = m_fov;
+                }
+            }
+        }
+
+        Orientation viewOrientation = m_orientationHead * *porientation;
+
+        m_pcamera->SetOrientation(viewOrientation);
+        m_pcameraPosters->SetOrientation(viewOrientation);
+
+
+        if (bTarget)
+        {
+            ImodelIGC* pmodelTarget = GetCurrentTarget();
+
+            if (pmodelTarget != NULL)
+            {
+                Orientation orientTarget = *porientation;
+
+                Vector  dp = pmodelTarget->GetPosition() - m_position;
+
+                static const Vector c_dpDefault(0.0f, 1.0f, 5.0f);
+                orientTarget.TurnTo(dp.LengthSquared() < 1.0f ? c_dpDefault : dp);
+                orientTarget.Invert();
+
+                m_porientTransformTarget->SetValue(Matrix(orientTarget, Vector(0, 0, 0), 1));
+                m_pwrapGeoTarget->SetGeo(m_pgeoTarget);
             }
             else
             {
-                //Modify the endpoint of an existing animation
-                m_position2 = position;
+                m_pwrapGeoTarget->SetGeo(Geo::GetEmpty());
             }
         }
 
-        void    SetOrientation(const Orientation&   orientation)
+        m_pcamera->SetFOV(fov);
+        m_pcameraPosters->SetFOV(fov);
+        //m_pcameraTurret->SetFOV(m_fov);
+
+        m_pcamera->Update();
+        m_pcameraPosters->Update();
+        //m_pcameraTurret->Update();
+
+        return animatingF;
+    }
+
+    void    SetAnimation(float t)
+    {
+        if (t > 0.0f)
         {
-            if (m_dtAnimate <= 0.0f)
-            {
-                m_orientation = orientation;
-            }
-            else
-            {
-                m_quaternion2 = orientation;
-            }
-        }
+            //Start a new animation
+            m_position1 = m_position;
+            m_quaternion1 = m_orientation;
+            m_fov1 = m_fov;
 
-        float               GetFOV(void) const
+            if (m_dtAnimate == 0.0f)
+            {
+                //We were not animating ... so set default destinations for the things that animate
+                m_position2 = m_position1;
+                m_quaternion2 = m_quaternion1;
+                m_fov2 = m_fov1;
+            }
+
+            m_tnowAnimate = 0.0f;
+            m_dtAnimate = t;
+
+            m_bAnimatePosition = true;  //by default
+        }
+        else if ((t == 0.0f) && (m_dtAnimate != 0.0f))
         {
-            return m_fov;
-        }
+            //Turn animations off
+            m_dtAnimate = 0.0f;
 
-        const Vector&       GetPosition(void) const
+            m_position = m_position2;
+            m_quaternion = m_quaternion2;
+            m_fov = m_fov2;
+        }
+    }
+
+    float   GetAnimation(void) const
+    {
+        return m_dtAnimate;
+    }
+
+    void    SetJiggle(float jiggle)
+    {
+        ZAssert(jiggle >= 0.0f);
+        m_jiggle = jiggle;
+    }
+
+    void    SetToModel(ImodelIGC* pmodel)
+    {
+        assert(pmodel);
+        SetPosition(pmodel->GetPosition());
+        SetOrientation(pmodel->GetOrientation());
+    }
+
+    void    SetFOV(float   fov)
+    {
+        if (m_dtAnimate <= 0.0f)
+        {
+            //Snap to a position instantly
+            m_fov = fov;
+        }
+        else
+        {
+            //Modify the endpoint of an existing animation
+            m_fov2 = fov;
+        }
+    }
+
+    void    SetPosition(const Vector&   position)
+    {
+        if ((m_dtAnimate <= 0.0f) || !m_bAnimatePosition)
+        {
+            //Snap to a position instantly
+            m_position = position;
+        }
+        else
+        {
+            //Modify the endpoint of an existing animation
+            m_position2 = position;
+        }
+    }
+
+    void    SetOrientation(const Orientation&   orientation)
+    {
+        if (m_dtAnimate <= 0.0f)
+        {
+            m_orientation = orientation;
+        }
+        else
+        {
+            m_quaternion2 = orientation;
+        }
+    }
+
+    float               GetFOV(void) const
+    {
+        return m_fov;
+    }
+
+    const Vector&       GetPosition(void) const
+    {
+        return m_position;
+    }
+
+    const Orientation&  GetOrientation(void) const
+    {
+        return m_orientation;
+    }
+
+    const Vector&       GetCameraPosition(void) const
+    {
+        if (m_pcamera)
+        {
+            return m_pcamera->GetPosition();
+        }
+        else
         {
             return m_position;
         }
+    }
 
-        const Orientation&  GetOrientation(void) const
+    const Orientation&  GetCameraOrientation(void) const
+    {
+        if (m_pcamera)
+        {
+            return m_pcamera->GetOrientation();
+        }
+        else
         {
             return m_orientation;
         }
+    }
 
-        const Vector&       GetCameraPosition(void) const
-        {
-            if (m_pcamera)
-            {
-                return m_pcamera->GetPosition();
-            }
-            else
-            {
-                return m_position;
-            }
-        }
+    void                SetAnimatePosition(bool bAnimatePosition)
+    {
+        m_bAnimatePosition = bAnimatePosition;
+    }
 
-        const Orientation&  GetCameraOrientation(void) const
-        {
-            if (m_pcamera)
-            {
-                return m_pcamera->GetOrientation();
-            }
-            else
-            {
-                return m_orientation;
-            }
-        }
+private:
+    TRef<Camera>          m_pcamera;
+    TRef<Camera>          m_pcameraPosters;
+    //TRef<Camera>          m_pcameraTurret;
 
-        void                SetAnimatePosition(bool bAnimatePosition)
-        {
-            m_bAnimatePosition = bAnimatePosition;
-        }
+    Orientation     m_orientationHead;
 
-    private:
-        TRef<Camera>          m_pcamera;
-        TRef<Camera>          m_pcameraPosters;
-        //TRef<Camera>          m_pcameraTurret;
+    Vector          m_position;
+    Orientation     m_orientation;
+    Quaternion      m_quaternion;
+    float           m_fov;
 
-        Orientation     m_orientationHead;
+    float           m_dtAnimate;
+    float           m_tnowAnimate;
 
-        Vector          m_position;
-        Orientation     m_orientation;
-        Quaternion      m_quaternion;
-        float           m_fov;
+    float           m_jiggle;
 
-        float           m_dtAnimate;
-        float           m_tnowAnimate;
+    Vector          m_position1;
+    Vector          m_position2;
 
-        float           m_jiggle;
+    Quaternion      m_quaternion1;
+    Quaternion      m_quaternion2;
 
-        Vector          m_position1;
-        Vector          m_position2;
+    float           m_fov1;
+    float           m_fov2;
 
-        Quaternion      m_quaternion1;
-        Quaternion      m_quaternion2;
+    float           m_oldHeadYaw;
 
-        float           m_fov1;
-        float           m_fov2;
+    bool            m_bAnimatePosition;
 
-        float           m_oldHeadYaw;
+public:
+    // some members are public
 
-        bool            m_bAnimatePosition;
+    //
+    // Target HUD
+    //
 
-    public:
-        // some members are public
-
-        //
-        // Target HUD
-        //
-
-        TRef<Camera>           m_pcameraTarget;
-        TRef<WrapGeo>          m_pwrapGeoTarget;
-        TRef<Geo>              m_pgeoTarget;
-        TRef<MatrixTransform>  m_porientTransformTarget;
+    TRef<Camera>           m_pcameraTarget;
+    TRef<WrapGeo>          m_pwrapGeoTarget;
+    TRef<Geo>              m_pgeoTarget;
+    TRef<MatrixTransform>  m_porientTransformTarget;
 };
 
 // this class wraps the logic for tracking the listener's head position based
@@ -660,7 +662,7 @@ public:
 
     // constructor
     CameraListener(CameraControl& camera) :
-      m_camera(camera)
+        m_camera(camera)
     {
     }
 
@@ -692,7 +694,7 @@ public:
     {
         // REVIEW: the camera's velocity is not the same as the ships!
         vectVelocity = trekClient.GetShip()->GetCluster() ?
-            trekClient.GetShip()->GetVelocity() : Vector(0,0,0);
+            trekClient.GetShip()->GetVelocity() : Vector(0, 0, 0);
         return S_OK;
     }
 
@@ -728,45 +730,45 @@ public:
 
 TRef<TrekWindow> g_ptrekWindow;
 
-TrekWindow* GetWindow()     { return g_ptrekWindow;               }
-Engine*     GetEngine()     { return g_ptrekWindow->GetEngine();  }
-Modeler*    GetModeler()    { return g_ptrekWindow->GetModeler(); }
+TrekWindow* GetWindow() { return g_ptrekWindow; }
+Engine*     GetEngine() { return g_ptrekWindow->GetEngine(); }
+Modeler*    GetModeler() { return g_ptrekWindow->GetModeler(); }
 
 /*
- * DelayLoadDllExceptionFilter
- *
-   Purpose: Determine whether we need to halt if ICQ dll isn't found
+* DelayLoadDllExceptionFilter
+*
+Purpose: Determine whether we need to halt if ICQ dll isn't found
 
-   Side Effects: Handle exception if it's just ICQ not found, otherwise pass exception along
- */
+Side Effects: Handle exception if it's just ICQ not found, otherwise pass exception along
+*/
 LONG WINAPI DelayLoadDllExceptionFilter(PEXCEPTION_POINTERS pep)
 {
-   // Assume we recognize this exception
+    // Assume we recognize this exception
 
-   LONG lDisposition = EXCEPTION_EXECUTE_HANDLER;
+    LONG lDisposition = EXCEPTION_EXECUTE_HANDLER;
 
-   // If this is a Delay-load problem, ExceptionInformation[0] points
-   // to a DelayLoadInfo structure that has detailed error info
+    // If this is a Delay-load problem, ExceptionInformation[0] points
+    // to a DelayLoadInfo structure that has detailed error info
 
-   PDelayLoadInfo pdli = PDelayLoadInfo(pep->ExceptionRecord->ExceptionInformation[0]);
+    PDelayLoadInfo pdli = PDelayLoadInfo(pep->ExceptionRecord->ExceptionInformation[0]);
 
-   // we're not going to do anything if the dll isn't loaded, just make sure to pass on any error that's not ours.
+    // we're not going to do anything if the dll isn't loaded, just make sure to pass on any error that's not ours.
 
-   switch (pep->ExceptionRecord->ExceptionCode)
-   {
-        case VcppException(ERROR_SEVERITY_ERROR, ERROR_MOD_NOT_FOUND):
-            // The DLL module was not found at runtime
+    switch (pep->ExceptionRecord->ExceptionCode)
+    {
+    case VcppException(ERROR_SEVERITY_ERROR, ERROR_MOD_NOT_FOUND):
+        // The DLL module was not found at runtime
 
-        case VcppException(ERROR_SEVERITY_ERROR, ERROR_PROC_NOT_FOUND):
-            // The DLL module was found but it doesn?t contain the function
-            break;
+    case VcppException(ERROR_SEVERITY_ERROR, ERROR_PROC_NOT_FOUND):
+        // The DLL module was found but it doesn?t contain the function
+        break;
 
-        default:
-            lDisposition = EXCEPTION_CONTINUE_SEARCH;  // We don?t recognize this exception
-            break;
-   }
+    default:
+        lDisposition = EXCEPTION_CONTINUE_SEARCH;  // We don?t recognize this exception
+        break;
+    }
 
-   return lDisposition;
+    return lDisposition;
 }
 
 class TrekWindowImpl :
@@ -804,7 +806,7 @@ public:
 
         bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
         {
-			g_bActivity = true; // - Imago: Key press = activity
+            g_bActivity = true; // - Imago: Key press = activity
             return m_pwindow->OnSuperKeyFilter(pprovider, ks, fForceTranslate);
         }
 
@@ -816,18 +818,18 @@ public:
     bool OnSuperKeyFilter(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
     {
         if (
-               ks.bDown
+            ks.bDown
             && m_pmenuQuickChat
             && ks.vk == VK_TAB
             && m_pconsoleImage != NULL
-        ) {
+            ) {
             //
             // Grab the tab so we can change the chat target
             //
 
-			// Imago NYI-  VK_ESC should close the chat compose window, saving any text
-			//				in the chat entry box to a buffer to later redsiplay in the chat box
-			//				as highlighted text.
+            // Imago NYI-  VK_ESC should close the chat compose window, saving any text
+            //				in the chat entry box to a buffer to later redsiplay in the chat box
+            //				as highlighted text.
 
             m_pconsoleImage->CycleChatTarget();
 
@@ -882,8 +884,8 @@ public:
                 // hook to send this keypress to training missions
                 if (Training::RecordKeyPress (tk))
                 {
-                    OnTrekKey(tk);
-                    return true;
+                OnTrekKey(tk);
+                return true;
                 }
                 */
             }
@@ -942,7 +944,7 @@ public:
     TRef<QuickChatMenu>       m_pqcmenuMain;
     TRef<MDLType>             m_pmdlTypeMenu;
     ChatTarget                m_ctLobbyChat;
-	ObjectID	              m_ctLobbyChatRecip;
+    ObjectID	              m_ctLobbyChatRecip;
     bool                      m_bQuitComposing;
 
     void OnQuickChatMenuClose(IMenu* pmenu)
@@ -961,7 +963,7 @@ public:
         // Find the QuickChatMenuItem
         //
 
-        TRef<IObjectList> plist  = pqcmenu->GetItems();
+        TRef<IObjectList> plist = pqcmenu->GetItems();
         QuickChatMenuItem* pitem = (QuickChatMenuItem*)plist->GetNth(pmenuItem->GetID());
 
         //
@@ -976,14 +978,15 @@ public:
             //
 
             return CreateQuickChatMenu((QuickChatMenu*)pnode);
-        } else {
+        }
+        else {
             //
             // It's a command
             //
 
             QuickChatCommand* pqcc = (QuickChatCommand*)pnode;
 
-            Training::CommandAcknowledgedCondition::SetCommandAcknowledged (static_cast<char> (pqcc->GetCommandID ()));
+            Training::CommandAcknowledgedCondition::SetCommandAcknowledged(static_cast<char> (pqcc->GetCommandID()));
 
             if (m_pconsoleImage)
             {
@@ -1048,7 +1051,8 @@ public:
                     (char)pitem->GetChar(),
                     pmenuCommandSinkQuickChat
                 );
-            } else {
+            }
+            else {
                 pmenu->AddMenuItem(index, pitem->GetString(), (char)pitem->GetChar());
             }
 
@@ -1082,7 +1086,7 @@ public:
         TRef<IObjectList> plist; CastTo(plist, pnsQuickChat->FindMember("sonicChats"));
         TLookup<SonicChat, DoSetIndex<SonicChat> >::Parse(plist, 0, m_vsonicChats);
 
-        m_pqcmenuMain  = (QuickChatMenu*)pnsQuickChat->FindMember("mainMenu");
+        m_pqcmenuMain = (QuickChatMenu*)pnsQuickChat->FindMember("mainMenu");
         m_pmdlTypeMenu = pnsQuickChat->FindType("QuickChatMenu");
     }
 
@@ -1096,13 +1100,13 @@ public:
     {
         if ((id >= 0) && (id < m_vsonicChats.GetCount()))
         {
-            SonicChat*           psonicChat  = m_vsonicChats[id];
+            SonicChat*           psonicChat = m_vsonicChats[id];
             if (psonicChat)
             {
                 TRef<IObjectList>    plistVoices = psonicChat->GetVoices();
                 if (plistVoices)
                 {
-                    TRef<SonicChatVoice> pvoice      = (SonicChatVoice*)(plistVoices->GetNth(voice));
+                    TRef<SonicChatVoice> pvoice = (SonicChatVoice*)(plistVoices->GetNth(voice));
 
                     if (pvoice)
                         StartSound((ISoundTemplate*)(IObject*)pvoice->GetSound());
@@ -1117,13 +1121,13 @@ public:
     {
         if ((id >= 0) && (id < m_vsonicChats.GetCount()))
         {
-            SonicChat*           psonicChat  = m_vsonicChats[id];
+            SonicChat*           psonicChat = m_vsonicChats[id];
             if (psonicChat)
             {
                 TRef<IObjectList>    plistVoices = psonicChat->GetVoices();
                 if (plistVoices)
                 {
-                    TRef<SonicChatVoice> pvoice      = (SonicChatVoice*)(plistVoices->GetNth(voice));
+                    TRef<SonicChatVoice> pvoice = (SonicChatVoice*)(plistVoices->GetNth(voice));
                     if (pvoice)
                         return pvoice->GetString();
                 }
@@ -1144,17 +1148,17 @@ public:
     Time                m_timeLastFrame;
     Time                m_timeLastDamage;
     float               m_fDeltaTime;
-	// -Imago: Last activity timer
-	Time				m_timeLastActivity;
-	
+    // -Imago: Last activity timer
+    Time				m_timeLastActivity;
+
     //Imago 7/10
     bool					m_bFFAutoCenter;
-	TRef<ModifiableNumber>  m_pnumFFGain;
-	//8/10
-	int						m_iMouseAccel;
-	int						m_iWheelDelay; //Spunky #282
-	TRef<ModifiableNumber>  m_pnumMouseSens;
-	//
+    TRef<ModifiableNumber>  m_pnumFFGain;
+    //8/10
+    int						m_iMouseAccel;
+    int						m_iWheelDelay; //Spunky #282
+    TRef<ModifiableNumber>  m_pnumMouseSens;
+    //
 
     //
     // Rendering Toggles
@@ -1176,10 +1180,10 @@ public:
     TRef<ModifiableNumber>  m_pnumberTeamPaneCollapsed;
     TRef<WrapNumber>        m_pwrapNumberStyleHUD;
 
-	// #294 - Turkey
-	TRef<ModifiableNumber>		m_pnumberChatLinesDesired;
-	TRef<ModifiableNumber>		m_pnumberChatLines;
-	TRef<WrapNumber>			m_pwrapNumberChatLines;
+    // #294 - Turkey
+    TRef<ModifiableNumber>		m_pnumberChatLinesDesired;
+    TRef<ModifiableNumber>		m_pnumberChatLines;
+    TRef<WrapNumber>			m_pwrapNumberChatLines;
 
     //
     // exports
@@ -1201,7 +1205,7 @@ public:
     TRef<Image>          m_pimageScreen;
     TRef<Screen>         m_pscreen;
     ScreenID             m_screen;
-	TRef<MatrixTransform2> m_pMatrixTransformScreen;
+    TRef<MatrixTransform2> m_pMatrixTransformScreen;
 
     //
     // Lighting
@@ -1297,15 +1301,15 @@ public:
     ViewMode            m_viewmode;
     OverlayMask         m_voverlaymask[c_cViewModes];
     bool                m_bOverlaysChanged;
-	bool				m_bShowSectorMapPane;
-	bool				m_bShowInventoryPane;
+    bool				m_bShowSectorMapPane;
+    bool				m_bShowInventoryPane;
 
 
     //
     // chase view stuff
     //
 
-    #define ARRAY_OF_SAMPLES_SIZE  4092 // BT - 8/17 - Was 128. Fixing sample under-run issues. Dx9 takes way more samples than Dx7 did, especially when zoomed out. 
+#define ARRAY_OF_SAMPLES_SIZE  4092 // BT - 8/17 - Was 128. Fixing sample under-run issues. Dx9 takes way more samples than Dx7 did, especially when zoomed out. 
     struct  TurnRateSample
     {
         float   fTurnRate[3];
@@ -1339,7 +1343,7 @@ public:
     TRef<IMenuItem>            m_pitemToggleDebris;
     TRef<IMenuItem>            m_pitemToggleStars;
     TRef<IMenuItem>            m_pitemToggleEnvironment;
-	TRef<IMenuItem>			   m_pitemToggleHighResTextures; // BT - 10/17 - HighRes Textures
+    TRef<IMenuItem>			   m_pitemToggleHighResTextures; // BT - 10/17 - HighRes Textures
     TRef<IMenuItem>            m_pitemToggleRoundRadar;
     TRef<IMenuItem>            m_pitemToggleLinearControls;
     TRef<IMenuItem>            m_pitemToggleLargeDeadZone;
@@ -1347,15 +1351,15 @@ public:
     TRef<IMenuItem>            m_pitemToggleFlipY;
     //Imago 7/10
     TRef<IMenuItem>            m_pitemToggleEnableFeedback; //moved around & fixed up 7/10 #187
-	TRef<IMenuItem>            m_pitemToggleFFAutoCenter; 
-	TRef<IMenuItem>            m_pitemToggleFFGainUp; 
-	TRef<IMenuItem>            m_pitemToggleFFGainDown;
-	// 8/10 #215
-	TRef<IMenuItem>            m_pitemToggleMouseSensUp;
-	TRef<IMenuItem>            m_pitemToggleMouseSensDown;
-	TRef<IMenuItem>            m_pitemToggleMouseAccel;
-	TRef<IMenuItem>            m_pitemToggleWheelDelay; //Spunky #282
-	 //
+    TRef<IMenuItem>            m_pitemToggleFFAutoCenter;
+    TRef<IMenuItem>            m_pitemToggleFFGainUp;
+    TRef<IMenuItem>            m_pitemToggleFFGainDown;
+    // 8/10 #215
+    TRef<IMenuItem>            m_pitemToggleMouseSensUp;
+    TRef<IMenuItem>            m_pitemToggleMouseSensDown;
+    TRef<IMenuItem>            m_pitemToggleMouseAccel;
+    TRef<IMenuItem>            m_pitemToggleWheelDelay; //Spunky #282
+                                                        //
     TRef<IMenuItem>            m_pitemToggleStrobes;
     TRef<IMenuItem>            m_pitemToggleTrails;
     TRef<IMenuItem>            m_pitemToggleBounds;
@@ -1372,8 +1376,8 @@ public:
     TRef<IMenuItem>            m_pitemFilterChatsToAll;
     TRef<IMenuItem>            m_pitemFilterQuickComms;
     TRef<IMenuItem>            m_pitemFilterLobbyChats;
-	TRef<IMenuItem>			   m_pitemIncreaseChatLines;	// #294 - Turkey
-	TRef<IMenuItem>			   m_pitemReduceChatLines;		// #294 - Turkey
+    TRef<IMenuItem>			   m_pitemIncreaseChatLines;	// #294 - Turkey
+    TRef<IMenuItem>			   m_pitemReduceChatLines;		// #294 - Turkey
     TRef<IMenuItem>            m_pitemSoundQuality;
     TRef<IMenuItem>            m_pitemToggleSoundHardware;
     TRef<IMenuItem>            m_pitemToggleDSound8Usage;
@@ -1385,15 +1389,15 @@ public:
     TRef<IMenuItem>            m_pitemVoiceOverVolumeUp;
     TRef<IMenuItem>            m_pitemVoiceOverVolumeDown;
     TRef<IMenuItem>            m_pitemMaxTextureSize;		// yp Your_Persona August 2 2006 : MaxTextureSize Patch
-    /* pkk May 6th: Disabled bandwidth patch
-    TRef<IMenuItem>            m_pitemToggleBandwidth; // w0dk4 June 2007: Bandwith Patch*/
+                                                            /* pkk May 6th: Disabled bandwidth patch
+                                                            TRef<IMenuItem>            m_pitemToggleBandwidth; // w0dk4 June 2007: Bandwith Patch*/
     TRef<IMenuItem>            m_pitemMuteFilter;			//TheBored 30-JUL-07: Filter Unknown Chat patch
     TRef<IMenuItem>            m_pitemFilterUnknownChats;	//TheBored 30-JUL-07: Filter Unknown Chat patch
-	//imago added -- 6/29/09
-	TRef<IMenuItem>            m_pitemMip;
-	TRef<IMenuItem>            m_pitemPack;
-	TRef<IMenuItem>            m_pitemAA;
-	TRef<IMenuItem>            m_pitemVsync;
+                                                            //imago added -- 6/29/09
+    TRef<IMenuItem>            m_pitemMip;
+    TRef<IMenuItem>            m_pitemPack;
+    TRef<IMenuItem>            m_pitemAA;
+    TRef<IMenuItem>            m_pitemVsync;
 
     bool                       m_bLensFlare;
     bool                       m_bMusic;
@@ -1414,10 +1418,10 @@ public:
     int             m_nLastCountdown;
     TRef<IMessageBox> m_pmessageBoxLockdown;
 
-	//
-	//	ContextMenu data
-	//
-	PlayerInfo * contextPlayerInfo;
+    //
+    //	ContextMenu data
+    //
+    PlayerInfo * contextPlayerInfo;
 
     //
     // Music
@@ -1434,7 +1438,7 @@ public:
     TVector<TRef<ISoundTemplate> >  m_vSoundMap;
     ISoundEngine::Quality           m_soundquality;
     bool                            m_bEnableSoundHardware;
-	bool                            m_bUseDSound8;
+    bool                            m_bUseDSound8;
     TRef<IDiskPlayer>               m_pDiskPlayer;
     TRef<ISoundMutex>               m_psoundmutexSal;
     TRef<ISoundMutex>               m_psoundmutexVO;
@@ -1446,8 +1450,8 @@ public:
     DWORD m_cVTVersion;
     HWND  m_hwndVTEdit;
 
-	// BT - 10/17 - HighRes Textures
-	bool m_bUseHighResTextures;
+    // BT - 10/17 - HighRes Textures
+    bool m_bUseHighResTextures;
 
     //
     // Input
@@ -1479,7 +1483,8 @@ public:
 
         if (m_mapAnimatedImages.Find(str, pimage)) {
             return new AnimatedImage(ptime, pimage);
-        } else {
+        }
+        else {
             TRef<Surface> psurface = GetModeler()->LoadSurface(str, true);
 
             if (psurface == NULL) {
@@ -1578,12 +1583,14 @@ public:
 
             if (pmp->GetConquestPercentage() == 100) {
                 m_pstringPaneConquest->SetString("1st team to own all of the starbases wins");
-            } else {
+            }
+            else {
                 m_pstringPaneConquest->SetString(
                     "1st team to own " + ZString(pmp->GetConquestPercentage()) + "% of the starbases wins"
                 );
             }
-        } else {
+        }
+        else {
             m_pstringGridImageConquest = NULL;
         }
 
@@ -1598,9 +1605,10 @@ public:
 
             m_pstringPaneTerritory->SetString(
                 "1st team to own " + ZString((50 + trekClient.m_pCoreIGC->GetClusters()->n() *
-                                                   pmp->GetTerritoryPercentage()) / 100) + " sectors wins"
+                    pmp->GetTerritoryPercentage()) / 100) + " sectors wins"
             );
-        } else {
+        }
+        else {
             m_pstringGridImageTerritory = NULL;
         }
 
@@ -1616,7 +1624,8 @@ public:
             m_pstringPaneProsperity->SetString(
                 "First team to purchase reinforcements wins"
             );
-        } else {
+        }
+        else {
             m_pstringGridImageProsperity = NULL;
         }
 
@@ -1631,7 +1640,8 @@ public:
             m_pstringPaneArtifacts->SetString(
                 "First team to own " + ZString(pmp->nGoalArtifactsCount) + " artifacts wins"
             );
-        } else {
+        }
+        else {
             m_pstringGridImageArtifacts = NULL;
         }
 
@@ -1646,7 +1656,8 @@ public:
             m_pstringPaneFlags->SetString(
                 "First team to capture " + ZString(pmp->nGoalFlagsCount) + " flags wins"
             );
-        } else {
+        }
+        else {
             m_pstringGridImageFlags = NULL;
         }
 
@@ -1656,42 +1667,42 @@ public:
             TRef<Pane> ppaneGrid = new AnimatedImagePane(m_pstringGridImageDeathMatch);
 
             m_pstringPaneDeathMatch = m_pgsc->AddGameStateTile(pmp->IsDeathMatchGame()
-                                                               ? "wctitledeathmatchbmp"
-                                                               : "wctitledeathsbmp",
-                                                               ppaneGrid);
+                ? "wctitledeathmatchbmp"
+                : "wctitledeathsbmp",
+                ppaneGrid);
             m_pstringPaneDeathMatch->SetFont(TrekResources::SmallFont());
             m_pstringPaneDeathMatch->SetTextColor(Color::White());
 
             m_pstringPaneDeathMatch->SetString(pmp->IsDeathMatchGame()
-                                               ? "1st team to kill " + ZString(pmp->GetDeathMatchKillLimit()) + " ships wins"
-                                               : "");
+                ? "1st team to kill " + ZString(pmp->GetDeathMatchKillLimit()) + " ships wins"
+                : "");
         }
         UpdateGameStateContainer();
     }
 
     void TerminateGameStateContainer()
     {
-        m_pgsc                = NULL;
+        m_pgsc = NULL;
 
         if (m_pgameStateCloseSink) {
             m_pgameStateCloseSink->Terminate();
             m_pgameStateCloseSink = NULL;
         }
 
-        m_pstringPaneConquest   = NULL;
-        m_pstringPaneTerritory  = NULL;
+        m_pstringPaneConquest = NULL;
+        m_pstringPaneTerritory = NULL;
         m_pstringPaneDeathMatch = NULL;
-        m_pstringPaneCountdown  = NULL;
+        m_pstringPaneCountdown = NULL;
         m_pstringPaneProsperity = NULL;
-        m_pstringPaneArtifacts  = NULL;
-        m_pstringPaneFlags  = NULL;
+        m_pstringPaneArtifacts = NULL;
+        m_pstringPaneFlags = NULL;
 
-        m_pstringGridImageConquest   = NULL;
-        m_pstringGridImageTerritory  = NULL;
+        m_pstringGridImageConquest = NULL;
+        m_pstringGridImageTerritory = NULL;
         m_pstringGridImageDeathMatch = NULL;
         m_pstringGridImageProsperity = NULL;
-        m_pstringGridImageArtifacts  = NULL;
-        m_pstringGridImageFlags  = NULL;
+        m_pstringGridImageArtifacts = NULL;
+        m_pstringGridImageFlags = NULL;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -1703,8 +1714,8 @@ public:
     class WinConditionInfo {
     public:
         virtual void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside) = 0;
-        virtual void ClearLine(StringGridImage* pgrid, int row)                 = 0;
-        virtual bool Greater(IsideIGC* pside1, IsideIGC* pside2)                = 0;
+        virtual void ClearLine(StringGridImage* pgrid, int row) = 0;
+        virtual bool Greater(IsideIGC* pside1, IsideIGC* pside2) = 0;
     };
 
     class WinConditionInfo3 : public WinConditionInfo {
@@ -1733,9 +1744,9 @@ public:
     class ShipWinConditionInfo {
     public:
         virtual void FillLine(StringGridImage* pgrid, int row, IshipIGC* pship) {}
-        virtual bool Greater(IshipIGC* pship1, IshipIGC* pship2)                { return false; }
-        virtual bool AnyInfo()                                                  { return false; }
-        virtual void ClearLine(StringGridImage* pgrid, int row)                 {}
+        virtual bool Greater(IshipIGC* pship1, IshipIGC* pship2) { return false; }
+        virtual bool AnyInfo() { return false; }
+        virtual void ClearLine(StringGridImage* pgrid, int row) {}
     };
 
     static ShipWinConditionInfo s_shipWinConditionInfo;
@@ -1803,7 +1814,7 @@ public:
     public:
         void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside)
         {
-            pgrid->SetString(row, 2, ZString(pside->GetKills() ) + " kills" );
+            pgrid->SetString(row, 2, ZString(pside->GetKills()) + " kills");
             pgrid->SetString(row, 3, ZString(pside->GetEjections()) + " ejects");
             pgrid->SetString(row, 4, ZString(pside->GetDeaths()) + " deaths");
         }
@@ -1812,7 +1823,8 @@ public:
         {
             if (pside1->GetKills() == pside2->GetKills()) {
                 return pside1->GetDeaths() < pside2->GetDeaths();
-            } else {
+            }
+            else {
                 return pside1->GetKills() > pside2->GetKills();
             }
         }
@@ -1822,7 +1834,7 @@ public:
     public:
         void FillLine(StringGridImage* pgrid, int row, IshipIGC* pship)
         {
-            pgrid->SetString(row, 2, ZString(pship->GetKills() ) + " kills" );
+            pgrid->SetString(row, 2, ZString(pship->GetKills()) + " kills");
             pgrid->SetString(row, 3, ZString(pship->GetEjections()) + " ejects");
             pgrid->SetString(row, 4, ZString(pship->GetDeaths()) + " deaths");
         }
@@ -1837,7 +1849,8 @@ public:
         {
             if (pship1->GetKills() == pship2->GetKills()) {
                 return pship1->GetDeaths() < pship2->GetDeaths();
-            } else {
+            }
+            else {
                 return pship1->GetKills() > pship2->GetKills();
             }
         }
@@ -1968,11 +1981,11 @@ public:
 
         {
             IsideIGC* psideTop = NULL;
-            int       myRank   = 1;
+            int       myRank = 1;
 
             for (SideLinkIGC* psl = trekClient.m_pCoreIGC->GetSides()->first();
-                 (psl != NULL);
-                 psl = psl->next())
+                (psl != NULL);
+                psl = psl->next())
             {
                 IsideIGC* pside = psl->data();
 
@@ -1985,7 +1998,7 @@ public:
                         myRank++;
                 }
             }
-            assert (psideTop != NULL);
+            assert(psideTop != NULL);
 
             if (myRank == 1)
             {
@@ -2022,7 +2035,7 @@ public:
         if (shipInfo.AnyInfo())
         {
             IshipIGC* pshipTop = NULL;
-            int       myRank   = 1;
+            int       myRank = 1;
 
             for (ShipLinkIGC* psl = trekClient.m_pCoreIGC->GetShips()->first();
                 (psl != NULL);
@@ -2064,7 +2077,7 @@ public:
             }
             else
             {
-                assert (pshipTop);
+                assert(pshipTop);
 
                 //Another side is the top rank
                 pgrid->SetString(2, 0, c_rank[0]);
@@ -2162,48 +2175,58 @@ public:
 
     void SetScreen(WrapImage* target, Screen* pscreen)
     {
-        m_pimageScreen = pscreen->GetImage();
+        TRef<Image> pimageScreen = pscreen->GetImage();
 
-        if (m_pimageScreen == NULL) {
-            TRef<Pane> ppane = pscreen->GetPane();
-
-            //
-            // Add a caption
-            //
-
-            SetCaption(CreateCaption(GetModeler(), ppane, this));
-
-            //
-            // Create the UI Window
-            //
-
-			m_pMatrixTransformScreen = new MatrixTransform2(Matrix2::GetIdentity());
-
-            m_pimageScreen = new TransformImage(
-				CreatePaneImage(GetEngine(), false, ppane),
-				m_pMatrixTransformScreen
-			);
+        if (pimageScreen == NULL) {
+            pimageScreen = Image::GetEmpty();
         }
 
-		target->SetImage(m_pimageScreen);
-		
-        //SetSizeable(true); // kg-: #226 always
+        TRef<Pane> ppane = pscreen->GetPane();
 
         //
-        // keep a reference to the screen to keep it alive
+        // Add a caption
         //
+        if (ppane) {
+            SetCaption(CreateCaption(GetModeler(), ppane, this));
+        }
+
+        if (ppane == NULL) {
+            ppane = new ImagePane(Image::GetEmpty());
+        }
+
+        //
+        // Create the UI Window
+        //
+
+        m_pMatrixTransformScreen = new MatrixTransform2(Matrix2::GetIdentity());
+
+        m_pimageScreen = new TransformImage(
+            new GroupImage(
+                CreatePaneImage(GetEngine(), false, ppane),
+                pimageScreen
+            ),
+            m_pMatrixTransformScreen
+        );
+
+        target->SetImage(m_pimageScreen);
+
+        SetSizeable(true); // kg-: #226 always
+
+                           //
+                           // keep a reference to the screen to keep it alive
+                           //
         m_pscreen = pscreen;
     }
 
-	void SetUiScreen(Screen * pscreen)
-	{
-		SetScreen(m_pwrapImageTop, pscreen);
-	}
+    void SetUiScreen(Screen * pscreen)
+    {
+        SetScreen(m_pwrapImageTop, pscreen);
+    }
 
-	void SetCombatScreen(Screen* pscreen)
-	{
-		SetScreen(m_pwrapImageBackdrop, pscreen);
-	}
+    void SetCombatScreen(Screen* pscreen)
+    {
+        SetScreen(m_pwrapImageBackdrop, pscreen);
+    }
 
     ScreenID screen(void) const
     {
@@ -2234,13 +2257,13 @@ public:
 
         bSwitchingScreens = true;
 
-		// kg- #226 main screen stuff here
+        // kg- #226 main screen stuff here
         debugf("Switched to screen %d\n", s);
         if (s != m_screen)
         {
 
             if (m_screen == ScreenIDCombat) {
-				// this used to also save the current resolution. Still keeping the other functions.
+                // this used to also save the current resolution. Still keeping the other functions.
                 Set3DAccelerationImportant(false);
                 GetConsoleImage()->OnSwitchViewMode();
             }
@@ -2252,7 +2275,7 @@ public:
             if (m_pimageScreen != NULL) {
                 m_pwrapImageTop->SetImage(m_pgroupImageGame);
                 m_pimageScreen = NULL;
-                m_pscreen      = NULL;
+                m_pscreen = NULL;
                 SetCaption(NULL);
             }
 
@@ -2267,8 +2290,8 @@ public:
                 m_pconsoleImage = NULL;
                 TerminateGameStateContainer();
                 trekClient.RequestViewCluster(NULL);
-				m_pscreen = NULL;
-				m_pimageScreen = NULL;
+                m_pscreen = NULL;
+                m_pimageScreen = NULL;
                 m_viewmode = vmUI;
             }
 
@@ -2287,219 +2310,222 @@ public:
             // create the new screen
 
             switch (s) {
-                case ScreenIDCombat:
+            case ScreenIDCombat:
+            {
+                SetFocus();
+                m_frameID = 0;
+                m_pconsoleImage = ConsoleImage::Create(GetEngine(), m_pviewport);
                 {
-                    SetFocus();
-                    m_frameID = 0;
-                    m_pconsoleImage = ConsoleImage::Create(GetEngine(), m_pviewport);
-                    {
-                        IsideIGC*   pside = trekClient.GetShip()->GetSide();
-                        assert (pside);
-                        assert (pside->GetObjectID() >= 0);
-                        m_pconsoleImage->SetDisplayMDL(pside->GetCivilization()->GetHUDName());
+                    IsideIGC*   pside = trekClient.GetShip()->GetSide();
+                    assert(pside);
+                    assert(pside->GetObjectID() >= 0);
+                    m_pconsoleImage->SetDisplayMDL(pside->GetCivilization()->GetHUDName());
+                }
+                m_pwrapImageConsole->SetImage(m_pconsoleImage);
+
+                ResetOverlayMask();
+
+                SetViewMode(trekClient.GetShip()->GetStation()
+                    ? (trekClient.GetShip()->IsGhost() ? vmCommand : vmHangar)
+                    : vmCombat, true);
+                PositionCommandView(NULL, 0.0f);
+
+                VTSetText("Screen=%d", ScreenIDCombat);
+
+                //
+                // Fill in the game state dialog
+                //
+
+                InitializeGameStateContainer();
+
+                //
+                // Bring up the game state pane by default
+                //
+
+                TurnOnOverlayFlags(ofGameState);
+                break;
+            }
+
+            case ScreenIDTeamScreen:
+                SetUiScreen(CreateTeamScreen(GetModeler()));
+                break;
+
+            case ScreenIDGameScreen:
+                SetUiScreen(CreateGameScreen(GetModeler()));
+                break;
+
+            case ScreenIDGameOverScreen:
+                SetUiScreen(CreateGameOverScreen(GetModeler()));
+                break;
+
+            case ScreenIDCreateMission:
+                SetUiScreen(CreateNewGameScreen(GetModeler()));
+                break;
+
+            case ScreenIDIntroScreen:
+                SetUiScreen(CreateIntroScreen(GetModeler()));
+                break;
+
+            case ScreenIDSplashScreen:
+            {
+                //Imago 6/29/09 7/28/09 dont allow intro vid on nonprimary
+                HMODULE hVidTest = ::LoadLibraryA("WMVDECOD.dll");
+                HMODULE hAudTest = ::LoadLibraryA("wmadmod.dll");
+                bool bWMP = (hVidTest && hAudTest) ? true : false;
+                ::FreeLibrary(hVidTest); ::FreeLibrary(hAudTest);
+                if (!CD3DDevice9::Get()->GetDeviceSetupParams()->iAdapterID && bWMP) {
+
+                    //dont' check for intro.avi, 
+                    // let the screen flash so they at least know this works
+                    DDVideo *DDVid = new DDVideo();
+                    if (m_pengine->IsFullscreen()) {
+                        CD3DDevice9::Get()->ResetDevice(true, 0, 0, 0);
                     }
-                    m_pwrapImageConsole->SetImage(m_pconsoleImage);
 
-                    ResetOverlayMask();
+                    bool bWindowCreated = false;
 
-                    SetViewMode(trekClient.GetShip()->GetStation()
-                        ? (trekClient.GetShip()->IsGhost() ? vmCommand : vmHangar)
-                        : vmCombat, true);
-                    PositionCommandView(NULL, 0.0f);
+                    // BT - 9/17 - Fixing the window frame that is shown around the movie when played in the intro screen.
+                    if (m_pengine->IsFullscreen() == false) {
+                        DDVid->m_hWnd = FindWindow(NULL, TrekWindow::GetWindowTitle());
+                    }
+                    else {
+                        //this window will have our "intro" in it...
+                        DDVid->m_hWnd = ::CreateWindow("MS_ZLib_Window", "Intro", WS_VISIBLE | WS_POPUP, 0, 0,
+                            GetSystemMetrics(SM_CXFULLSCREEN), GetSystemMetrics(SM_CYFULLSCREEN), NULL, NULL,
+                            ::GetModuleHandle(NULL), NULL);
 
-                    VTSetText("Screen=%d", ScreenIDCombat);
+                        bWindowCreated = true;
+                    }
 
-                    //
-                    // Fill in the game state dialog
-                    //
+                    // BT - 9/17 - Replaced with the above.
+                    //DDVid->m_hWnd =  GetHWND();
 
-                    InitializeGameStateContainer();
-
-                    //
-                    // Bring up the game state pane by default
-                    //
-
-                    TurnOnOverlayFlags(ofGameState);
-                    break;
-                }
-
-                case ScreenIDTeamScreen:
-                    SetUiScreen(CreateTeamScreen(GetModeler()));
-                    break;
-
-                case ScreenIDGameScreen:
-					SetUiScreen(CreateGameScreen(GetModeler()));
-                    break;
-
-                case ScreenIDGameOverScreen:
-					SetUiScreen(CreateGameOverScreen(GetModeler()));
-                    break;
-
-                case ScreenIDCreateMission:
-					SetUiScreen(CreateNewGameScreen(GetModeler()));
-                    break;
-
-                case ScreenIDIntroScreen:
-					SetUiScreen(CreateIntroScreen(GetModeler()));
-                    break;
-
-				case ScreenIDSplashScreen:
-					{
-						//Imago 6/29/09 7/28/09 dont allow intro vid on nonprimary
-						HMODULE hVidTest = ::LoadLibraryA("WMVDECOD.dll");
-						HMODULE hAudTest = ::LoadLibraryA("wmadmod.dll");
-						bool bWMP = (hVidTest && hAudTest) ? true : false;
-						::FreeLibrary(hVidTest); ::FreeLibrary(hAudTest); 
-						if (!CD3DDevice9::Get()->GetDeviceSetupParams()->iAdapterID && bWMP) {					
-							
-							//dont' check for intro.avi, 
-							// let the screen flash so they at least know this works
-							DDVideo *DDVid = new DDVideo();
-							if (m_pengine->IsFullscreen()) {
-								CD3DDevice9::Get()->ResetDevice(true, 0, 0, 0);
-							}
-
-							bool bWindowCreated = false;
-
-							// BT - 9/17 - Fixing the window frame that is shown around the movie when played in the intro screen.
-							if (m_pengine->IsFullscreen() == false) {
-								DDVid->m_hWnd = FindWindow(NULL, TrekWindow::GetWindowTitle());
-							}
-							else {
-								//this window will have our "intro" in it...
-								DDVid->m_hWnd = ::CreateWindow("MS_ZLib_Window", "Intro", WS_VISIBLE | WS_POPUP, 0, 0,
-									GetSystemMetrics(SM_CXFULLSCREEN), GetSystemMetrics(SM_CYFULLSCREEN), NULL, NULL,
-									::GetModuleHandle(NULL), NULL);
-
-								bWindowCreated = true;
-							}
-
-							// BT - 9/17 - Replaced with the above.
-							//DDVid->m_hWnd =  GetHWND();
-
-							bool bOk = true;
-							ZString pathStr = GetModeler()->GetArtPath() + "/intro_movie.avi"; //this can be any kind of AV file
-							if(SUCCEEDED(DDVid->Play(pathStr,!m_pengine->IsFullscreen()))) //(Type WMV2 is good as most systems will play it)  
-							{ 
-								GetAsyncKeyState(VK_LBUTTON); GetAsyncKeyState(VK_RBUTTON);
-								::ShowCursor(FALSE);
-								while( DDVid->m_Running && bOk) //imago windooooow #112 7/10
-								{
-									if(!DDVid->m_pVideo->IsPlaying() || GetAsyncKeyState(VK_ESCAPE) || GetAsyncKeyState(VK_SPACE) || 
-										GetAsyncKeyState(VK_RETURN) || GetAsyncKeyState(VK_LBUTTON) || GetAsyncKeyState(VK_RBUTTON))
-									{
-										DDVid->m_Running = FALSE;
-										DDVid->m_pVideo->Stop();
-									} else	{
-										DDVid->m_pVideo->Draw(DDVid->m_lpDDSBack);
-										if (m_pengine->IsFullscreen()) {
-											DDVid->m_lpDDSPrimary->Flip(0,DDFLIP_WAIT);
-										} else {
-											bOk = DDVid->Flip();
-										}
-									}
-								}
-
-								::ShowCursor(TRUE);
-								DDVid->DestroyDDVid();
-								
-							} else {
-								DDVid->DestroyDirectDraw();
-							}
-
-							// BT - 9/17 - Clean up the movie window.
-							if (bWindowCreated == true)
-								::DestroyWindow(DDVid->m_hWnd);
-
-
-							if (m_pengine->IsFullscreen()) {
-								CD3DDevice9::Get()->ResetDevice(false);
-							}
-						}
-						GetWindow()->screen(ScreenIDIntroScreen);
-						SetUiScreen(CreateIntroScreen(GetModeler()));
-	                    break;
-					}
-
-
-                case ScreenIDTrainScreen:
-					SetUiScreen(CreateTrainingScreen(GetModeler()));
-                    break;
-
-                case ScreenIDZoneClubScreen:
-					SetUiScreen(CreateZoneClubScreen(GetModeler(), GetTime()));
-                    break;
-
-                case ScreenIDSquadsScreen:
-					SetUiScreen(CreateSquadsScreen(GetModeler(), szPlayerName ? PCC(strPlayerName) : NULL, idPlayer, szOther ? PCC(strOther) : NULL));
-                    break;
-
-                case ScreenIDGameStarting:
-					SetUiScreen(CreateGameStartingScreen(GetModeler()));
-                    break;
-
-                case ScreenIDCharInfo:
-                    if(idPlayer==-1)
-                        idPlayer = trekClient.GetZoneClubID();
-					SetUiScreen(CreateCharInfoScreen(GetModeler(), idPlayer));
-                    break;
-
-                case ScreenIDTrainSlideshow:
-                {
-                    extern  TRef<ModifiableNumber>  g_pnumberMissionNumber;
-                    int     iMission = static_cast<int> (g_pnumberMissionNumber->GetValue ());
-                    ZAssert ((iMission >= 1) && (iMission <= 8)); //TheBored 06-JUL-07: second condition must be (iMission <= (number of training missions))
-                    char*   strNamespace[] =
+                    bool bOk = true;
+                    ZString pathStr = GetModeler()->GetArtPath() + "/intro_movie.avi"; //this can be any kind of AV file
+                    if (SUCCEEDED(DDVid->Play(pathStr, !m_pengine->IsFullscreen()))) //(Type WMV2 is good as most systems will play it)  
                     {
-                        "",
-                        "",
-                        "tm_2_basic_flight",
-                        "tm_3_basic_weaponry",
-                        "tm_4_enemy_engagement",
-                        "tm_5_command_view",
-                        "tm_6_practice_arena",
-						"", //TheBored 06-JUL-07: Mish #7, blank because its never used
-						"tm_8_nanite", //TheBored 06-JUL-07: Mish #8 pregame panels.
-                    };
+                        GetAsyncKeyState(VK_LBUTTON); GetAsyncKeyState(VK_RBUTTON);
+                        ::ShowCursor(FALSE);
+                        while (DDVid->m_Running && bOk) //imago windooooow #112 7/10
+                        {
+                            if (!DDVid->m_pVideo->IsPlaying() || GetAsyncKeyState(VK_ESCAPE) || GetAsyncKeyState(VK_SPACE) ||
+                                GetAsyncKeyState(VK_RETURN) || GetAsyncKeyState(VK_LBUTTON) || GetAsyncKeyState(VK_RBUTTON))
+                            {
+                                DDVid->m_Running = FALSE;
+                                DDVid->m_pVideo->Stop();
+                            }
+                            else {
+                                DDVid->m_pVideo->Draw(DDVid->m_lpDDSBack);
+                                if (m_pengine->IsFullscreen()) {
+                                    DDVid->m_lpDDSPrimary->Flip(0, DDFLIP_WAIT);
+                                }
+                                else {
+                                    bOk = DDVid->Flip();
+                                }
+                            }
+                        }
 
-					SetUiScreen(CreateTrainingSlideshow (GetModeler (), strNamespace[iMission], iMission));
-                    break;
+                        ::ShowCursor(TRUE);
+                        DDVid->DestroyDDVid();
+
+                    }
+                    else {
+                        DDVid->DestroyDirectDraw();
+                    }
+
+                    // BT - 9/17 - Clean up the movie window.
+                    if (bWindowCreated == true)
+                        ::DestroyWindow(DDVid->m_hWnd);
+
+
+                    if (m_pengine->IsFullscreen()) {
+                        CD3DDevice9::Get()->ResetDevice(false);
+                    }
                 }
+                GetWindow()->screen(ScreenIDIntroScreen);
+                SetUiScreen(CreateIntroScreen(GetModeler()));
+                break;
+            }
 
-                case ScreenIDPostTrainSlideshow:
+
+            case ScreenIDTrainScreen:
+                SetUiScreen(CreateTrainingScreen(GetModeler()));
+                break;
+
+            case ScreenIDZoneClubScreen:
+                SetUiScreen(CreateZoneClubScreen(GetModeler(), GetTime()));
+                break;
+
+            case ScreenIDSquadsScreen:
+                SetUiScreen(CreateSquadsScreen(GetModeler(), szPlayerName ? PCC(strPlayerName) : NULL, idPlayer, szOther ? PCC(strOther) : NULL));
+                break;
+
+            case ScreenIDGameStarting:
+                SetUiScreen(CreateGameStartingScreen(GetModeler()));
+                break;
+
+            case ScreenIDCharInfo:
+                if (idPlayer == -1)
+                    idPlayer = trekClient.GetZoneClubID();
+                SetUiScreen(CreateCharInfoScreen(GetModeler(), idPlayer));
+                break;
+
+            case ScreenIDTrainSlideshow:
+            {
+                extern  TRef<ModifiableNumber>  g_pnumberMissionNumber;
+                int     iMission = static_cast<int> (g_pnumberMissionNumber->GetValue());
+                ZAssert((iMission >= 1) && (iMission <= 8)); //TheBored 06-JUL-07: second condition must be (iMission <= (number of training missions))
+                char*   strNamespace[] =
                 {
-                    extern  TRef<ModifiableNumber>  g_pnumberMissionNumber;
-                    int     iMission = static_cast<int> (g_pnumberMissionNumber->GetValue ());
-                    ZAssert ((iMission >= 1) && (iMission <= 10)); //TheBored 06-JUL-07: second condition must be (iMission <= (number of training missions))
-                    char*   strNamespace[] =
-                    {
-                        "",
-                        "tm_1_introduction",
-                        "tm_2_basic_flight_post",
-                        "tm_3_basic_weaponry_post",
-                        "tm_4_enemy_engagement_post",
-                        "tm_5_command_view_post",
-                        "tm_6_practice_arena_post",
-                        "", //TheBored 06-JUL-07: Mish #7, blank because its never used
-                        "tm_8_nanite_post", //TheBored 06-JUL-07: Mish #8 postgame panels
-                        "",
-                        "tm_6_practice_arena_post" //05-NOV-17: FreeFlight pseudo training mission - use same post slides as tm6 (showing station instead of text in ui-stretch beta)
-                    };
-					SetUiScreen(CreatePostTrainingSlideshow (GetModeler (), strNamespace[iMission]));
-                    break;
-                }
+                    "",
+                    "",
+                    "tm_2_basic_flight",
+                    "tm_3_basic_weaponry",
+                    "tm_4_enemy_engagement",
+                    "tm_5_command_view",
+                    "tm_6_practice_arena",
+                    "", //TheBored 06-JUL-07: Mish #7, blank because its never used
+                    "tm_8_nanite", //TheBored 06-JUL-07: Mish #8 pregame panels.
+                };
 
-                case ScreenIDZoneEvents:
-					SetUiScreen(CreateZoneEventsScreen(GetModeler()));
-                    break;
+                SetUiScreen(CreateTrainingSlideshow(GetModeler(), strNamespace[iMission], iMission));
+                break;
+            }
 
-                case ScreenIDLeaderBoard:
-					SetUiScreen(CreateLeaderBoardScreen(GetModeler(), strPlayerName));
-                    break;
+            case ScreenIDPostTrainSlideshow:
+            {
+                extern  TRef<ModifiableNumber>  g_pnumberMissionNumber;
+                int     iMission = static_cast<int> (g_pnumberMissionNumber->GetValue());
+                ZAssert((iMission >= 1) && (iMission <= 10)); //TheBored 06-JUL-07: second condition must be (iMission <= (number of training missions))
+                char*   strNamespace[] =
+                {
+                    "",
+                    "tm_1_introduction",
+                    "tm_2_basic_flight_post",
+                    "tm_3_basic_weaponry_post",
+                    "tm_4_enemy_engagement_post",
+                    "tm_5_command_view_post",
+                    "tm_6_practice_arena_post",
+                    "", //TheBored 06-JUL-07: Mish #7, blank because its never used
+                    "tm_8_nanite_post", //TheBored 06-JUL-07: Mish #8 postgame panels
+                    "",
+                    "tm_6_practice_arena_post" //05-NOV-17: FreeFlight pseudo training mission - use same post slides as tm6 (showing station instead of text in ui-stretch beta)
+                };
+                SetUiScreen(CreatePostTrainingSlideshow(GetModeler(), strNamespace[iMission]));
+                break;
+            }
 
-                default:
-                    ZError("Bad screen id");
-                    break;
+            case ScreenIDZoneEvents:
+                SetUiScreen(CreateZoneEventsScreen(GetModeler()));
+                break;
+
+            case ScreenIDLeaderBoard:
+                SetUiScreen(CreateLeaderBoardScreen(GetModeler(), strPlayerName));
+                break;
+
+            default:
+                ZError("Bad screen id");
+                break;
             }
 
             m_screen = s;
@@ -2540,236 +2566,236 @@ public:
         m_ptrekInput->SetFocus(false);
     }
 
-    bool IsProbablyNotForChat (int vk)
+    bool IsProbablyNotForChat(int vk)
     {
         switch (vk)
         {
-            case VK_PRIOR:
-            case VK_NEXT:
-            case VK_END:
-            case VK_HOME:
-            case VK_LEFT:
-            case VK_UP:
-            case VK_RIGHT:
-            case VK_DOWN:
-            case VK_SELECT:
-            case VK_PRINT:
-            case VK_EXECUTE:
-            case VK_SNAPSHOT:
-            case VK_INSERT:
-            case VK_DELETE:
-            case VK_NUMPAD0:
-            case VK_NUMPAD1:
-            case VK_NUMPAD2:
-            case VK_NUMPAD3:
-            case VK_NUMPAD4:
-            case VK_NUMPAD5:
-            case VK_NUMPAD6:
-            case VK_NUMPAD7:
-            case VK_NUMPAD8:
-            case VK_NUMPAD9:
-            case VK_MULTIPLY:
-            case VK_ADD:
-            case VK_SEPARATOR:
-            case VK_SUBTRACT:
-            case VK_DECIMAL:
-            case VK_DIVIDE:
-            case VK_F1:
-            case VK_F2:
-            case VK_F3:
-            case VK_F4:
-            case VK_F5:
-            case VK_F6:
-            case VK_F7:
-            case VK_F8:
-            case VK_F9:
-            case VK_F10:
-            case VK_F11:
-            case VK_F12:
-            case VK_F13:
-            case VK_F14:
-            case VK_F15:
-            case VK_F16:
-            case VK_F17:
-            case VK_F18:
-            case VK_F19:
-            case VK_F20:
-            case VK_F21:
-            case VK_F22:
-            case VK_F23:
-            case VK_F24:
-            case VK_NUMLOCK:
-            case VK_SCROLL:
-                return true;
-            default:
-                return false;
+        case VK_PRIOR:
+        case VK_NEXT:
+        case VK_END:
+        case VK_HOME:
+        case VK_LEFT:
+        case VK_UP:
+        case VK_RIGHT:
+        case VK_DOWN:
+        case VK_SELECT:
+        case VK_PRINT:
+        case VK_EXECUTE:
+        case VK_SNAPSHOT:
+        case VK_INSERT:
+        case VK_DELETE:
+        case VK_NUMPAD0:
+        case VK_NUMPAD1:
+        case VK_NUMPAD2:
+        case VK_NUMPAD3:
+        case VK_NUMPAD4:
+        case VK_NUMPAD5:
+        case VK_NUMPAD6:
+        case VK_NUMPAD7:
+        case VK_NUMPAD8:
+        case VK_NUMPAD9:
+        case VK_MULTIPLY:
+        case VK_ADD:
+        case VK_SEPARATOR:
+        case VK_SUBTRACT:
+        case VK_DECIMAL:
+        case VK_DIVIDE:
+        case VK_F1:
+        case VK_F2:
+        case VK_F3:
+        case VK_F4:
+        case VK_F5:
+        case VK_F6:
+        case VK_F7:
+        case VK_F8:
+        case VK_F9:
+        case VK_F10:
+        case VK_F11:
+        case VK_F12:
+        case VK_F13:
+        case VK_F14:
+        case VK_F15:
+        case VK_F16:
+        case VK_F17:
+        case VK_F18:
+        case VK_F19:
+        case VK_F20:
+        case VK_F21:
+        case VK_F22:
+        case VK_F23:
+        case VK_F24:
+        case VK_NUMLOCK:
+        case VK_SCROLL:
+            return true;
+        default:
+            return false;
         }
     }
 
     bool IsInputEnabled(int vk)
     {
-        return (m_screen != ScreenIDCombat) || IsProbablyNotForChat (vk) || !m_pconsoleImage->IsComposing ();
+        return (m_screen != ScreenIDCombat) || IsProbablyNotForChat(vk) || !m_pconsoleImage->IsComposing();
     }
 
-	// BT - 9/17 - Made this a function to support chaining the opening microsoft splash with the longer classic
-	// allegiance movie. 
-	HANDLE PlayMovieClip(bool playMovies, bool isSoftware, bool isWindowed, ZString moviePath)
-	{
-		HANDLE hDDVidThread = 0;
+    // BT - 9/17 - Made this a function to support chaining the opening microsoft splash with the longer classic
+    // allegiance movie. 
+    HANDLE PlayMovieClip(bool playMovies, bool isSoftware, bool isWindowed, ZString moviePath)
+    {
+        HANDLE hDDVidThread = 0;
 
-		if (!g_bQuickstart && playMovies && !g_bReloaded && !isSoftware &&
-			::GetFileAttributes(moviePath) != INVALID_FILE_ATTRIBUTES &&
-			!CD3DDevice9::Get()->GetDeviceSetupParams()->iAdapterID) {
-			//Imago only check for these if we have to 8/16/09
-			HMODULE hVidTest = ::LoadLibraryA("WMVDECOD.dll");
-			HMODULE hAudTest = ::LoadLibraryA("wmadmod.dll");
-			bool bWMP = (hVidTest && hAudTest) ? true : false;
-			::FreeLibrary(hVidTest); ::FreeLibrary(hAudTest);
-			if (bWMP) {
-				if (!CD3DDevice9::Get()->IsWindowed()) {
-					::ShowWindow(GetHWND(), SW_HIDE);
-				}
+        if (!g_bQuickstart && playMovies && !g_bReloaded && !isSoftware &&
+            ::GetFileAttributes(moviePath) != INVALID_FILE_ATTRIBUTES &&
+            !CD3DDevice9::Get()->GetDeviceSetupParams()->iAdapterID) {
+            //Imago only check for these if we have to 8/16/09
+            HMODULE hVidTest = ::LoadLibraryA("WMVDECOD.dll");
+            HMODULE hAudTest = ::LoadLibraryA("wmadmod.dll");
+            bool bWMP = (hVidTest && hAudTest) ? true : false;
+            ::FreeLibrary(hVidTest); ::FreeLibrary(hAudTest);
+            if (bWMP) {
+                if (!CD3DDevice9::Get()->IsWindowed()) {
+                    ::ShowWindow(GetHWND(), SW_HIDE);
+                }
 
-				//#112 windowed 7/10 Imago
-				PlayVideoInfo * pData = new PlayVideoInfo;
-				pData->pathStr = moviePath;
-				pData->bWindowed = CD3DDevice9::Get()->IsWindowed();
+                //#112 windowed 7/10 Imago
+                PlayVideoInfo * pData = new PlayVideoInfo;
+                pData->pathStr = moviePath;
+                pData->bWindowed = CD3DDevice9::Get()->IsWindowed();
 
-				hDDVidThread = CreateThread(NULL, 0, DDVidCreateThreadProc, (void *)pData, THREAD_PRIORITY_HIGHEST, 0);
-			}
-		}
+                hDDVidThread = CreateThread(NULL, 0, DDVidCreateThreadProc, (void *)pData, THREAD_PRIORITY_HIGHEST, 0);
+            }
+        }
 
-		return hDDVidThread;
-	}
+        return hDDVidThread;
+    }
 
-	TrekWindowImpl(
-		EffectApp*     papp,
-		const ZString& strCommandLine,
-		// BUILD_DX9
-		const ZString& strArtPath,
-		// BUILD_DX9
-		bool           bMovies,
-		bool           bSoftware,
-		bool           bHardware,
-		bool           bPrimary,
-		bool           bSecondary
-	) :
-		TrekWindow(
-			papp,
-			strCommandLine,
-			false, // BT - 10/17 - Set to always start windowed, then go full screen after game is initialized. Trying to find the source of the mystery "crash on launch" issues.
-			WinRect(0 + CD3DDevice9::Get()->GetDeviceSetupParams()->iWindowOffsetX,
-				0 + CD3DDevice9::Get()->GetDeviceSetupParams()->iWindowOffsetY,
-				CD3DDevice9::Get()->GetCurrentMode()->mode.Width +
-				CD3DDevice9::Get()->GetDeviceSetupParams()->iWindowOffsetX,
-				CD3DDevice9::Get()->GetCurrentMode()->mode.Height +
-				CD3DDevice9::Get()->GetDeviceSetupParams()->iWindowOffsetY),
-			WinPoint(800, 600)
-		),
+    TrekWindowImpl(
+        EffectApp*     papp,
+        const ZString& strCommandLine,
+        // BUILD_DX9
+        const ZString& strArtPath,
+        // BUILD_DX9
+        bool           bMovies,
+        bool           bSoftware,
+        bool           bHardware,
+        bool           bPrimary,
+        bool           bSecondary
+    ) :
+        TrekWindow(
+            papp,
+            strCommandLine,
+            false, // BT - 10/17 - Set to always start windowed, then go full screen after game is initialized. Trying to find the source of the mystery "crash on launch" issues.
+            WinRect(0 + CD3DDevice9::Get()->GetDeviceSetupParams()->iWindowOffsetX,
+                0 + CD3DDevice9::Get()->GetDeviceSetupParams()->iWindowOffsetY,
+                CD3DDevice9::Get()->GetCurrentMode()->mode.Width +
+                CD3DDevice9::Get()->GetDeviceSetupParams()->iWindowOffsetX,
+                CD3DDevice9::Get()->GetCurrentMode()->mode.Height +
+                CD3DDevice9::Get()->GetDeviceSetupParams()->iWindowOffsetY),
+            WinPoint(800, 600)
+        ),
 
-		m_screen(ScreenIDSplashScreen),
-		m_bShowMeteors(true),
-		m_bShowStations(true),
-		m_bShowProjectiles(true),
-		m_bShowAlephs(true),
-		m_bShowShips(true),
-		m_bBidirectionalLighting(true),
-		m_color(Color::White()),
-		m_colorAlt(Color::White()),
-		m_ambientLevel(0),
-		m_ambientLevelBidirectional(0),
-		m_frameID(0),
-		m_timeLastFrame(Time::Now()),
-		m_timeLastDamage(Time::Now()),
-		m_cm(cmCockpit),
-		m_cmOld(cmCockpit),
-		m_timeRejectQueuedCommand(0),
-		m_cmPreviousCommand(cmExternalCommandView34),
-		m_bPreferChaseView(false),
-		m_distanceExternalCamera(s_fExteralViewDistanceDefault),
-		m_distanceCommandCamera(s_fCommandViewDistanceDefault),
-		m_rollCommandCamera(0.0f),
-		m_bEnableDisplacementCommandView(true),
-		m_suicideCount(0),
-		m_bLensFlare(true),
-		m_bRoundRadar(false),
-		m_bLinearControls(true),
-		m_bMusic(false),
-		m_bCommandGrid(false),
-		m_radarCockpit(RadarImage::c_rlDefault),
-		m_radarCommand(RadarImage::c_rlAll),
-		m_musicId(NA),
-		m_viewmode(vmUI),
-		m_bOverlaysChanged(false),
-		m_pszCursor(AWF_CURSOR_DEFAULT),
-		m_nLastCountdown(c_nCountdownMax),
-		m_ctLobbyChat(CHAT_EVERYONE),
-		m_bTrackCommandView(false),
-		m_bQuitComposing(true),
-		m_bEnableVirtualJoystick(false),
-		m_bFlipY(false),
-		m_bEnableFeedback(true),
-		m_aabmInvest(0),
-		m_aabmCommand(0),
-		//Imago 7/10
-		m_bFFAutoCenter(false),
-		m_iMouseAccel(0), //#215
-		m_bShowInventoryPane(true), // BT - 10/17 - Map and Sector Panes are now shown on launch and remember the pilots settings on last dock. 
-		m_bShowSectorMapPane(true),  // BT - 10/17 - Map and Sector Panes are now shown on launch and remember the pilots settings on last dock. 
-		m_bUseHighResTextures(true) // BT - 10/17 - HighRes Textures
+        m_screen(ScreenIDSplashScreen),
+        m_bShowMeteors(true),
+        m_bShowStations(true),
+        m_bShowProjectiles(true),
+        m_bShowAlephs(true),
+        m_bShowShips(true),
+        m_bBidirectionalLighting(true),
+        m_color(Color::White()),
+        m_colorAlt(Color::White()),
+        m_ambientLevel(0),
+        m_ambientLevelBidirectional(0),
+        m_frameID(0),
+        m_timeLastFrame(Time::Now()),
+        m_timeLastDamage(Time::Now()),
+        m_cm(cmCockpit),
+        m_cmOld(cmCockpit),
+        m_timeRejectQueuedCommand(0),
+        m_cmPreviousCommand(cmExternalCommandView34),
+        m_bPreferChaseView(false),
+        m_distanceExternalCamera(s_fExteralViewDistanceDefault),
+        m_distanceCommandCamera(s_fCommandViewDistanceDefault),
+        m_rollCommandCamera(0.0f),
+        m_bEnableDisplacementCommandView(true),
+        m_suicideCount(0),
+        m_bLensFlare(true),
+        m_bRoundRadar(false),
+        m_bLinearControls(true),
+        m_bMusic(false),
+        m_bCommandGrid(false),
+        m_radarCockpit(RadarImage::c_rlDefault),
+        m_radarCommand(RadarImage::c_rlAll),
+        m_musicId(NA),
+        m_viewmode(vmUI),
+        m_bOverlaysChanged(false),
+        m_pszCursor(AWF_CURSOR_DEFAULT),
+        m_nLastCountdown(c_nCountdownMax),
+        m_ctLobbyChat(CHAT_EVERYONE),
+        m_bTrackCommandView(false),
+        m_bQuitComposing(true),
+        m_bEnableVirtualJoystick(false),
+        m_bFlipY(false),
+        m_bEnableFeedback(true),
+        m_aabmInvest(0),
+        m_aabmCommand(0),
+        //Imago 7/10
+        m_bFFAutoCenter(false),
+        m_iMouseAccel(0), //#215
+        m_bShowInventoryPane(true), // BT - 10/17 - Map and Sector Panes are now shown on launch and remember the pilots settings on last dock. 
+        m_bShowSectorMapPane(true),  // BT - 10/17 - Map and Sector Panes are now shown on launch and remember the pilots settings on last dock. 
+        m_bUseHighResTextures(true) // BT - 10/17 - HighRes Textures
 
     {
         HRESULT hr;
 
-		debugf("Setting up TrekWindow\n");
+        debugf("Setting up TrekWindow\n");
 
-		// DXHACKS - Could cause issues...
-		// Move this call here, so that engine initialisation is performed *AFTER* we have a valid HWND.
-		papp->Initialize(strCommandLine, GetHWND());
-		
-		m_pengine = papp->GetEngine();
-		m_pmodeler = papp->GetModeler();
+        // DXHACKS - Could cause issues...
+        // Move this call here, so that engine initialisation is performed *AFTER* we have a valid HWND.
+        papp->Initialize(strCommandLine, GetHWND());
 
-		debugf("Setting art path to: %s\n", (PCC) strArtPath);
+        m_pengine = papp->GetEngine();
+        m_pmodeler = papp->GetModeler();
 
-		// Now set the art path, performed after initialise, else Modeler isn't valid.
-		GetModeler()->SetArtPath(strArtPath);
+        debugf("Setting art path to: %s\n", (PCC)strArtPath);
 
-		//Imago 6/29/09 7/28/09 now plays video in thread while load continues // BT - 9/17 - Refactored a bit.
-		HANDLE hDDVidThread = NULL;
+        // Now set the art path, performed after initialise, else Modeler isn't valid.
+        GetModeler()->SetArtPath(strArtPath);
 
-		// BT - 9/17 - If you want to re-add an intro movie, you can uncomment this code, but it was causing some people to crash,
-		// and most didn't like having any intro at all. :(
-		// To make a movie that is compatible with the movie player, use this ffmpeg command line: 
-		// ffmpeg.exe -i intro_microsoft_original.avi -q:a 1 -q:v 1 -vcodec mpeg4 -acodec wmav2 intro_microsoft.avi
-		//ZString pathStr = GetModeler()->GetArtPath() + "/intro_microsoft.avi";
-		//hDDVidThread = PlayMovieClip(bMovies, bSoftware, CD3DDevice9::Get()->IsWindowed(), pathStr);
+        //Imago 6/29/09 7/28/09 now plays video in thread while load continues // BT - 9/17 - Refactored a bit.
+        HANDLE hDDVidThread = NULL;
 
-		debugf("Reading FFGain, MouseSensitivity\n");
+        // BT - 9/17 - If you want to re-add an intro movie, you can uncomment this code, but it was causing some people to crash,
+        // and most didn't like having any intro at all. :(
+        // To make a movie that is compatible with the movie player, use this ffmpeg command line: 
+        // ffmpeg.exe -i intro_microsoft_original.avi -q:a 1 -q:v 1 -vcodec mpeg4 -acodec wmav2 intro_microsoft.avi
+        //ZString pathStr = GetModeler()->GetArtPath() + "/intro_microsoft.avi";
+        //hDDVidThread = PlayMovieClip(bMovies, bSoftware, CD3DDevice9::Get()->IsWindowed(), pathStr);
 
-		m_pnumFFGain = new ModifiableNumber((float)LoadPreference("FFGain", 10000)); //Imago #187 
-		m_pnumMouseSens = new ModifiableNumber(atof(LoadPreference("MouseSensitivity", "1.0"))); //Imago #215 8/10
+        debugf("Reading FFGain, MouseSensitivity\n");
 
-		debugf("TrekResources::Initialize() - Loading fonts.\n");
+        m_pnumFFGain = new ModifiableNumber((float)LoadPreference("FFGain", 10000)); //Imago #187 
+        m_pnumMouseSens = new ModifiableNumber(atof(LoadPreference("MouseSensitivity", "1.0"))); //Imago #215 8/10
 
-		// load the fonts
-		TrekResources::Initialize(GetModeler());
+        debugf("TrekResources::Initialize() - Loading fonts.\n");
 
-		debugf("performing PostWindowCreationInit.\n");
+        // load the fonts
+        TrekResources::Initialize(GetModeler());
 
-		// Perform post window creation initialisation. Initialise the time value.
-		PostWindowCreationInit( );
-		InitialiseTime();
+        debugf("performing PostWindowCreationInit.\n");
+
+        // Perform post window creation initialisation. Initialise the time value.
+        PostWindowCreationInit();
+        InitialiseTime();
 
         if (!IsValid()) {
             return;
         }
 
-		debugf("Setting up effects window.\n");
+        debugf("Setting up effects window.\n");
 
         SetEffectWindow(this);
 
-		debugf("Setting up modeler site.\n");
+        debugf("Setting up modeler site.\n");
 
         GetModeler()->SetSite(this);
 
@@ -2796,18 +2822,18 @@ public:
         // Event sink delegates
         //
 
-		debugf("Creating event sinks. \n");
+        debugf("Creating event sinks. \n");
 
-        m_pClientEventSink  = IClientEventSink::CreateDelegate(this);
+        m_pClientEventSink = IClientEventSink::CreateDelegate(this);
         m_pintegerEventSink = IIntegerEventSink::CreateDelegate(this);
-        m_pmenuCommandSink  = IMenuCommandSink::CreateDelegate(this);
+        m_pmenuCommandSink = IMenuCommandSink::CreateDelegate(this);
         m_psubmenuEventSink = ISubmenuEventSink::CreateDelegate(this);
 
         //
         // advise us of client notifications
         //
 
-		debugf("Getting event sources. \n");
+        debugf("Getting event sources. \n");
 
         m_pClientEventSource = trekClient.GetClientEventSource();
         m_pClientEventSource->AddSink(m_pClientEventSink);
@@ -2816,7 +2842,7 @@ public:
         // Initialize redbook audio
         //
 
-		debugf("Creating disk player. \n");
+        debugf("Creating disk player. \n");
 
         hr = CreateDiskPlayer(m_pDiskPlayer, LoadPreference("AudioCD", "Allegiance"));
 
@@ -2824,7 +2850,7 @@ public:
             CreateDummyDiskPlayer(m_pDiskPlayer);
 
 
-		debugf("Creating sound mutexes. \n");
+        debugf("Creating sound mutexes. \n");
 
         //
         // Initialize some of the basic sound stuff
@@ -2857,17 +2883,17 @@ public:
             )
         );
 
-		// #294 - Turkey 
-		m_pnumberChatLinesDesired = new ModifiableNumber(0);
-		pnsGamePanes->AddMember("NumChatLines", m_pwrapNumberChatLines = new WrapNumber(m_pnumberChatLines = new ModifiableNumber(0)));
+        // #294 - Turkey 
+        m_pnumberChatLinesDesired = new ModifiableNumber(0);
+        pnsGamePanes->AddMember("NumChatLines", m_pwrapNumberChatLines = new WrapNumber(m_pnumberChatLines = new ModifiableNumber(0)));
 
         pnsGamePanes->AddMember("Flash", m_pnumberFlash = new ModifiableNumber(0));
         pnsGamePanes->AddMember("TeamPaneCollapsed", m_pnumberTeamPaneCollapsed = new ModifiableNumber(0));
         pnsGamePanes->AddMember("IsGhost", m_pnumberIsGhost = new ModifiableNumber(0));
 
         pnsGamePanes->AddMember("playerThrottle", m_pplayerThrottle = new ModifiableNumber(0));
-        pnsGamePanes->AddMember("hudColor",       m_pcolorHUD       = new ModifiableColorValue(Color::Black()));
-        pnsGamePanes->AddMember("hudColorshadows",m_pcolorHUDshadows       = new ModifiableColorValue(Color::Black()));
+        pnsGamePanes->AddMember("hudColor", m_pcolorHUD = new ModifiableColorValue(Color::Black()));
+        pnsGamePanes->AddMember("hudColorshadows", m_pcolorHUDshadows = new ModifiableColorValue(Color::Black()));
         pnsGamePanes->AddMember("targetHudColor", m_pcolorTargetHUD = new ModifiableColorValue(Color::Black()));
 
         pnsGamePanes->AddMember("SFXGain", m_pnumSFXGain =
@@ -2887,10 +2913,10 @@ public:
         // Target Image
         //
 
-        m_cameraControl.m_pcameraTarget  = new Camera();
-        m_cameraControl.m_pgeoTarget     = Geo::GetEmpty();
+        m_cameraControl.m_pcameraTarget = new Camera();
+        m_cameraControl.m_pgeoTarget = Geo::GetEmpty();
         m_cameraControl.m_pwrapGeoTarget = new WrapGeo(m_cameraControl.m_pgeoTarget),
-        m_cameraControl.m_porientTransformTarget = new MatrixTransform(Matrix::GetIdentity());
+            m_cameraControl.m_porientTransformTarget = new MatrixTransform(Matrix::GetIdentity());
 
         // initialize for chase view
         m_turnRateSampleIndex = 0;
@@ -2937,12 +2963,12 @@ public:
         //
 
         InitializeImages();
-		
-		if (hDDVidThread != NULL) { //imago 7/29/09 intro.avi
-			if (!CD3DDevice9::Get()->IsWindowed()) {
-				CD3DDevice9::Get()->ResetDevice(false,800,600,g_DX9Settings.m_refreshrate);
-			}
-		}
+
+        if (hDDVidThread != NULL) { //imago 7/29/09 intro.avi
+            if (!CD3DDevice9::Get()->IsWindowed()) {
+                CD3DDevice9::Get()->ResetDevice(false, 800, 600, g_DX9Settings.m_refreshrate);
+            }
+        }
 
         //
         // initialize the sound engine (for the intro music if nothing else)
@@ -2950,10 +2976,10 @@ public:
 
         DWORD dwSoundInitStartTime = timeGetTime();
 
-		m_bUseDSound8 = LoadPreference("UseDSound8", true);
+        m_bUseDSound8 = LoadPreference("UseDSound8", true);
 
         if (g_bEnableSound) {
-            assert (m_pSoundEngine == NULL);
+            assert(m_pSoundEngine == NULL);
             hr = CreateSoundEngine(m_pSoundEngine, GetHWND(), m_bUseDSound8);
         }
 
@@ -2986,39 +3012,39 @@ public:
         //
 
         m_bEnableVirtualJoystick = (LoadPreference("EnableVirtualJoystick", 0) != 0);
-        m_bFlipY                 = (LoadPreference("FlipY",                 0) != 0);
-        m_bEnableFeedback        = (LoadPreference("EnableFeedback",        1) != 0);
-        m_bFFAutoCenter			 = (LoadPreference("FFAutoCenter",			0) != 0); //Imago #187
-		m_iMouseAccel			 = LoadPreference("MouseAcceleration",     0) % 3; // Imago #215 //#282 bugfix
-		m_iWheelDelay			 = LoadPreference("WheelDelay",            2) % 5; //Spunky #282
+        m_bFlipY = (LoadPreference("FlipY", 0) != 0);
+        m_bEnableFeedback = (LoadPreference("EnableFeedback", 1) != 0);
+        m_bFFAutoCenter = (LoadPreference("FFAutoCenter", 0) != 0); //Imago #187
+        m_iMouseAccel = LoadPreference("MouseAcceleration", 0) % 3; // Imago #215 //#282 bugfix
+        m_iWheelDelay = LoadPreference("WheelDelay", 2) % 5; //Spunky #282
 
-		// BT - 10/17 - HighRes Textures
-		m_bUseHighResTextures    = (LoadPreference("HighResTextures",		1) != 0);
+                                                             // BT - 10/17 - HighRes Textures
+        m_bUseHighResTextures = (LoadPreference("HighResTextures", 1) != 0);
 
-		m_pmodeler->SetHighResTextures(m_bUseHighResTextures);
+        m_pmodeler->SetHighResTextures(m_bUseHighResTextures);
 
         //
         // Initial screen size
         //
 
-		{
-			int x, y;
+        {
+            int x, y;
 
-			//load resolution, default is the clients desktop resolution
-			WinPoint current_resolution = GetEngine()->GetFullscreenSize();
-			x = int(LoadPreference("CombatFullscreenXSize", current_resolution.X()));
-			y = int(LoadPreference("CombatFullscreenYSize", current_resolution.Y()));
+            //load resolution, default is the clients desktop resolution
+            WinPoint current_resolution = GetEngine()->GetFullscreenSize();
+            x = int(LoadPreference("CombatFullscreenXSize", current_resolution.X()));
+            y = int(LoadPreference("CombatFullscreenYSize", current_resolution.Y()));
 
-			//Use something reasonable if values are nonsense. I would really like to remove this.
-			if (x == 0)
-				x = 800;
-			if (y == 0)
-				y = 600;
+            //Use something reasonable if values are nonsense. I would really like to remove this.
+            if (x == 0)
+                x = 800;
+            if (y == 0)
+                y = 600;
 
-			SetFullscreenSize(Vector(x, y, g_DX9Settings.m_refreshrate));
-		}
+            SetFullscreenSize(Vector(x, y, g_DX9Settings.m_refreshrate));
+        }
 
-// BUILD_DX9
+        // BUILD_DX9
 
         //
         // Music toggle
@@ -3032,14 +3058,14 @@ public:
         // Create the combat camera
         //
 
-        m_pcamera        = new Camera();
+        m_pcamera = new Camera();
         m_pcameraPosters = new Camera();
         //m_pcameraTurret  = new Camera();
 
         m_cameraControl.SetCameras(
             m_pcamera,
             m_pcameraPosters/*,
-            m_pcameraTurret*/
+                            m_pcameraTurret*/
         );
 
         m_orientationExternalCamera.Reset();
@@ -3048,7 +3074,7 @@ public:
         // The viewports
         //
 
-        m_pviewport        = new Viewport(m_pcamera,        GetRenderRectValue());
+        m_pviewport = new Viewport(m_pcamera, GetRenderRectValue());
         m_pviewportPosters = new Viewport(m_pcameraPosters, GetRenderRectValue());
         //m_pviewportTurret  = new Viewport(m_pcameraTurret,  GetRenderRectValue());
 
@@ -3131,7 +3157,7 @@ public:
         m_pgroupImageHUD = new GroupImage();
 
         m_pgroupImageHUD->AddImage(CreateIndicatorImage(GetModeler(), m_pviewport, GetTime()));
-        m_pgroupImageHUD->AddImage(m_pwrapImageRadar   = new WrapImage(m_pradarImage));
+        m_pgroupImageHUD->AddImage(m_pwrapImageRadar = new WrapImage(m_pradarImage));
         //m_pgroupImageHUD->AddImage(m_pwrapImageTurret = new WrapImage(Image::GetEmpty()));
 
         //
@@ -3152,10 +3178,10 @@ public:
         // Wrap up the images that can be toggled
         //
 
-        m_pwrapImageHudGroup    = new WrapImage(m_pgroupImageHUD);
-        m_pwrapImageLensFlare   = new WrapImage(m_pimageLensFlare);
-        m_pwrapImageScene       = new WrapImage(m_pimageScene);
-        m_pwrapImageStars       = new WrapImage(m_pimageStars);
+        m_pwrapImageHudGroup = new WrapImage(m_pgroupImageHUD);
+        m_pwrapImageLensFlare = new WrapImage(m_pimageLensFlare);
+        m_pwrapImageScene = new WrapImage(m_pimageScene);
+        m_pwrapImageStars = new WrapImage(m_pimageStars);
         m_pwrapImageEnvironment = new WrapImage(m_pimageEnvironment);
         m_pwrapImagePosters =
             new WrapImage(
@@ -3170,24 +3196,24 @@ public:
 
         m_pgroupImage3D = new GroupImage();
 
-        m_pgroupImage3D->AddImage(m_pwrapImageHudGroup   );
-        m_pgroupImage3D->AddImage(m_pmuzzleFlareImage    );
-		//m_pgroupImage3D->AddImage(m_pwrapImageLensFlare  ); // Your_Persona: this line was moved down one line to move it up in the draw order.
-        m_pgroupImage3D->AddImage(m_pwrapImageScene      );
-		m_pgroupImage3D->AddImage(m_pwrapImageLensFlare  );// moved to here
-        m_pgroupImage3D->AddImage(m_pwrapImagePosters    );
-        m_pgroupImage3D->AddImage(m_pwrapImageStars      );
+        m_pgroupImage3D->AddImage(m_pwrapImageHudGroup);
+        m_pgroupImage3D->AddImage(m_pmuzzleFlareImage);
+        //m_pgroupImage3D->AddImage(m_pwrapImageLensFlare  ); // Your_Persona: this line was moved down one line to move it up in the draw order.
+        m_pgroupImage3D->AddImage(m_pwrapImageScene);
+        m_pgroupImage3D->AddImage(m_pwrapImageLensFlare);// moved to here
+        m_pgroupImage3D->AddImage(m_pwrapImagePosters);
+        m_pgroupImage3D->AddImage(m_pwrapImageStars);
 
         m_pgroupImage3D->AddImage(m_pwrapImageEnvironment);
 
-        m_pwrapImageConsole     = new WrapImage(Image::GetEmpty());
-        m_pwrapImageBackdrop    = new WrapImage(m_pgroupImage3D);
+        m_pwrapImageConsole = new WrapImage(Image::GetEmpty());
+        m_pwrapImageBackdrop = new WrapImage(m_pgroupImage3D);
 
         m_pgroupImageGame = new GroupImage();
 
         m_pgroupImageGame->AddImage(m_pwrapImageConsole);
         m_pgroupImageGame->AddImage(m_pwrapImageBackdrop);
-        m_pgroupImageGame->AddImage(m_pimageBlack       );
+        m_pgroupImageGame->AddImage(m_pimageBlack);
 
 
         //
@@ -3208,16 +3234,16 @@ public:
 
         m_cVTVersion = 0;
         m_hwndVTEdit = ::CreateWindow(TEXT("EDIT"),
-                                        TEXT("VTEdit"),
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        TrekWindow::GetHWND(),
-                                        NULL,
-                                        GetModuleHandle(NULL),
-                                        NULL);
+            TEXT("VTEdit"),
+            0,
+            0,
+            0,
+            0,
+            0,
+            TrekWindow::GetHWND(),
+            NULL,
+            GetModuleHandle(NULL),
+            NULL);
 
         //
         // Load saved settings
@@ -3227,15 +3253,15 @@ public:
             ToggleRoundRadar();
         if (!LoadPreference("CensorChats", TRUE))
             ToggleCensorChats();
-        if (LoadPreference ("PreferChaseView", FALSE))
-            ToggleStickyChase ();
+        if (LoadPreference("PreferChaseView", FALSE))
+            ToggleStickyChase();
         if (!LoadPreference("FilterChatsToAll", TRUE))
             ToggleFilterChatsToAll();
         if (!LoadPreference("FilterQuickComms", TRUE))
             ToggleFilterQuickComms();
-		if (!LoadPreference("FilterUnknownChats", TRUE))
+        if (!LoadPreference("FilterUnknownChats", TRUE))
             ToggleFilterUnknownChats(); //TheBored 30-JUL-07: Filter Unknown Chat patch
-		if (!LoadPreference("LinearControlResponse", FALSE)) // BT - 8/17 Set to quadratic by default.
+        if (!LoadPreference("LinearControlResponse", FALSE)) // BT - 8/17 Set to quadratic by default.
             ToggleLinearControls();
         if (!LoadPreference("Environment", TRUE) || IsWine())  //imago 9/19/09 force env in wine 8/16/09
             ToggleEnvironment();
@@ -3253,7 +3279,7 @@ public:
             ToggleBounds();
         if (!LoadPreference("TransparentObjects", TRUE))
             ToggleTransparentObjects();
-        SetSmoke (LoadPreference ("SmokeEffects", 3));
+        SetSmoke(LoadPreference("SmokeEffects", 3));
         if (!LoadPreference("Lens Flare", TRUE))
             ToggleLensFlare();
         if (!LoadPreference("BidirectionalLighting", TRUE))
@@ -3266,28 +3292,29 @@ public:
             ToggleTargetHUD();
         if (LoadPreference("SoftwareHUD", FALSE))  //All we need with two styles
             CycleStyleHUD();
-		SetDeadzone(LoadPreference("DeadZone", 5)); //ToggleLargeDeadZone(); //Imago updated 7/8/09 // BT 8/17 - Small deadzone default.
-		SetRadarLOD(LoadPreference("RadarLOD", 0)); //Imago updated 7/8/09 #24 (Gamma, VirtualJoystick, RadarLOD, ShowGrid)
-		if (LoadPreference("ShowGrid", FALSE))
-			ToggleShowGrid();
-		SetGamma(LoadPreference("Gamma", "1.13"));
-	    if (LoadPreference("VirtualJoystick", TRUE)) // BT - 10/17 - Enable virtual JS by default, not many people have joysticks now-a-days.
-			ToggleVirtualJoystick();
+        SetDeadzone(LoadPreference("DeadZone", 5)); //ToggleLargeDeadZone(); //Imago updated 7/8/09 // BT 8/17 - Small deadzone default.
+        SetRadarLOD(LoadPreference("RadarLOD", 0)); //Imago updated 7/8/09 #24 (Gamma, VirtualJoystick, RadarLOD, ShowGrid)
+        if (LoadPreference("ShowGrid", FALSE))
+            ToggleShowGrid();
+        SetGamma(LoadPreference("Gamma", "1.13"));
+        if (LoadPreference("VirtualJoystick", TRUE)) // BT - 10/17 - Enable virtual JS by default, not many people have joysticks now-a-days.
+            ToggleVirtualJoystick();
 
-		ToggleFilterLobbyChats(LoadPreference("FilterLobbyChats", 0)); //TheBored 25-JUN-07: Mute lobby chat patch // mmf 04/08 default this to 0
+        ToggleFilterLobbyChats(LoadPreference("FilterLobbyChats", 0)); //TheBored 25-JUN-07: Mute lobby chat patch // mmf 04/08 default this to 0
 
-		// #294 - Turkey
-		SetChatLines(LoadPreference("ChatLines", 10));
+                                                                       // #294 - Turkey
+        SetChatLines(LoadPreference("ChatLines", 10));
 
-		/* pkk May 6th: Disabled bandwidth patch
-		ToggleBandwidth(LoadPreference("Bandwidth",32)); // w0dk4 June 2007: Bandwith Patch - Increase default to max Imago 8/10*/
+        /* pkk May 6th: Disabled bandwidth patch
+        ToggleBandwidth(LoadPreference("Bandwidth",32)); // w0dk4 June 2007: Bandwith Patch - Increase default to max Imago 8/10*/
 
         bool bAllow3DAcceleration;
 
         if (bSoftware || bHardware) {
             bAllow3DAcceleration = bHardware;
             SavePreference("Allow3DAcceleration", bAllow3DAcceleration);
-        } else {
+        }
+        else {
             bAllow3DAcceleration = LoadPreference("Allow3DAcceleration", TRUE) != 0;
         }
 
@@ -3298,8 +3325,9 @@ public:
         if (bSecondary || bPrimary) {
             bAllowSecondary = bSecondary;
             SavePreference("AllowSecondary", bAllowSecondary);
-        } else {
-            bAllowSecondary = LoadPreference("AllowSecondary" , TRUE) != 0;
+        }
+        else {
+            bAllowSecondary = LoadPreference("AllowSecondary", TRUE) != 0;
         }
 
         GetEngine()->SetAllowSecondary(bAllowSecondary);
@@ -3311,66 +3339,66 @@ public:
         InitializeHelp();
 
         // initialize the bad words filters
-        LoadBadWords ();
+        LoadBadWords();
 
-		// BT - 10/17 - Check if Allegiance should run windowed or not... This happens after allegiance has 
-		// already initialized to a window and gotten its fonts loaded.
-		bool startFullScreen = true;
-		ParseCommandLine(strCommandLine, startFullScreen);
+        // BT - 10/17 - Check if Allegiance should run windowed or not... This happens after allegiance has 
+        // already initialized to a window and gotten its fonts loaded.
+        bool startFullScreen = true;
+        ParseCommandLine(strCommandLine, startFullScreen);
 
-		SetFullscreen(startFullScreen);
+        SetFullscreen(startFullScreen);
 
         m_pmissileLast = 0;
 
         //
         // intro.avi video moved up
         //
-		TRef<Screen> introscr = CreateIntroScreen(GetModeler());
-		SetUiScreen(introscr);
+        TRef<Screen> introscr = CreateIntroScreen(GetModeler());
+        SetUiScreen(introscr);
         m_screen = ScreenIDIntroScreen;
         RestoreCursor();
 
-    	if (hDDVidThread != NULL) {
-			WaitForSingleObject(hDDVidThread,INFINITE);
-			CloseHandle(hDDVidThread);
+        if (hDDVidThread != NULL) {
+            WaitForSingleObject(hDDVidThread, INFINITE);
+            CloseHandle(hDDVidThread);
 
-			// BT - 9/17 - The return of the original intro movie. Only try to show the movie the first time the user runs allegiance. 
-			HKEY    hKey;
-			DWORD   dwHasSeenMovie = 0;
-			DWORD dwDataSize = sizeof(dwHasSeenMovie);
-			if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_CURRENT_USER, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_ALL_ACCESS, &hKey))
-			{
-				RegQueryValueExA(hKey, "HasSeenMovie", NULL, NULL, (LPBYTE)&dwHasSeenMovie, &dwDataSize);
+            // BT - 9/17 - The return of the original intro movie. Only try to show the movie the first time the user runs allegiance. 
+            HKEY    hKey;
+            DWORD   dwHasSeenMovie = 0;
+            DWORD dwDataSize = sizeof(dwHasSeenMovie);
+            if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_CURRENT_USER, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_ALL_ACCESS, &hKey))
+            {
+                RegQueryValueExA(hKey, "HasSeenMovie", NULL, NULL, (LPBYTE)&dwHasSeenMovie, &dwDataSize);
 
-				if (dwHasSeenMovie == 0)
-				{
-					DWORD   dwNewValue = 1;
-					RegSetValueExA(hKey, "HasSeenMovie", NULL, REG_DWORD, (const BYTE*)&dwNewValue, sizeof(dwNewValue));
-				}
-				RegCloseKey(hKey);
-			}
-			ZString pathMovieStr = "";
+                if (dwHasSeenMovie == 0)
+                {
+                    DWORD   dwNewValue = 1;
+                    RegSetValueExA(hKey, "HasSeenMovie", NULL, REG_DWORD, (const BYTE*)&dwNewValue, sizeof(dwNewValue));
+                }
+                RegCloseKey(hKey);
+            }
+            ZString pathMovieStr = "";
 
-			if (dwHasSeenMovie == 0)
-			{
-				// To make a movie that is compatible with the movie player, use this ffmpeg command line: 
-				// ffmpeg.exe -i intro_microsoft_original.avi -q:a 1 -q:v 1 -vcodec mpeg4 -acodec wmav2 intro_microsoft.avi
-				pathMovieStr = GetModeler()->GetArtPath() + "/intro_movie.avi";
+            if (dwHasSeenMovie == 0)
+            {
+                // To make a movie that is compatible with the movie player, use this ffmpeg command line: 
+                // ffmpeg.exe -i intro_microsoft_original.avi -q:a 1 -q:v 1 -vcodec mpeg4 -acodec wmav2 intro_microsoft.avi
+                pathMovieStr = GetModeler()->GetArtPath() + "/intro_movie.avi";
 
-				hDDVidThread = PlayMovieClip(bMovies, bSoftware, CD3DDevice9::Get()->IsWindowed(), pathMovieStr);
+                hDDVidThread = PlayMovieClip(bMovies, bSoftware, CD3DDevice9::Get()->IsWindowed(), pathMovieStr);
 
-				if (hDDVidThread != NULL) 
-				{
-					WaitForSingleObject(hDDVidThread, INFINITE);
-					CloseHandle(hDDVidThread);
-				}
-			}
+                if (hDDVidThread != NULL)
+                {
+                    WaitForSingleObject(hDDVidThread, INFINITE);
+                    CloseHandle(hDDVidThread);
+                }
+            }
 
-			// BT - End of movie change.
+            // BT - End of movie change.
 
-			if (!CD3DDevice9::Get()->IsWindowed())
-				::ShowWindow(GetHWND(), SW_SHOWMAXIMIZED);
-		}  
+            if (!CD3DDevice9::Get()->IsWindowed())
+                ::ShowWindow(GetHWND(), SW_SHOWMAXIMIZED);
+        }
 
     }
 
@@ -3378,7 +3406,7 @@ public:
     {
         m_pwrapImageTop = new WrapImage(Image::GetEmpty());
         m_pwrapImageLOD = new WrapImage(Image::GetEmpty());
-		m_pwrapImageHelp = new WrapImage(Image::GetEmpty());
+        m_pwrapImageHelp = new WrapImage(Image::GetEmpty());
 
         m_pgroupImage = new GroupImage();
         m_pgroupImage->AddImage(m_pjoystickImage);
@@ -3416,13 +3444,13 @@ public:
         SetCursorImage(pimageCursor);
     }
 
-	// TODO: rewrite all load and savepreference methods to use a settings file instead of the registry.
+    // TODO: rewrite all load and savepreference methods to use a settings file instead of the registry.
     void SavePreference(const ZString& szName, DWORD dwValue)
     {
         HKEY hKey;
 
         if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_CURRENT_USER, ALLEGIANCE_REGISTRY_KEY_ROOT,
-                0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL))
+            0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL))
         {
             ::RegSetValueEx(hKey, szName, NULL, REG_DWORD, (const BYTE*)&dwValue, sizeof(dwValue));
             ::RegCloseKey(hKey);
@@ -3434,11 +3462,11 @@ public:
         HKEY hKey;
         DWORD dwResult = dwDefault;
 
-		// mmf lets actually load it instead of creating it
+        // mmf lets actually load it instead of creating it
         // if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_CURRENT_USER, ALLEGIANCE_REGISTRY_KEY_ROOT,
         //        0, "", REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hKey, NULL))
-		if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_CURRENT_USER, ALLEGIANCE_REGISTRY_KEY_ROOT,
-                0, KEY_READ, &hKey))
+        if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_CURRENT_USER, ALLEGIANCE_REGISTRY_KEY_ROOT,
+            0, KEY_READ, &hKey))
         {
             DWORD dwSize = sizeof(dwResult);
             DWORD dwType = REG_DWORD;
@@ -3458,7 +3486,7 @@ public:
         HKEY hKey;
 
         if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_CURRENT_USER, ALLEGIANCE_REGISTRY_KEY_ROOT,
-                0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL))
+            0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL))
         {
             ::RegSetValueEx(hKey, szName, NULL, REG_SZ,
                 (const unsigned char*)(const char*)strValue, strValue.GetLength() + 1);
@@ -3471,11 +3499,11 @@ public:
         HKEY hKey;
         ZString strResult = strDefault;
 
-		// mmf lets actually load it instead of creating it
+        // mmf lets actually load it instead of creating it
         //if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_CURRENT_USER, ALLEGIANCE_REGISTRY_KEY_ROOT,
         //        0, "", REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hKey, NULL))
-		if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_CURRENT_USER, ALLEGIANCE_REGISTRY_KEY_ROOT,
-                0, KEY_READ, &hKey))
+        if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_CURRENT_USER, ALLEGIANCE_REGISTRY_KEY_ROOT,
+            0, KEY_READ, &hKey))
         {
             const int nMaxStrLen = 2048;
             DWORD dwSize = nMaxStrLen;
@@ -3483,7 +3511,7 @@ public:
             unsigned char cbValue[nMaxStrLen + 1];
 
             ::RegQueryValueEx(hKey, szName, NULL, &dwType, cbValue, &dwSize);
-            
+
 
             cbValue[nMaxStrLen] = '\0';
 
@@ -3494,30 +3522,30 @@ public:
         return strResult;
     }
 
-	bool IsWine() { //Imago 8/17/09
-		HKEY hKey;
-		if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Wine", 0, KEY_READ, &hKey)) {
-			::RegCloseKey(hKey);
-			return true;
-		}
-		return false;
-	}
+    bool IsWine() { //Imago 8/17/09
+        HKEY hKey;
+        if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Wine", 0, KEY_READ, &hKey)) {
+            ::RegCloseKey(hKey);
+            return true;
+        }
+        return false;
+    }
 
     void Terminate()
     {
         // Save the screen resolution
-		WinPoint sizeCurrentResolution = GetEngine()->GetFullscreenSize();
-		SavePreference("CombatFullscreenXSize", sizeCurrentResolution.X());
-		SavePreference("CombatFullscreenYSize", sizeCurrentResolution.Y());
+        WinPoint sizeCurrentResolution = GetEngine()->GetFullscreenSize();
+        SavePreference("CombatFullscreenXSize", sizeCurrentResolution.X());
+        SavePreference("CombatFullscreenYSize", sizeCurrentResolution.Y());
 
         SavePreference("Allow3DAcceleration", GetEngine()->GetAllow3DAcceleration());
-        SavePreference("AllowSecondary"     , GetEngine()->GetAllowSecondary     ());
+        SavePreference("AllowSecondary", GetEngine()->GetAllowSecondary());
 
-		SetGamma(ZString(GetEngine()->GetGammaLevel())); //imago 7/8/09 #24
+        SetGamma(ZString(GetEngine()->GetGammaLevel())); //imago 7/8/09 #24
 
-        //
-        // Terminate VT.
-        //
+                                                         //
+                                                         // Terminate VT.
+                                                         //
         if (NULL != m_hwndVTEdit)
         {
             if (TRUE == ::DestroyWindow(m_hwndVTEdit))
@@ -3528,7 +3556,7 @@ public:
         if (!GetPopupContainer()->IsEmpty())
             GetPopupContainer()->ClosePopup(NULL);
         m_pmessageBox = NULL;
-        m_pmessageBoxLockdown= NULL;
+        m_pmessageBoxLockdown = NULL;
 
         m_pClientEventSource->RemoveSink(m_pClientEventSink);
 
@@ -3537,7 +3565,7 @@ public:
 
         trekClient.Terminate();
 
-		//imago removed for Visual Studio 2008 Express users (lacks ATL/COM) - we're not using TM7 anyways 6/22/09
+        //imago removed for Visual Studio 2008 Express users (lacks ATL/COM) - we're not using TM7 anyways 6/22/09
         // clean up after the training mission if we need to
         //extern  void KillTrainingStandaloneGame (void);
         //KillTrainingStandaloneGame ();
@@ -3545,41 +3573,41 @@ public:
         m_mapAnimatedImages.SetEmpty();
 
         TerminateGameStateContainer();
-        m_pimageScreen     = NULL;
-        m_pscreen          = NULL;
+        m_pimageScreen = NULL;
+        m_pscreen = NULL;
         SetCaption(NULL);
 
-		// BT - 10/17 - Fixing 8982261	211206	allegiance.exe	allegiance.exe	tvector.h	362	13	0	Win32 StructuredException at 0058C1DA : UNKNOWN	2017-10-08 14:33:29	0x0018C1DA	10	UNKNOWN
-		// Not sure why we need to set the image to empty when the window is closing down anyway. 
-		// This causes a crash on some machines as the underlying TVector is already gone when this part of the code
-		// is reached. 
-		if (m_screen == ScreenIDCombat)
-		{
-			SetImage(Image::GetEmpty());
-			m_pwrapImageConsole->SetImage(Image::GetEmpty());
-			m_pwrapImageTop->SetImage(Image::GetEmpty());
-		}
+        // BT - 10/17 - Fixing 8982261	211206	allegiance.exe	allegiance.exe	tvector.h	362	13	0	Win32 StructuredException at 0058C1DA : UNKNOWN	2017-10-08 14:33:29	0x0018C1DA	10	UNKNOWN
+        // Not sure why we need to set the image to empty when the window is closing down anyway. 
+        // This causes a crash on some machines as the underlying TVector is already gone when this part of the code
+        // is reached. 
+        if (m_screen == ScreenIDCombat)
+        {
+            SetImage(Image::GetEmpty());
+            m_pwrapImageConsole->SetImage(Image::GetEmpty());
+            m_pwrapImageTop->SetImage(Image::GetEmpty());
+        }
 
-        m_pgeoScene          = NULL;
-        m_pcamera            = NULL;
-        m_pcameraPosters     = NULL;
+        m_pgeoScene = NULL;
+        m_pcamera = NULL;
+        m_pcameraPosters = NULL;
         //m_pcameraTurret      = NULL;
-        m_pimageScene        = NULL;
-        m_pgeoDebris         = NULL;
-        m_pimageStars        = NULL;
-        m_pimageEnvironment  = NULL;
-        m_pimageBlack        = NULL;
+        m_pimageScene = NULL;
+        m_pgeoDebris = NULL;
+        m_pimageStars = NULL;
+        m_pimageEnvironment = NULL;
+        m_pimageBlack = NULL;
         //m_pimageTurret       = NULL;
-        m_pimageLensFlare    = NULL;
+        m_pimageLensFlare = NULL;
         m_pwrapImageHudGroup = NULL;
-        m_pwrapImageComm     = NULL;
-        m_pwrapImageRadar    = NULL;
-        m_pwrapImageConsole  = NULL;
-        m_pgroupImageHUD     = NULL;
-        m_pconsoleImage      = NULL;
-        m_pradarImage        = NULL;
-        m_pgroupImage        = NULL;
-        m_pgroupImage3D      = NULL;
+        m_pwrapImageComm = NULL;
+        m_pwrapImageRadar = NULL;
+        m_pwrapImageConsole = NULL;
+        m_pgroupImageHUD = NULL;
+        m_pconsoleImage = NULL;
+        m_pradarImage = NULL;
+        m_pgroupImage = NULL;
+        m_pgroupImage3D = NULL;
         m_pconsoleImage = NULL;
 
         m_psoundMusic = NULL;
@@ -3599,7 +3627,7 @@ public:
         EngineWindow::OnClose();
     }
 
-    void CloseMessageBox ()
+    void CloseMessageBox()
     {
         m_pmessageBox = NULL;
     }
@@ -3623,7 +3651,7 @@ public:
             if (value == IDOK)
                 m_pwindow->DoClose();
             else
-                m_pwindow->CloseMessageBox ();
+                m_pwindow->CloseMessageBox();
             return false;
         }
     };
@@ -3658,14 +3686,14 @@ public:
 
     void DoQuitMission()
     {
-        if (Training::IsTraining ())
+        if (Training::IsTraining())
         {
-            Training::EndMission ();
-            Training::SetSkipPostSlideshow ();
+            Training::EndMission();
+            Training::SetSkipPostSlideshow();
         }
-        else if (Slideshow::IsInSlideShow ())
+        else if (Slideshow::IsInSlideShow())
         {
-            screen (ScreenIDTrainScreen);
+            screen(ScreenIDTrainScreen);
         }
         else
         {
@@ -3698,7 +3726,7 @@ public:
     void StartQuitMission()
     {
         TRef<IMessageBox> pmessageBox;
-        if (Training::IsTraining () || Slideshow::IsInSlideShow ())
+        if (Training::IsTraining() || Slideshow::IsInSlideShow())
             pmessageBox = CreateMessageBox("Quit the Current Training Mission?", NULL, true, true);
         else
             pmessageBox = CreateMessageBox("Quit the Current Game?", NULL, true, true);
@@ -3706,7 +3734,7 @@ public:
         GetPopupContainer()->OpenPopup(pmessageBox, false);
     }
 
-    TrekInput*  GetInput (void)
+    TrekInput*  GetInput(void)
     {
         return m_ptrekInput;
     }
@@ -3731,9 +3759,9 @@ public:
             );
             m_pimageStars->SetCount(pcluster->GetStarSeed(), pcluster->GetNstars());
 
-            m_color                     = pcluster->GetLightColor();
-            m_colorAlt                  = pcluster->GetLightColorAlt();
-            m_ambientLevel              = pcluster->GetAmbientLevel();
+            m_color = pcluster->GetLightColor();
+            m_colorAlt = pcluster->GetLightColorAlt();
+            m_ambientLevel = pcluster->GetAmbientLevel();
             m_ambientLevelBidirectional = pcluster->GetBidirectionalAmbientLevel();
 
             SetLightDirection(pcluster->GetLightDirection());
@@ -3754,138 +3782,143 @@ public:
         UpdateMusic();
     }
 
-	void UpdateBackdropCentering()
-	{
-		//kg- #226 - todo -factorize with above code
-		if (m_pimageScreen)
-		{
-			// center the pane on the screen
-			const Rect& rectScreen = GetScreenRectValue()->GetValue();
-			if (m_pscreen->GetPane()) //kg- review
-			{
-				const WinPoint& sizePane = m_pscreen->GetPane()->GetSize();
+    void UpdateBackdropCentering()
+    {
+        //kg- #226 - todo -factorize with above code
+        if (m_pimageScreen)
+        {
+            // center the pane on the screen
+            const Rect& rectScreen = GetScreenRectValue()->GetValue();
+            Point sizeScreenBeforeScaling;
+            if (m_pscreen->GetPane())
+            {
+                const WinPoint& sizePane = m_pscreen->GetPane()->GetSize();
+                sizeScreenBeforeScaling = Point(sizePane.X(), sizePane.Y());
+            }
+            else if (m_pscreen->GetImage()) {
+                sizeScreenBeforeScaling = m_pscreen->GetImage()->GetBounds().GetRect().Size();
+            }
 
-				float scale;
-				scale = min(rectScreen.XSize() / sizePane.X(), rectScreen.YSize() / sizePane.Y());
+            float scale;
+            scale = min(rectScreen.XSize() / sizeScreenBeforeScaling.X(), rectScreen.YSize() / sizeScreenBeforeScaling.Y());
 
-				Point pointTranslate;
-				pointTranslate = Point(
-					0.5 * (rectScreen.XSize() - sizePane.X() * scale),
-					0.5 * (rectScreen.YSize() - sizePane.Y() * scale)
-				);
+            Point pointTranslate;
+            pointTranslate = Point(
+                0.5 * (rectScreen.XSize() - sizeScreenBeforeScaling.X() * scale),
+                0.5 * (rectScreen.YSize() - sizeScreenBeforeScaling.Y() * scale)
+            );
 
-				Matrix2 matrix = Matrix2::GetIdentity();
-				matrix.SetScale(Point(scale, scale));
-				matrix.Translate(pointTranslate);
+            Matrix2 matrix = Matrix2::GetIdentity();
+            matrix.SetScale(Point(scale, scale));
+            matrix.Translate(pointTranslate);
 
-				m_pMatrixTransformScreen->SetValue(matrix);
-			}
-		}
-	}
+            m_pMatrixTransformScreen->SetValue(matrix);
+        }
+    }
 
-	void contextAcceptPlayer()
-	{
-		trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
+    void contextAcceptPlayer()
+    {
+        trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
         BEGIN_PFM_CREATE(trekClient.m_fm, pfmPosAck, C, POSITIONACK)
-        END_PFM_CREATE
-        pfmPosAck->shipID = contextPlayerInfo->ShipID();
+            END_PFM_CREATE
+            pfmPosAck->shipID = contextPlayerInfo->ShipID();
         pfmPosAck->fAccepted = true;
         pfmPosAck->iSide = trekClient.GetSideID();
-	}
+    }
 
-	void contextRejectPlayer()
-	{
-		// if we are booting a player who is already on our team...
-       if (contextPlayerInfo->SideID() == trekClient.GetSideID())
+    void contextRejectPlayer()
+    {
+        // if we are booting a player who is already on our team...
+        if (contextPlayerInfo->SideID() == trekClient.GetSideID())
         {
             trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
             BEGIN_PFM_CREATE(trekClient.m_fm, pfmQuitSide, CS, QUIT_SIDE)
-            END_PFM_CREATE
-            pfmQuitSide->shipID = contextPlayerInfo->ShipID();
+                END_PFM_CREATE
+                pfmQuitSide->shipID = contextPlayerInfo->ShipID();
             pfmQuitSide->reason = QSR_LeaderBooted;
         }
         else
         {
             trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
             BEGIN_PFM_CREATE(trekClient.m_fm, pfmPosAck, C, POSITIONACK)
-            END_PFM_CREATE
-            pfmPosAck->shipID = contextPlayerInfo->ShipID();
+                END_PFM_CREATE
+                pfmPosAck->shipID = contextPlayerInfo->ShipID();
             pfmPosAck->fAccepted = false;
             pfmPosAck->iSide = trekClient.GetSideID();
         }
-	}
+    }
 
-	void contextMakeLeader()
-	{
-		trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
+    void contextMakeLeader()
+    {
+        trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
         BEGIN_PFM_CREATE(trekClient.m_fm, pfmSetTeamLeader, CS, SET_TEAM_LEADER)
-        END_PFM_CREATE
-        pfmSetTeamLeader->sideID = trekClient.GetSideID();
+            END_PFM_CREATE
+            pfmSetTeamLeader->sideID = trekClient.GetSideID();
         pfmSetTeamLeader->shipID = contextPlayerInfo->ShipID();
-	}
+    }
 
-	void contextMute()
-	{
-		contextPlayerInfo->SetMute(!contextPlayerInfo->GetMute());
-	}
+    void contextMute()
+    {
+        contextPlayerInfo->SetMute(!contextPlayerInfo->GetMute());
+    }
 
-	// BT - STEAM - Enable moderators to ban players by context menu.
-	void contextKickPlayer()
-	{
-		char szMessageParam[CB_ZTS];
-		lstrcpy(szMessageParam, "You have been moved to NOAT by an administrator.");
-		trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
-		BEGIN_PFM_CREATE(trekClient.m_fm, pfmQuitSide, CS, QUIT_SIDE)
-			FM_VAR_PARM(szMessageParam, CB_ZTS)
-			END_PFM_CREATE
-			pfmQuitSide->shipID = contextPlayerInfo->ShipID();
-		pfmQuitSide->reason = QSR_SwitchingSides;
-	}
+    // BT - STEAM - Enable moderators to ban players by context menu.
+    void contextKickPlayer()
+    {
+        char szMessageParam[CB_ZTS];
+        lstrcpy(szMessageParam, "You have been moved to NOAT by an administrator.");
+        trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
+        BEGIN_PFM_CREATE(trekClient.m_fm, pfmQuitSide, CS, QUIT_SIDE)
+            FM_VAR_PARM(szMessageParam, CB_ZTS)
+            END_PFM_CREATE
+            pfmQuitSide->shipID = contextPlayerInfo->ShipID();
+        pfmQuitSide->reason = QSR_SwitchingSides;
+    }
 
-	// BT - STEAM - Enable moderators to ban players by context menu.
-	void contextBanPlayer()
-	{
-		char szMessageParam[CB_ZTS];
-		lstrcpy(szMessageParam, "You have been banned from this game an administrator.");
-		trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
-		BEGIN_PFM_CREATE(trekClient.m_fm, pfmQuitSide, CS, QUIT_MISSION)
-			FM_VAR_PARM(szMessageParam, CB_ZTS)
-			END_PFM_CREATE
-			pfmQuitSide->shipID = contextPlayerInfo->ShipID();
-		pfmQuitSide->reason = QSR_AdminBooted;
-	}
-	
-	void contextDockDrone() //Xynth #48 8/2010
-	{
-		//Spunky #250 #257
-		bool docked=contextPlayerInfo->LastSeenState() == c_ssDocked; //GetStation() doesn't work here
-		if (docked && !contextPlayerInfo->GetShip()->GetStayDocked() || !docked) 
-			contextPlayerInfo->GetShip()->SetStayDocked(true);
- 		else
-			contextPlayerInfo->GetShip()->SetStayDocked(false);
-	
-		if (trekClient.m_fm.IsConnected())
-		{
-			trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
-			BEGIN_PFM_CREATE(trekClient.m_fm, pfmOC, CS, ORDER_CHANGE)
-			END_PFM_CREATE
+    // BT - STEAM - Enable moderators to ban players by context menu.
+    void contextBanPlayer()
+    {
+        char szMessageParam[CB_ZTS];
+        lstrcpy(szMessageParam, "You have been banned from this game an administrator.");
+        trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
+        BEGIN_PFM_CREATE(trekClient.m_fm, pfmQuitSide, CS, QUIT_MISSION)
+            FM_VAR_PARM(szMessageParam, CB_ZTS)
+            END_PFM_CREATE
+            pfmQuitSide->shipID = contextPlayerInfo->ShipID();
+        pfmQuitSide->reason = QSR_AdminBooted;
+    }
 
-			pfmOC->shipID = contextPlayerInfo->GetShip()->GetObjectID();			
-			pfmOC->command = c_cmdAccepted;
-			if (docked && contextPlayerInfo->GetShip()->GetStayDocked())
-				pfmOC->commandID = c_cidDoNothing;
-			else 
-				pfmOC->commandID = c_cidGoto; 
-			pfmOC->objectType = OT_invalid;
-			pfmOC->objectID = NA;
-		}
-	}
+    void contextDockDrone() //Xynth #48 8/2010
+    {
+        //Spunky #250 #257
+        bool docked = contextPlayerInfo->LastSeenState() == c_ssDocked; //GetStation() doesn't work here
+        if (docked && !contextPlayerInfo->GetShip()->GetStayDocked() || !docked)
+            contextPlayerInfo->GetShip()->SetStayDocked(true);
+        else
+            contextPlayerInfo->GetShip()->SetStayDocked(false);
 
-	//Xynth #197 8/2010
-	void contextChat()
-	{
-		GetWindow()->GetConsoleImage()->GetConsoleData()->PickShip(contextPlayerInfo->GetShip());
-	}
+        if (trekClient.m_fm.IsConnected())
+        {
+            trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
+            BEGIN_PFM_CREATE(trekClient.m_fm, pfmOC, CS, ORDER_CHANGE)
+                END_PFM_CREATE
+
+                pfmOC->shipID = contextPlayerInfo->GetShip()->GetObjectID();
+            pfmOC->command = c_cmdAccepted;
+            if (docked && contextPlayerInfo->GetShip()->GetStayDocked())
+                pfmOC->commandID = c_cidDoNothing;
+            else
+                pfmOC->commandID = c_cidGoto;
+            pfmOC->objectType = OT_invalid;
+            pfmOC->objectID = NA;
+        }
+    }
+
+    //Xynth #197 8/2010
+    void contextChat()
+    {
+        GetWindow()->GetConsoleImage()->GetConsoleData()->PickShip(contextPlayerInfo->GetShip());
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     //
@@ -3905,58 +3938,58 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Camera*          GetCamera()                    { return m_pcamera;                         }
-    Orientation      GetCameraOrientation()         { return m_cameraControl.GetHeadOrientation() * m_cameraControl.GetOrientation();    }
-    void             ResetCameraFOV()               { m_cameraControl.SetFOV(s_fDefaultFOV);    }
-    Camera*          GetCameraPosters()             { return m_pcameraPosters;                  }
-    ConsoleImage*    GetConsoleImage()              { return m_pconsoleImage;                   }
-    Viewport*        GetViewport()                  { return m_pviewport;                       }
-    Viewport*        GetPosterViewport()            { return m_pviewportPosters;                }
-    int              GetRadarMode(void) const       { return int(m_pradarImage->GetRadarLOD()); }
+    Camera*          GetCamera() { return m_pcamera; }
+    Orientation      GetCameraOrientation() { return m_cameraControl.GetHeadOrientation() * m_cameraControl.GetOrientation(); }
+    void             ResetCameraFOV() { m_cameraControl.SetFOV(s_fDefaultFOV); }
+    Camera*          GetCameraPosters() { return m_pcameraPosters; }
+    ConsoleImage*    GetConsoleImage() { return m_pconsoleImage; }
+    Viewport*        GetViewport() { return m_pviewport; }
+    Viewport*        GetPosterViewport() { return m_pviewportPosters; }
+    int              GetRadarMode(void) const { return int(m_pradarImage->GetRadarLOD()); }
     void             SetRadarMode(int radarMode)
     {
-        m_pradarImage->SetRadarLOD (static_cast<RadarImage::RadarLOD> (radarMode));
+        m_pradarImage->SetRadarLOD(static_cast<RadarImage::RadarLOD> (radarMode));
         m_radarCockpit = radarMode;
     }
 
     AsteroidAbilityBitMask  GetInvestAsteroid(void) const { return m_aabmInvest; }
-    void                    SetInvestAsteroid(AsteroidAbilityBitMask aabm)  { m_aabmInvest = aabm; }
+    void                    SetInvestAsteroid(AsteroidAbilityBitMask aabm) { m_aabmInvest = aabm; }
 
     AsteroidAbilityBitMask  GetCommandAsteroid(void) const { return m_aabmCommand; }
-    void                    SetCommandAsteroid(AsteroidAbilityBitMask aabm)  { m_aabmCommand = aabm; }
+    void                    SetCommandAsteroid(AsteroidAbilityBitMask aabm) { m_aabmCommand = aabm; }
 
-    bool             GetRoundRadarMode(void) const  { return m_bRoundRadar;                     }
-    CameraMode       GetCameraMode(void) const      { return m_cm;                              }
+    bool             GetRoundRadarMode(void) const { return m_bRoundRadar; }
+    CameraMode       GetCameraMode(void) const { return m_cm; }
 
     /*
     void             TurretChange(void)
     {
-        Mount   turret = trekClient.GetShip()->GetTurretID();
+    Mount   turret = trekClient.GetShip()->GetTurretID();
 
-        if (turret == NA)
-        {
-            m_pwrapImageTurret->SetImage(Image::GetEmpty());
-            m_pgeoTurret = Geo::GetEmpty();
-        }
-        else
-        {
-            IshipIGC*   pshipParent = trekClient.GetShip()->GetParentShip();
-            assert (pshipParent);
+    if (turret == NA)
+    {
+    m_pwrapImageTurret->SetImage(Image::GetEmpty());
+    m_pgeoTurret = Geo::GetEmpty();
+    }
+    else
+    {
+    IshipIGC*   pshipParent = trekClient.GetShip()->GetParentShip();
+    assert (pshipParent);
 
-            float   minDot = pshipParent->GetHullType()->GetHardpointData(turret).minDot;
-            if (minDot < -0.75f)
-            {
-                m_pwrapImageTurret->SetImage(Image::GetEmpty());
-                m_pgeoTurret = Geo::GetEmpty();
-            }
-            else
-            {
-                m_pgeoTurret = CreateWireSphereGeo(pshipParent->GetHullType()->GetHardpointData(turret).minDot, 32);
-            }
-        }
-        m_pimageTurret =
-            new GeoImage(new TransformGeo(m_pgeoTurret, m_pmtTurret),
-                         m_pviewportTurret, false);
+    float   minDot = pshipParent->GetHullType()->GetHardpointData(turret).minDot;
+    if (minDot < -0.75f)
+    {
+    m_pwrapImageTurret->SetImage(Image::GetEmpty());
+    m_pgeoTurret = Geo::GetEmpty();
+    }
+    else
+    {
+    m_pgeoTurret = CreateWireSphereGeo(pshipParent->GetHullType()->GetHardpointData(turret).minDot, 32);
+    }
+    }
+    m_pimageTurret =
+    new GeoImage(new TransformGeo(m_pgeoTurret, m_pmtTurret),
+    m_pviewportTurret, false);
     }
     */
 
@@ -3967,17 +4000,17 @@ public:
 
     void ShowWebPage(const char* szURL)
     {
-		//
-		// WLP - 2005 removed line below - this overrides all web pages to alleg.net for now
-		//  the compare doesn't work anyway
-		//   if (szURL[0] == '\0')
-		if (szURL[0] == '\0')
-			szURL = "https://www.freeallegiance.org/forums"; // BT - 9/17 updated dead link to point to forums instead.
+        //
+        // WLP - 2005 removed line below - this overrides all web pages to alleg.net for now
+        //  the compare doesn't work anyway
+        //   if (szURL[0] == '\0')
+        if (szURL[0] == '\0')
+            szURL = "https://www.freeallegiance.org/forums"; // BT - 9/17 updated dead link to point to forums instead.
 
         if (!IsWindows9x()) {
             /*
             if (GetFullscreen()) {
-                SetFullscreen(false);
+            SetFullscreen(false);
             }
             */
         }
@@ -3985,232 +4018,232 @@ public:
         ShellExecute(NULL, NULL, szURL, NULL, NULL, SW_SHOWNORMAL);
     }
 
-    #define idmConfigure         3
-    #define idmView              5
-    #define idmOptions           6
-    #define idmHelp              7
-    #define idmExitGame          8
-    #define idmEngineOptions     9
-    #define idmSoundOptions      10
-    #define idmGameOptions       11
-    #define idmExitApp           12
-    #define idmGameDetails       13
-	#define idmVersion           14 // TE: Added Version menu
-	#define idmTags				 15 // BT - STEAM - Let the user select thier group tag.
+#define idmConfigure         3
+#define idmView              5
+#define idmOptions           6
+#define idmHelp              7
+#define idmExitGame          8
+#define idmEngineOptions     9
+#define idmSoundOptions      10
+#define idmGameOptions       11
+#define idmExitApp           12
+#define idmGameDetails       13
+#define idmVersion           14 // TE: Added Version menu
+#define idmTags				 15 // BT - STEAM - Let the user select thier group tag.
 
-    #define idmChannelN          101
-    #define idmChannelShow       102
-    #define idmChannelHide       103
-    #define idmChannelRename     104
+#define idmChannelN          101
+#define idmChannelShow       102
+#define idmChannelHide       103
+#define idmChannelRename     104
 
-    #define idmCommSend          201
-    #define idmCommMuzzle        202
-    #define idmCommUnMuzzle      203
+#define idmCommSend          201
+#define idmCommMuzzle        202
+#define idmCommUnMuzzle      203
 
-    #define idmEquipmentN        301
-    #define idmEquipmentMount    302
-    #define idmEquipmentDismount 303
-    #define idmEquipmentDrop     304
+#define idmEquipmentN        301
+#define idmEquipmentMount    302
+#define idmEquipmentDismount 303
+#define idmEquipmentDrop     304
 
-    #define idmWeaponN           401
-    #define idmWeaponMount       402
-    #define idmWeaponDismount    403
-    #define idmWeaponDrop        404
+#define idmWeaponN           401
+#define idmWeaponMount       402
+#define idmWeaponDismount    403
+#define idmWeaponDrop        404
 
-    #define idmCMGameState       501
-    #define idmCMCombat          502
-    #define idmCMCommand         503
-    #define idmCMSector          504
-    #define idmCMLoadout         505
-    #define idmCMTeamPane        506
+#define idmCMGameState       501
+#define idmCMCombat          502
+#define idmCMCommand         503
+#define idmCMSector          504
+#define idmCMLoadout         505
+#define idmCMTeamPane        506
 
-    #define idmSound                       601
-    #define idmTogglePosters               602
-    #define idmToggleDebris                603
-    #define idmToggleStars                 604
-    #define idmToggleStrobes               605
-    #define idmToggleLensFlare             606
-    #define idmToggleTrails                609
-    #define idmToggleEnvironment           611
-    #define idmToggleBidirectionalLighting 612
-    #define idmToggleChatHistoryHUD        614
-    #define idmToggleCenterHUD             615
-    #define idmToggleTargetHUD             616
-    #define idmToggleRoundRadar            617
-    #define idmStyleHUD                    618
-    #define idmToggleCensorChats           619
-    #define idmToggleLinearControls        620
-    #define idmToggleSmoke                 621
-    #define idmToggleBounds                622
-    #define idmToggleTransparentObjects    623
-    #define idmFilterChatsToAll            624
-    #define idmFilterQuickComms            625
-    #define idmFilterLobbyChats            626
-    #define idmToggleLargeDeadZone         627
-    #define idmToggleVirtualJoystick       628
-    #define idmToggleFlipY                 629
-    #define idmToggleStickyChase           630
-    #define idmToggleEnableFeedback        631
-    #define idmMaxTextureSize              632 // yp Your_Persona August 2 2006 : MaxTextureSize Patch
-    #define idmPings                       633 // w0dk4 player-pings feature
+#define idmSound                       601
+#define idmTogglePosters               602
+#define idmToggleDebris                603
+#define idmToggleStars                 604
+#define idmToggleStrobes               605
+#define idmToggleLensFlare             606
+#define idmToggleTrails                609
+#define idmToggleEnvironment           611
+#define idmToggleBidirectionalLighting 612
+#define idmToggleChatHistoryHUD        614
+#define idmToggleCenterHUD             615
+#define idmToggleTargetHUD             616
+#define idmToggleRoundRadar            617
+#define idmStyleHUD                    618
+#define idmToggleCensorChats           619
+#define idmToggleLinearControls        620
+#define idmToggleSmoke                 621
+#define idmToggleBounds                622
+#define idmToggleTransparentObjects    623
+#define idmFilterChatsToAll            624
+#define idmFilterQuickComms            625
+#define idmFilterLobbyChats            626
+#define idmToggleLargeDeadZone         627
+#define idmToggleVirtualJoystick       628
+#define idmToggleFlipY                 629
+#define idmToggleStickyChase           630
+#define idmToggleEnableFeedback        631
+#define idmMaxTextureSize              632 // yp Your_Persona August 2 2006 : MaxTextureSize Patch
+#define idmPings                       633 // w0dk4 player-pings feature
     /* pkk May 6th: Disabled bandwidth patch
     #define idmBandwidth		       634 // w0dk4 June 2007: Bandwith Patch */
-    #define	idmMuteFilterOptions		 635 //TheBored 30-JUL-07: Filter Unknown Chat patch
-    #define idmFilterUnknownChats		 636 //TheBored 30-JUL-07: Filter Unknown Chat patch
-	#define idmScrollbar				 637 // #294 - Turkey
-	#define idmIncreaseChatLines		 638 // #294 - Turkey
-	#define idmReduceChatLines			 639 // #294 - Turkey
-	#define idmCycleTimestamp			 640 // #294 - Turkey
+#define	idmMuteFilterOptions		 635 //TheBored 30-JUL-07: Filter Unknown Chat patch
+#define idmFilterUnknownChats		 636 //TheBored 30-JUL-07: Filter Unknown Chat patch
+#define idmScrollbar				 637 // #294 - Turkey
+#define idmIncreaseChatLines		 638 // #294 - Turkey
+#define idmReduceChatLines			 639 // #294 - Turkey
+#define idmCycleTimestamp			 640 // #294 - Turkey
 
-    #define idmResetSound           701
-    #define idmSoundQuality         702
-    #define idmSoundHardware        703
-    #define idmToggleMusic          704
-    #define idmMusicVolumeUp        705
-    #define idmMusicVolumeDown      706
-    #define idmSFXVolumeUp          707
-    #define idmSFXVolumeDown        708
-    #define idmVoiceOverVolumeUp    709
-    #define idmVoiceOverVolumeDown  710
-	#define idmUseDSound8           711
+#define idmResetSound           701
+#define idmSoundQuality         702
+#define idmSoundHardware        703
+#define idmToggleMusic          704
+#define idmMusicVolumeUp        705
+#define idmMusicVolumeDown      706
+#define idmSFXVolumeUp          707
+#define idmSFXVolumeDown        708
+#define idmVoiceOverVolumeUp    709
+#define idmVoiceOverVolumeDown  710
+#define idmUseDSound8           711
 
-	#define idmContextAcceptPlayer	801
-	#define idmContextRejectPlayer	802
-	#define idmContextMakeLeader	803
-	#define idmContextMutePlayer	804
+#define idmContextAcceptPlayer	801
+#define idmContextRejectPlayer	802
+#define idmContextMakeLeader	803
+#define idmContextMutePlayer	804
 
-	//imago 6/30/09
-	#define idmDeviceOptions		805
-	#define idmAA					806
-	#define idmMip					807
-	#define idmPack					808
-	#define idmVsync				810
-	
+    //imago 6/30/09
+#define idmDeviceOptions		805
+#define idmAA					806
+#define idmMip					807
+#define idmPack					808
+#define idmVsync				810
+
     //Imago 7/10
-    #define idmFFOptions            811
-    #define idmFFGainUp             812
-    #define idmFFGainDown           813
-    #define idmFFAutoCenter         814
+#define idmFFOptions            811
+#define idmFFGainUp             812
+#define idmFFGainDown           813
+#define idmFFAutoCenter         814
 
-	
-	//Xynth #48 8/2010
-	#define idmContextDockDrone		815
-	//Xynth #197 8/2010
-	#define idmContextChat			816
 
-	//Imago 8/10 #215
-	#define idmMouseOptions		817
-	#define idmMouseSensUp		818
-	#define idmMouseSensDown	819
-	#define idmMouseAccel		820
-	#define idmWheelDelay		821 //Spunky #282
+    //Xynth #48 8/2010
+#define idmContextDockDrone		815
+    //Xynth #197 8/2010
+#define idmContextChat			816
 
-	#define idmHighResTextures	822	// BT - 10/17 - HighRes Textures
+    //Imago 8/10 #215
+#define idmMouseOptions		817
+#define idmMouseSensUp		818
+#define idmMouseSensDown	819
+#define idmMouseAccel		820
+#define idmWheelDelay		821 //Spunky #282
 
-	// BT - STEAM
-	#define idmCallsignTag0		900
-	#define idmCallsignTag1		901
-	#define idmCallsignTag2		902
-	#define idmCallsignTag3		903
-	#define idmCallsignTag4		904
-	#define idmCallsignTag5		905
-	#define idmCallsignTag6		906
-	#define idmCallsignTag7		907
-	#define idmCallsignTag8		908
-	#define idmCallsignTag9		909
-	#define idmCallsignTagNone	910 
-	
-	// BT - STEAM
-	#define idmToken0			920
-	#define idmToken1			921
-	#define idmToken2			922
-	#define idmToken3			923
-	#define idmToken4			924
+#define idmHighResTextures	822	// BT - 10/17 - HighRes Textures
 
-	// BT - STEAM - New player context menu options
-	#define idmContextKickPlayer	1000
-	#define idmContextBanPlayer		1001
-	
-	/* SR: TakeScreenShot() grabs an image of the screen and saves it as a 24-bit
-	 * bitmap. Filename is determined by the user's local time.
-	 * Author: Stain_Rat
-	 */
-	void TakeScreenShot()
-	{
-		// BT - STEAM - When the user attempts to take a screen shot inside of Alleg, trigger the steam overlay to do it instead.
-		SteamScreenshots()->TriggerScreenshot();
-		return; 
+    // BT - STEAM
+#define idmCallsignTag0		900
+#define idmCallsignTag1		901
+#define idmCallsignTag2		902
+#define idmCallsignTag3		903
+#define idmCallsignTag4		904
+#define idmCallsignTag5		905
+#define idmCallsignTag6		906
+#define idmCallsignTag7		907
+#define idmCallsignTag8		908
+#define idmCallsignTag9		909
+#define idmCallsignTagNone	910 
 
-		////capturing screen size this way (instead of using a native GDI call) will create
-		////windowed screen shots which look like they were taken with the game running
-		////in full screen mode.
-		//Point currentResolution = GetRenderRectValue()->GetValue().Size();
-		//int screenX = currentResolution.X();
-		//int screenY = currentResolution.Y();
+    // BT - STEAM
+#define idmToken0			920
+#define idmToken1			921
+#define idmToken2			922
+#define idmToken3			923
+#define idmToken4			924
 
-		//HDC hDesktopDC = GetDC();
-		//HDC hCaptureDC = CreateCompatibleDC(hDesktopDC);
-		//void* DIBBitValues;
-		//BITMAPINFO bmpInfo = {0};
+    // BT - STEAM - New player context menu options
+#define idmContextKickPlayer	1000
+#define idmContextBanPlayer		1001
 
-		////build up the BITMAPINFOHEADER
-		//bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-		//bmpInfo.bmiHeader.biWidth = screenX;
-		//bmpInfo.bmiHeader.biHeight = screenY;
-		//bmpInfo.bmiHeader.biPlanes = 1;
-		//bmpInfo.bmiHeader.biBitCount = 24;
-		//bmpInfo.bmiHeader.biCompression = BI_RGB;
+    /* SR: TakeScreenShot() grabs an image of the screen and saves it as a 24-bit
+    * bitmap. Filename is determined by the user's local time.
+    * Author: Stain_Rat
+    */
+    void TakeScreenShot()
+    {
+        // BT - STEAM - When the user attempts to take a screen shot inside of Alleg, trigger the steam overlay to do it instead.
+        SteamScreenshots()->TriggerScreenshot();
+        return;
 
-		//HBITMAP hCaptureBitmap = CreateDIBSection(hDesktopDC, &bmpInfo, DIB_RGB_COLORS, &DIBBitValues, NULL, NULL);
-		//SelectObject(hCaptureDC, hCaptureBitmap);
-		//BitBlt(hCaptureDC, 0, 0, screenX, screenY, hDesktopDC, 0, 0, SRCCOPY);
+        ////capturing screen size this way (instead of using a native GDI call) will create
+        ////windowed screen shots which look like they were taken with the game running
+        ////in full screen mode.
+        //Point currentResolution = GetRenderRectValue()->GetValue().Size();
+        //int screenX = currentResolution.X();
+        //int screenY = currentResolution.Y();
 
-		////populates bmpInfo.bmiHeader.biSizeImage with the actual size
-		//GetDIBits(hDesktopDC, hCaptureBitmap, 0, 0, NULL, &bmpInfo, DIB_RGB_COLORS);
+        //HDC hDesktopDC = GetDC();
+        //HDC hCaptureDC = CreateCompatibleDC(hDesktopDC);
+        //void* DIBBitValues;
+        //BITMAPINFO bmpInfo = {0};
 
-		////build up the BITMAPFILEHEADER
-		//BITMAPFILEHEADER bmpFileHeader = {0};
-		//bmpFileHeader.bfType = 'MB';
-		//bmpFileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + bmpInfo.bmiHeader.biSizeImage;
-		//bmpFileHeader.bfReserved1 = 0;
-		//bmpFileHeader.bfReserved2 = 0;
-		//bmpFileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+        ////build up the BITMAPINFOHEADER
+        //bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+        //bmpInfo.bmiHeader.biWidth = screenX;
+        //bmpInfo.bmiHeader.biHeight = screenY;
+        //bmpInfo.bmiHeader.biPlanes = 1;
+        //bmpInfo.bmiHeader.biBitCount = 24;
+        //bmpInfo.bmiHeader.biCompression = BI_RGB;
 
-		////create a filename for our screenshot using the local time
-		//SYSTEMTIME sysTimeForName;
-		//GetLocalTime(&sysTimeForName);
-		//ZString scrnShotName = sysTimeForName.wYear;
-		//scrnShotName += "-";
-		//scrnShotName += sysTimeForName.wMonth;
-		//scrnShotName += "-";
-		//scrnShotName += sysTimeForName.wDay;
-		//scrnShotName += "_";
-		//scrnShotName += sysTimeForName.wHour;
-		//scrnShotName += ".";
-		//scrnShotName += sysTimeForName.wMinute;
-		//scrnShotName += ".";
-		//scrnShotName += sysTimeForName.wSecond;
-		//scrnShotName += ".";
-		//scrnShotName += sysTimeForName.wMilliseconds;
-		//scrnShotName += ".bmp";
+        //HBITMAP hCaptureBitmap = CreateDIBSection(hDesktopDC, &bmpInfo, DIB_RGB_COLORS, &DIBBitValues, NULL, NULL);
+        //SelectObject(hCaptureDC, hCaptureBitmap);
+        //BitBlt(hCaptureDC, 0, 0, screenX, screenY, hDesktopDC, 0, 0, SRCCOPY);
 
-		//FILE* outputFile;
-		//outputFile = fopen(scrnShotName,"wb");
-		////write the BITMAPFILEHEADER, BITMAPINFOHEADER, and bimap bit values to create the *.bmp
-		//fwrite(&bmpFileHeader, sizeof(BITMAPFILEHEADER), 1, outputFile);
-		//fwrite(&bmpInfo.bmiHeader, sizeof(BITMAPINFOHEADER), 1, outputFile);
-		//fwrite(DIBBitValues, bmpInfo.bmiHeader.biSizeImage, 1, outputFile);
-		//fclose(outputFile);
+        ////populates bmpInfo.bmiHeader.biSizeImage with the actual size
+        //GetDIBits(hDesktopDC, hCaptureBitmap, 0, 0, NULL, &bmpInfo, DIB_RGB_COLORS);
 
-		//ReleaseDC(hDesktopDC);
-		//DeleteDC(hCaptureDC);
-		//DeleteObject(hCaptureBitmap);
-	}
+        ////build up the BITMAPFILEHEADER
+        //BITMAPFILEHEADER bmpFileHeader = {0};
+        //bmpFileHeader.bfType = 'MB';
+        //bmpFileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + bmpInfo.bmiHeader.biSizeImage;
+        //bmpFileHeader.bfReserved1 = 0;
+        //bmpFileHeader.bfReserved2 = 0;
+        //bmpFileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 
-	// BT - STEAM - TODO Move these to where the other globals are hiding?
-	CallsignTagInfo m_currentCallsignTag;
+        ////create a filename for our screenshot using the local time
+        //SYSTEMTIME sysTimeForName;
+        //GetLocalTime(&sysTimeForName);
+        //ZString scrnShotName = sysTimeForName.wYear;
+        //scrnShotName += "-";
+        //scrnShotName += sysTimeForName.wMonth;
+        //scrnShotName += "-";
+        //scrnShotName += sysTimeForName.wDay;
+        //scrnShotName += "_";
+        //scrnShotName += sysTimeForName.wHour;
+        //scrnShotName += ".";
+        //scrnShotName += sysTimeForName.wMinute;
+        //scrnShotName += ".";
+        //scrnShotName += sysTimeForName.wSecond;
+        //scrnShotName += ".";
+        //scrnShotName += sysTimeForName.wMilliseconds;
+        //scrnShotName += ".bmp";
+
+        //FILE* outputFile;
+        //outputFile = fopen(scrnShotName,"wb");
+        ////write the BITMAPFILEHEADER, BITMAPINFOHEADER, and bimap bit values to create the *.bmp
+        //fwrite(&bmpFileHeader, sizeof(BITMAPFILEHEADER), 1, outputFile);
+        //fwrite(&bmpInfo.bmiHeader, sizeof(BITMAPINFOHEADER), 1, outputFile);
+        //fwrite(DIBBitValues, bmpInfo.bmiHeader.biSizeImage, 1, outputFile);
+        //fclose(outputFile);
+
+        //ReleaseDC(hDesktopDC);
+        //DeleteDC(hCaptureDC);
+        //DeleteObject(hCaptureBitmap);
+    }
+
+    // BT - STEAM - TODO Move these to where the other globals are hiding?
+    CallsignTagInfo m_currentCallsignTag;
 #ifdef STEAM_APP_ID
-	SteamClans m_availableSteamClans;
+    SteamClans m_availableSteamClans;
 #endif
 
     void ShowMainMenu()
@@ -4222,180 +4255,180 @@ public:
                 m_pmenuCommandSink
             );
 
-		// mmf format octal version (defined in SlmVer.h) to decimal YY.MM.DD
-		int YY,MM,DD;
-		ZString dR;
-		{
-			ZString dVer, dYY, dMM, dDD;
-			dVer = ZVersionInfo().GetStringValue("FileVersion").Right(6);
-			dR = ZVersionInfo().GetProductVersionString().Middle(3,1); //Imago good till R10
-			dDD = dVer.Right(2);
-			dMM = dVer.Middle(2,2);
-			dYY = dVer.Middle(0,2);
+        // mmf format octal version (defined in SlmVer.h) to decimal YY.MM.DD
+        int YY, MM, DD;
+        ZString dR;
+        {
+            ZString dVer, dYY, dMM, dDD;
+            dVer = ZVersionInfo().GetStringValue("FileVersion").Right(6);
+            dR = ZVersionInfo().GetProductVersionString().Middle(3, 1); //Imago good till R10
+            dDD = dVer.Right(2);
+            dMM = dVer.Middle(2, 2);
+            dYY = dVer.Middle(0, 2);
 
-			YY = atoi(dYY); 	
-			YY = (YY/10)*8+(YY%10);
-			
-			MM = atoi(dMM); 	
-			MM = (MM/10)*8+(MM%10);
-			
-			DD = atoi(dDD); 	
-			DD = (DD/10)*8+(DD%10);
-		}
+            YY = atoi(dYY);
+            YY = (YY / 10) * 8 + (YY % 10);
 
-		// TE: Add version menu, mmf changed format, zero pad YY, that will last us 3 more years and saves an if
-		// TheBored 05-APR-2010: Removed leading 0 from year, hooray 2010!
-		// mmf added ifs to zero pad MM and DD
-		if (MM<10 && DD<10) m_pmenu->AddMenuItem(0, "FAZ R"+dR+" Build # " + ZString(YY) + ".0" + ZString(MM) + ".0" + ZString(DD));
-		if (MM<10 && DD>9)  m_pmenu->AddMenuItem(0, "FAZ R"+dR+" Build # " + ZString(YY) + ".0" + ZString(MM) + "." + ZString(DD));
-		if (MM>9 && DD<10)  m_pmenu->AddMenuItem(0, "FAZ R"+dR+" Build # " + ZString(YY) + "." + ZString(MM) + ".0" + ZString(DD));
-		if (MM>9 && DD>9)   m_pmenu->AddMenuItem(0, "FAZ R"+dR+" Build # " + ZString(YY) + "." + ZString(MM) + "." + ZString(DD));
-		//#62 Imago 7/10
-		if (trekClient.m_pMissionInfo) {
-			ZString zVer = UTL::GetServerVersion(trekClient.m_pMissionInfo->GetCookie());
-			if (zVer.IsEmpty() == false) {
-				m_pmenu->AddMenuItem(0, PCC("Server v" + zVer));
-			}
-		}
-		//AEM, redesigned ESC menu 7/6/07
-		// mmf 10/07 swapped position of S and G
-		m_pmenu->AddMenuItem(0               , "");
-		m_pmenu->AddMenuItem(0				 , "HELP");
-		m_pmenu->AddMenuItem(0               , "--------------------------");
-		m_pmenu->AddMenuItem(idmHelp         , "Manual & Quick Reference"            , 'H'                     );
-		m_pmenu->AddMenuItem(0               , "");
-		m_pmenu->AddMenuItem(0               , "OPTIONS");
-		m_pmenu->AddMenuItem(0               , "--------------------------");
-        m_pmenu->AddMenuItem(idmEngineOptions, "Graphics Device" , 'D', m_psubmenuEventSink);
-        m_pmenu->AddMenuItem(idmOptions      , "Graphics", 'O', m_psubmenuEventSink);
-        m_pmenu->AddMenuItem(idmGameOptions  , "Game",     'G', m_psubmenuEventSink);
-		m_pmenu->AddMenuItem(idmSoundOptions , "Sound"   , 'S', m_psubmenuEventSink);
+            MM = atoi(dMM);
+            MM = (MM / 10) * 8 + (MM % 10);
 
-		
-		// BT - STEAM - Let the user select their steam call sign from a list of options.
+            DD = atoi(dDD);
+            DD = (DD / 10) * 8 + (DD % 10);
+        }
+
+        // TE: Add version menu, mmf changed format, zero pad YY, that will last us 3 more years and saves an if
+        // TheBored 05-APR-2010: Removed leading 0 from year, hooray 2010!
+        // mmf added ifs to zero pad MM and DD
+        if (MM<10 && DD<10) m_pmenu->AddMenuItem(0, "FAZ R" + dR + " Build # " + ZString(YY) + ".0" + ZString(MM) + ".0" + ZString(DD));
+        if (MM<10 && DD>9)  m_pmenu->AddMenuItem(0, "FAZ R" + dR + " Build # " + ZString(YY) + ".0" + ZString(MM) + "." + ZString(DD));
+        if (MM>9 && DD<10)  m_pmenu->AddMenuItem(0, "FAZ R" + dR + " Build # " + ZString(YY) + "." + ZString(MM) + ".0" + ZString(DD));
+        if (MM>9 && DD>9)   m_pmenu->AddMenuItem(0, "FAZ R" + dR + " Build # " + ZString(YY) + "." + ZString(MM) + "." + ZString(DD));
+        //#62 Imago 7/10
+        if (trekClient.m_pMissionInfo) {
+            ZString zVer = UTL::GetServerVersion(trekClient.m_pMissionInfo->GetCookie());
+            if (zVer.IsEmpty() == false) {
+                m_pmenu->AddMenuItem(0, PCC("Server v" + zVer));
+            }
+        }
+        //AEM, redesigned ESC menu 7/6/07
+        // mmf 10/07 swapped position of S and G
+        m_pmenu->AddMenuItem(0, "");
+        m_pmenu->AddMenuItem(0, "HELP");
+        m_pmenu->AddMenuItem(0, "--------------------------");
+        m_pmenu->AddMenuItem(idmHelp, "Manual & Quick Reference", 'H');
+        m_pmenu->AddMenuItem(0, "");
+        m_pmenu->AddMenuItem(0, "OPTIONS");
+        m_pmenu->AddMenuItem(0, "--------------------------");
+        m_pmenu->AddMenuItem(idmEngineOptions, "Graphics Device", 'D', m_psubmenuEventSink);
+        m_pmenu->AddMenuItem(idmOptions, "Graphics", 'O', m_psubmenuEventSink);
+        m_pmenu->AddMenuItem(idmGameOptions, "Game", 'G', m_psubmenuEventSink);
+        m_pmenu->AddMenuItem(idmSoundOptions, "Sound", 'S', m_psubmenuEventSink);
+
+
+        // BT - STEAM - Let the user select their steam call sign from a list of options.
 #ifdef STEAM_APP_ID
-		if (m_availableSteamClans.GetAvailableCallsignTags()->GetCount() > 0)
-		{
-			ZString menuOption = "Squad Tags";
-			if (m_currentCallsignTag.m_steamGroupID > 0)
-			{
-				ZString currentName = trekClient.GetSavedCharacterName();
-				ZString renderedName = m_currentCallsignTag.Render(currentName);
-				menuOption = ZString("Squad Tags (") + renderedName + ")   ";
-			}
+        if (m_availableSteamClans.GetAvailableCallsignTags()->GetCount() > 0)
+        {
+            ZString menuOption = "Squad Tags";
+            if (m_currentCallsignTag.m_steamGroupID > 0)
+            {
+                ZString currentName = trekClient.GetSavedCharacterName();
+                ZString renderedName = m_currentCallsignTag.Render(currentName);
+                menuOption = ZString("Squad Tags (") + renderedName + ")   ";
+            }
 
-			if (m_screen == ScreenIDSplashScreen || m_screen == ScreenIDIntroScreen || m_screen == ScreenIDZoneClubScreen)
-			{
+            if (m_screen == ScreenIDSplashScreen || m_screen == ScreenIDIntroScreen || m_screen == ScreenIDZoneClubScreen)
+            {
 
-				m_pmenu->AddMenuItem(0, "");
-				m_pmenu->AddMenuItem(0, "Only Available Before");
-				m_pmenu->AddMenuItem(0, "Connecting to the Lobby");
-				m_pmenu->AddMenuItem(0, "--------------------------");
-				m_pmenu->AddMenuItem(idmTags, menuOption, 'T', m_psubmenuEventSink);
+                m_pmenu->AddMenuItem(0, "");
+                m_pmenu->AddMenuItem(0, "Only Available Before");
+                m_pmenu->AddMenuItem(0, "Connecting to the Lobby");
+                m_pmenu->AddMenuItem(0, "--------------------------");
+                m_pmenu->AddMenuItem(idmTags, menuOption, 'T', m_psubmenuEventSink);
 
-				
-				ZString tokens = m_currentCallsignTag.GetAvailableTokens();
-				if (tokens.GetLength() > 0)
-				{
-					for (int i = 0; i < tokens.GetLength(); i++)
-					{
-						if (tokens[i] == m_currentCallsignTag.m_callsignToken[0])
-							continue;
 
-						m_pmenu->AddMenuItem(idmToken0 + i, "Add Officer Token: ", tokens[i]);
-					}
-				}
-			}
-		}
+                ZString tokens = m_currentCallsignTag.GetAvailableTokens();
+                if (tokens.GetLength() > 0)
+                {
+                    for (int i = 0; i < tokens.GetLength(); i++)
+                    {
+                        if (tokens[i] == m_currentCallsignTag.m_callsignToken[0])
+                            continue;
 
-		// BT - STEAM - END.
+                        m_pmenu->AddMenuItem(idmToken0 + i, "Add Officer Token: ", tokens[i]);
+                    }
+                }
+            }
+        }
+
+        // BT - STEAM - END.
 #endif
 
         if (trekClient.MyMission() != NULL) {
-			m_pmenu->AddMenuItem(0               , "");
-			m_pmenu->AddMenuItem(0               , "INFORMATION");
-			m_pmenu->AddMenuItem(0               , "--------------------------");
-            m_pmenu->AddMenuItem(idmGameDetails, "Game Details",   'I');
-			m_pmenu->AddMenuItem(idmPings  ,     "Player Pings",   'P');	// w0dk4 player-pings feature
-		}
+            m_pmenu->AddMenuItem(0, "");
+            m_pmenu->AddMenuItem(0, "INFORMATION");
+            m_pmenu->AddMenuItem(0, "--------------------------");
+            m_pmenu->AddMenuItem(idmGameDetails, "Game Details", 'I');
+            m_pmenu->AddMenuItem(idmPings, "Player Pings", 'P');	// w0dk4 player-pings feature
+        }
 
-        m_pmenu->AddMenuItem(0               , "");
-		m_pmenu->AddMenuItem(0               , "QUIT");
-		m_pmenu->AddMenuItem(0               , "--------------------------");
-        if ((trekClient.MyMission() != NULL) || Slideshow::IsInSlideShow ())
-            m_pmenu->AddMenuItem(idmExitGame , "Mission"    , 'Q'                 );
-        m_pmenu->AddMenuItem(idmExitApp      , "Allegiance" , 'X'                     );
+        m_pmenu->AddMenuItem(0, "");
+        m_pmenu->AddMenuItem(0, "QUIT");
+        m_pmenu->AddMenuItem(0, "--------------------------");
+        if ((trekClient.MyMission() != NULL) || Slideshow::IsInSlideShow())
+            m_pmenu->AddMenuItem(idmExitGame, "Mission", 'Q');
+        m_pmenu->AddMenuItem(idmExitApp, "Allegiance", 'X');
 
         OpenPopup(m_pmenu, Point(10, 10));
     }
 
-	bool IsPlayerSteamModerator()
-	{
-		// The MSAlleg Steam Group ID.
-		CSteamID moderatorGroupID = ((uint64)103582791460031578);
-		int clanCount = SteamFriends()->GetClanCount();
-		bool isModerator = false;
-		for (int i = 0; i < clanCount; i++)
-		{
-			if (SteamFriends()->GetClanByIndex(i) == moderatorGroupID)
-			{
-				isModerator = true;
-				break;
-			}
-		}
+    bool IsPlayerSteamModerator()
+    {
+        // The MSAlleg Steam Group ID.
+        CSteamID moderatorGroupID = ((uint64)103582791460031578);
+        int clanCount = SteamFriends()->GetClanCount();
+        bool isModerator = false;
+        for (int i = 0; i < clanCount; i++)
+        {
+            if (SteamFriends()->GetClanByIndex(i) == moderatorGroupID)
+            {
+                isModerator = true;
+                break;
+            }
+        }
 
-		return isModerator;
-	}
+        return isModerator;
+    }
 
-	// YP: Add this for the rightclick lobby patch
-	void ShowPlayerContextMenu(PlayerInfo * playerInfo)
-	{
-		contextPlayerInfo = playerInfo;
+    // YP: Add this for the rightclick lobby patch
+    void ShowPlayerContextMenu(PlayerInfo * playerInfo)
+    {
+        contextPlayerInfo = playerInfo;
 
-		char str1[30];
-		char str2[30];
-		char str3[30];	sprintf(str3, "Make Leader  ",playerInfo->CharacterName());
-		char str4[30];	sprintf(str4, playerInfo->GetMute() == false ?"Mute         " :"UnMute       ",playerInfo->CharacterName());
+        char str1[30];
+        char str2[30];
+        char str3[30];	sprintf(str3, "Make Leader  ", playerInfo->CharacterName());
+        char str4[30];	sprintf(str4, playerInfo->GetMute() == false ? "Mute         " : "UnMute       ", playerInfo->CharacterName());
 
         bool bEnableAccept = false;
         bool bEnableReject = false;
         bool bEnableMakeLeader = false;
-		bool bEnableMute = false;
-			if (playerInfo->SideID() == trekClient.GetSideID())
-			{
-				if(trekClient.GetPlayerInfo()->IsTeamLeader())
-				{
-					sprintf(str2,"Boot       ",playerInfo->CharacterName());
-					bEnableReject = playerInfo->ShipID() != trekClient.GetShipID()
-						&& (!trekClient.MyMission()->GetMissionParams().bLockTeamSettings
-							|| playerInfo->SideID() != trekClient.GetSideID());
+        bool bEnableMute = false;
+        if (playerInfo->SideID() == trekClient.GetSideID())
+        {
+            if (trekClient.GetPlayerInfo()->IsTeamLeader())
+            {
+                sprintf(str2, "Boot       ", playerInfo->CharacterName());
+                bEnableReject = playerInfo->ShipID() != trekClient.GetShipID()
+                    && (!trekClient.MyMission()->GetMissionParams().bLockTeamSettings
+                        || playerInfo->SideID() != trekClient.GetSideID());
 
-					bEnableMakeLeader = playerInfo->SideID() == trekClient.GetSideID()
-						&& playerInfo->ShipID() != trekClient.GetShipID();
+                bEnableMakeLeader = playerInfo->SideID() == trekClient.GetSideID()
+                    && playerInfo->ShipID() != trekClient.GetShipID();
 
 
-				}
-			}
-			else
-			{
-				if(trekClient.GetPlayerInfo()->IsTeamLeader())
-				{
-					sprintf(str1,"Accept       ",playerInfo->CharacterName());
-					bEnableAccept = trekClient.MyMission()->SideAvailablePositions(trekClient.GetSideID()) > 0
-						&& trekClient.MyMission()->FindRequest(trekClient.GetSideID(), playerInfo->ShipID());
+            }
+        }
+        else
+        {
+            if (trekClient.GetPlayerInfo()->IsTeamLeader())
+            {
+                sprintf(str1, "Accept       ", playerInfo->CharacterName());
+                bEnableAccept = trekClient.MyMission()->SideAvailablePositions(trekClient.GetSideID()) > 0
+                    && trekClient.MyMission()->FindRequest(trekClient.GetSideID(), playerInfo->ShipID());
 
-					sprintf(str2,"Reject       ",playerInfo->CharacterName());
-					bEnableReject = playerInfo->ShipID() != trekClient.GetShipID()
-							&& trekClient.MyMission()->FindRequest(trekClient.GetSideID(), playerInfo->ShipID())
-							&& (!trekClient.MyMission()->GetMissionParams().bLockTeamSettings
-								|| playerInfo->SideID() != trekClient.GetSideID());
-				}
-			}
+                sprintf(str2, "Reject       ", playerInfo->CharacterName());
+                bEnableReject = playerInfo->ShipID() != trekClient.GetShipID()
+                    && trekClient.MyMission()->FindRequest(trekClient.GetSideID(), playerInfo->ShipID())
+                    && (!trekClient.MyMission()->GetMissionParams().bLockTeamSettings
+                        || playerInfo->SideID() != trekClient.GetSideID());
+            }
+        }
 
-			// we always want to be able to mute :)
-			bEnableMute = playerInfo != trekClient.GetPlayerInfo() ? true : false ;
+        // we always want to be able to mute :)
+        bEnableMute = playerInfo != trekClient.GetPlayerInfo() ? true : false;
 
-		m_pmenu =
+        m_pmenu =
             CreateMenu(
                 GetModeler(),
                 TrekResources::SmallFont(),
@@ -4403,127 +4436,127 @@ public:
             );
 
 
-        if(bEnableAccept)		m_pmenu->AddMenuItem(idmContextAcceptPlayer , str1 , 'A');
-        if(bEnableReject)		m_pmenu->AddMenuItem(idmContextRejectPlayer , str2 , 'R');
-        if(bEnableMakeLeader)	m_pmenu->AddMenuItem(idmContextMakeLeader , str3 , 'L');
-        if(bEnableMute)			m_pmenu->AddMenuItem(idmContextMutePlayer  , str4 , playerInfo->GetMute() == false ?'M' :'U');		
+        if (bEnableAccept)		m_pmenu->AddMenuItem(idmContextAcceptPlayer, str1, 'A');
+        if (bEnableReject)		m_pmenu->AddMenuItem(idmContextRejectPlayer, str2, 'R');
+        if (bEnableMakeLeader)	m_pmenu->AddMenuItem(idmContextMakeLeader, str3, 'L');
+        if (bEnableMute)			m_pmenu->AddMenuItem(idmContextMutePlayer, str4, playerInfo->GetMute() == false ? 'M' : 'U');
 
-		// BT - STEAM - Enable moderators to ban players by context menu.
-		if (IsPlayerSteamModerator())
-		{
-			m_pmenu->AddMenuItem(idmContextKickPlayer, "Kick To NOAT", 'K');
-			m_pmenu->AddMenuItem(idmContextBanPlayer, "Ban From Game", 'B');
-		}
-		
-		Point popupPosition = GetMousePosition();
+        // BT - STEAM - Enable moderators to ban players by context menu.
+        if (IsPlayerSteamModerator())
+        {
+            m_pmenu->AddMenuItem(idmContextKickPlayer, "Kick To NOAT", 'K');
+            m_pmenu->AddMenuItem(idmContextBanPlayer, "Ban From Game", 'B');
+        }
 
-
-		TRef<Pane> ppane = m_pmenu->GetPane();
-		ppane->UpdateLayout();
-		Point p = Point::Cast(ppane->GetSize());
-
-		popupPosition.SetY(popupPosition.Y() - p.Y());
-        OpenPopup(m_pmenu,	popupPosition);
-	}
-
-	//Xynth #48 8/2010 Add for player pane right click (initially miner dock)
-	void ShowPlayerPaneContextMenu(PlayerInfo * playerInfo)
-	{
-		contextPlayerInfo = playerInfo;
-
-		char str1[30];
-		char str2[30];
-		char str3[30];
-		char str4[30];
-		
-		//Xynth #48 8/2010 Add Dock menu item
-		bool bEnableDock = false;
-		bool bEnableChat = false;
-		bool bEnableReject = false;
-		bool bEnableAccept = false;
-
-		if (playerInfo->SideID() == trekClient.GetSideID())
-		{
-			// pkk #211 08/05/2010 Allow all drones stay docked Xynth Only commander can staydock and launch
-			if (playerInfo->GetShip()->GetPilotType() < c_ptPlayer && trekClient.GetPlayerInfo()->IsTeamLeader())
-			{
-				if (playerInfo->GetShip()->GetPilotType() != c_ptCarrier)
-				{ 					 
-					if ((playerInfo->LastSeenState() == c_ssDocked || playerInfo->LastSeenState() == NULL) && playerInfo->GetShip()->GetStayDocked()) //Spunky #250					
-						sprintf(str1,"Launch  ");
-					else
-						sprintf(str1,"Dock    ");
-					bEnableDock  = true;
-
-				}				
-				else  //carrier
-				{					
-					if (!(playerInfo->LastSeenState() == c_ssDocked || playerInfo->LastSeenState() == NULL))
-					{
-						sprintf(str1,"Dock/Flee ");  //if no shipyard, carriers go to nearest base players can launch from
-						bEnableDock  = true;  //no launch, since carriers don't have a default command
-					}
-				}
-				}
-			}
-
-		bEnableChat = (playerInfo->ShipID() != trekClient.GetShipID()) &&
-					   (playerInfo->GetShip()->GetPilotType() == c_ptPlayer);
-		sprintf(str2,"Chat       ");
-
-		if (playerInfo->SideID() != trekClient.GetSideID())		
-		{
-			if(trekClient.GetPlayerInfo()->IsTeamLeader())
-			{
-				sprintf(str3,"Accept       ");
-				bEnableAccept = trekClient.MyMission()->SideAvailablePositions(trekClient.GetSideID()) > 0
-					&& trekClient.MyMission()->FindRequest(trekClient.GetSideID(), playerInfo->ShipID());
-
-				sprintf(str4,"Reject       ");
-				bEnableReject = playerInfo->ShipID() != trekClient.GetShipID()
-					&& trekClient.MyMission()->FindRequest(trekClient.GetSideID(), playerInfo->ShipID())
-					&& (!trekClient.MyMission()->GetMissionParams().bLockTeamSettings
-					|| playerInfo->SideID() != trekClient.GetSideID());
-			}
-		}
-
-		bool bSteamModerator = IsPlayerSteamModerator();
-
-		if (bEnableDock || bEnableChat ||bEnableReject || bEnableAccept || bSteamModerator)  //Xynth #205 8/2010 Will need || for any other menu options.  
-						  //The point is don't create the menu if nothing is on it
-		{
-
-			m_pmenu =
-				CreateMenu(
-				GetModeler(),
-				TrekResources::SmallFont(),
-				m_pmenuCommandSink
-				);
+        Point popupPosition = GetMousePosition();
 
 
-			if(bEnableDock)			m_pmenu->AddMenuItem(idmContextDockDrone , str1 , 'D'); //Xynth #48 8/2010
-			if(bEnableChat)			m_pmenu->AddMenuItem(idmContextChat , str2 , 'C'); //Xynth #197 8/2010
-			if(bEnableAccept)		m_pmenu->AddMenuItem(idmContextAcceptPlayer , str3 , 'A');
-			if(bEnableReject)		m_pmenu->AddMenuItem(idmContextRejectPlayer , str4 , 'R');
+        TRef<Pane> ppane = m_pmenu->GetPane();
+        ppane->UpdateLayout();
+        Point p = Point::Cast(ppane->GetSize());
 
-			// BT - STEAM - Enable moderators to ban players by context menu.
-			if (bSteamModerator == true && bEnableDock == false)
-			{
-				m_pmenu->AddMenuItem(idmContextKickPlayer, "Kick To NOAT", 'K');
-				m_pmenu->AddMenuItem(idmContextBanPlayer, "Ban From Game", 'B');
-			}
+        popupPosition.SetY(popupPosition.Y() - p.Y());
+        OpenPopup(m_pmenu, popupPosition);
+    }
 
-			Point popupPosition = GetMousePosition();
+    //Xynth #48 8/2010 Add for player pane right click (initially miner dock)
+    void ShowPlayerPaneContextMenu(PlayerInfo * playerInfo)
+    {
+        contextPlayerInfo = playerInfo;
+
+        char str1[30];
+        char str2[30];
+        char str3[30];
+        char str4[30];
+
+        //Xynth #48 8/2010 Add Dock menu item
+        bool bEnableDock = false;
+        bool bEnableChat = false;
+        bool bEnableReject = false;
+        bool bEnableAccept = false;
+
+        if (playerInfo->SideID() == trekClient.GetSideID())
+        {
+            // pkk #211 08/05/2010 Allow all drones stay docked Xynth Only commander can staydock and launch
+            if (playerInfo->GetShip()->GetPilotType() < c_ptPlayer && trekClient.GetPlayerInfo()->IsTeamLeader())
+            {
+                if (playerInfo->GetShip()->GetPilotType() != c_ptCarrier)
+                {
+                    if ((playerInfo->LastSeenState() == c_ssDocked || playerInfo->LastSeenState() == NULL) && playerInfo->GetShip()->GetStayDocked()) //Spunky #250					
+                        sprintf(str1, "Launch  ");
+                    else
+                        sprintf(str1, "Dock    ");
+                    bEnableDock = true;
+
+                }
+                else  //carrier
+                {
+                    if (!(playerInfo->LastSeenState() == c_ssDocked || playerInfo->LastSeenState() == NULL))
+                    {
+                        sprintf(str1, "Dock/Flee ");  //if no shipyard, carriers go to nearest base players can launch from
+                        bEnableDock = true;  //no launch, since carriers don't have a default command
+                    }
+                }
+            }
+        }
+
+        bEnableChat = (playerInfo->ShipID() != trekClient.GetShipID()) &&
+            (playerInfo->GetShip()->GetPilotType() == c_ptPlayer);
+        sprintf(str2, "Chat       ");
+
+        if (playerInfo->SideID() != trekClient.GetSideID())
+        {
+            if (trekClient.GetPlayerInfo()->IsTeamLeader())
+            {
+                sprintf(str3, "Accept       ");
+                bEnableAccept = trekClient.MyMission()->SideAvailablePositions(trekClient.GetSideID()) > 0
+                    && trekClient.MyMission()->FindRequest(trekClient.GetSideID(), playerInfo->ShipID());
+
+                sprintf(str4, "Reject       ");
+                bEnableReject = playerInfo->ShipID() != trekClient.GetShipID()
+                    && trekClient.MyMission()->FindRequest(trekClient.GetSideID(), playerInfo->ShipID())
+                    && (!trekClient.MyMission()->GetMissionParams().bLockTeamSettings
+                        || playerInfo->SideID() != trekClient.GetSideID());
+            }
+        }
+
+        bool bSteamModerator = IsPlayerSteamModerator();
+
+        if (bEnableDock || bEnableChat || bEnableReject || bEnableAccept || bSteamModerator)  //Xynth #205 8/2010 Will need || for any other menu options.  
+                                                                                              //The point is don't create the menu if nothing is on it
+        {
+
+            m_pmenu =
+                CreateMenu(
+                    GetModeler(),
+                    TrekResources::SmallFont(),
+                    m_pmenuCommandSink
+                );
 
 
-			TRef<Pane> ppane = m_pmenu->GetPane();
-			ppane->UpdateLayout();
-			Point p = Point::Cast(ppane->GetSize());
+            if (bEnableDock)			m_pmenu->AddMenuItem(idmContextDockDrone, str1, 'D'); //Xynth #48 8/2010
+            if (bEnableChat)			m_pmenu->AddMenuItem(idmContextChat, str2, 'C'); //Xynth #197 8/2010
+            if (bEnableAccept)		m_pmenu->AddMenuItem(idmContextAcceptPlayer, str3, 'A');
+            if (bEnableReject)		m_pmenu->AddMenuItem(idmContextRejectPlayer, str4, 'R');
 
-			popupPosition.SetY(popupPosition.Y() - p.Y());
-			OpenPopup(m_pmenu,	popupPosition);
-		}
-	}
+            // BT - STEAM - Enable moderators to ban players by context menu.
+            if (bSteamModerator == true && bEnableDock == false)
+            {
+                m_pmenu->AddMenuItem(idmContextKickPlayer, "Kick To NOAT", 'K');
+                m_pmenu->AddMenuItem(idmContextBanPlayer, "Ban From Game", 'B');
+            }
+
+            Point popupPosition = GetMousePosition();
+
+
+            TRef<Pane> ppane = m_pmenu->GetPane();
+            ppane->UpdateLayout();
+            Point p = Point::Cast(ppane->GetSize());
+
+            popupPosition.SetY(popupPosition.Y() - p.Y());
+            OpenPopup(m_pmenu, popupPosition);
+        }
+    }
 
     void ShowOptionsMenu()
     {
@@ -4534,60 +4567,60 @@ public:
                 m_pmenuCommandSink
             );
 
-        m_pmenu->AddMenuItem(idmEngineOptions, "Graphics Device" , 'D', m_psubmenuEventSink);
-        m_pmenu->AddMenuItem(idmOptions      , "Graphics Options", 'O', m_psubmenuEventSink);
-        m_pmenu->AddMenuItem(idmSoundOptions , "Sound Options"   , 'S', m_psubmenuEventSink);
-        m_pmenu->AddMenuItem(idmGameOptions  , "Game Options" ,    'G', m_psubmenuEventSink);
+        m_pmenu->AddMenuItem(idmEngineOptions, "Graphics Device", 'D', m_psubmenuEventSink);
+        m_pmenu->AddMenuItem(idmOptions, "Graphics Options", 'O', m_psubmenuEventSink);
+        m_pmenu->AddMenuItem(idmSoundOptions, "Sound Options", 'S', m_psubmenuEventSink);
+        m_pmenu->AddMenuItem(idmGameOptions, "Game Options", 'G', m_psubmenuEventSink);
 
         OpenPopup(m_pmenu, Point(10, 10));
     }
 
 
-	// BT - STEAM 
+    // BT - STEAM 
 #ifdef STEAM_APP_ID
-	void AddAvailablePlayerTagsToMenu(TRef<IMenu> pmenu)
-	{
-		pmenu->AddMenuItem(0, "Squad Tags");
-		pmenu->AddMenuItem(0, "--------------------------");
+    void AddAvailablePlayerTagsToMenu(TRef<IMenu> pmenu)
+    {
+        pmenu->AddMenuItem(0, "Squad Tags");
+        pmenu->AddMenuItem(0, "--------------------------");
 
-		pmenu->AddMenuItem(idmCallsignTagNone, "<None>", 'X');
+        pmenu->AddMenuItem(idmCallsignTagNone, "<None>", 'X');
 
-		// Allow up to 30 tags to be shown.
-		// Backing this out for now, forgot to add additional idmCallsignTag* slots. 
-		for (int i = 0; i < m_availableSteamClans.GetAvailableCallsignTags()->GetCount() && i < 10; i++)
-		{
-			CallsignTagInfo item = m_availableSteamClans.GetAvailableCallsignTags()->Get(i);
-			pmenu->AddMenuItem(idmCallsignTag0 + i, item.m_callsignTag, 48 + item.m_index); // 48 = ASCII code for '0'.
-		}
-	}
+        // Allow up to 30 tags to be shown.
+        // Backing this out for now, forgot to add additional idmCallsignTag* slots. 
+        for (int i = 0; i < m_availableSteamClans.GetAvailableCallsignTags()->GetCount() && i < 10; i++)
+        {
+            CallsignTagInfo item = m_availableSteamClans.GetAvailableCallsignTags()->Get(i);
+            pmenu->AddMenuItem(idmCallsignTag0 + i, item.m_callsignTag, 48 + item.m_index); // 48 = ASCII code for '0'.
+        }
+    }
 
-	// BT - STEAM
-	void SetPlayerCallsign(int playerCallsignIndex)
-	{
-		for (int i = 0; i < m_availableSteamClans.GetAvailableCallsignTags()->GetCount(); i++)
-		{
-			CallsignTagInfo callsignTagInfo = m_availableSteamClans.GetAvailableCallsignTags()->Get(i);
+    // BT - STEAM
+    void SetPlayerCallsign(int playerCallsignIndex)
+    {
+        for (int i = 0; i < m_availableSteamClans.GetAvailableCallsignTags()->GetCount(); i++)
+        {
+            CallsignTagInfo callsignTagInfo = m_availableSteamClans.GetAvailableCallsignTags()->Get(i);
 
-			if (callsignTagInfo.m_index == playerCallsignIndex - idmCallsignTag0)
-			{
-				m_currentCallsignTag.SetSteamGroupID(callsignTagInfo.m_steamGroupID, callsignTagInfo.m_callsignTag);
-				break;
-			}
-		}
-	}
+            if (callsignTagInfo.m_index == playerCallsignIndex - idmCallsignTag0)
+            {
+                m_currentCallsignTag.SetSteamGroupID(callsignTagInfo.m_steamGroupID, callsignTagInfo.m_callsignTag);
+                break;
+            }
+        }
+    }
 
-	// BT - STEAM
-	void UnsetPlayerCallsign()
-	{
-		m_currentCallsignTag.SetSteamGroupID(0, "");
-	}
+    // BT - STEAM
+    void UnsetPlayerCallsign()
+    {
+        m_currentCallsignTag.SetSteamGroupID(0, "");
+    }
 
-	// BT - STEAM
-	void SetPlayerToken(int playerTokenIndex)
-	{
-		ZString tokens = m_currentCallsignTag.GetAvailableTokens();
-		m_currentCallsignTag.SetToken(tokens.Middle(idmToken0 - playerTokenIndex, 1));
-	}
+    // BT - STEAM
+    void SetPlayerToken(int playerTokenIndex)
+    {
+        ZString tokens = m_currentCallsignTag.GetAvailableTokens();
+        m_currentCallsignTag.SetToken(tokens.Middle(idmToken0 - playerTokenIndex, 1));
+    }
 #endif
 
     TRef<IPopup> GetSubMenu(IMenuItem* pitem)
@@ -4600,116 +4633,116 @@ public:
             );
 
         switch (pitem->GetID()) {
-            case idmEngineOptions:
-                return GetEngineMenu(TrekResources::SmallFont());
+        case idmEngineOptions:
+            return GetEngineMenu(TrekResources::SmallFont());
 
-            case idmOptions:
-                		       		 				 pmenu->AddMenuItem(idmDeviceOptions,					"Advanced Options",				  'A', m_psubmenuEventSink);
-                m_pitemToggleEnvironment           = pmenu->AddMenuItem(idmToggleEnvironment,           GetEnvironmentMenuString()          , 'E');
-                m_pitemTogglePosters               = pmenu->AddMenuItem(idmTogglePosters,               GetPostersMenuString()              , 'P');
-                m_pitemToggleDebris                = pmenu->AddMenuItem(idmToggleDebris,                GetDebrisMenuString()               , 'D');
-                m_pitemToggleStars                 = pmenu->AddMenuItem(idmToggleStars,                 GetStarsMenuString()                , 'S');
-                m_pitemToggleStrobes               = pmenu->AddMenuItem(idmToggleStrobes,               GetStrobesMenuString()              , 'R');
-                m_pitemToggleTrails                = pmenu->AddMenuItem(idmToggleTrails,                GetTrailsMenuString()               , 'T');
-                #ifdef _DEBUG
-                    m_pitemToggleBounds                = pmenu->AddMenuItem(idmToggleBounds,                GetBoundsMenuString()               , 'N');
-                    m_pitemToggleTransparentObjects    = pmenu->AddMenuItem(idmToggleTransparentObjects,    GetTransparentObjectsMenuString()   , 'O');
-                #endif
-                m_pitemToggleSmoke                 = pmenu->AddMenuItem(idmToggleSmoke,                 GetSmokeMenuString()                ,	'L'); //was same as posters - Imago 8/8/09
-                m_pitemToggleLensFlare             = pmenu->AddMenuItem(idmToggleLensFlare,             GetLensFlareMenuString()            ,	'F');
-                m_pitemToggleBidirectionalLighting = pmenu->AddMenuItem(idmToggleBidirectionalLighting, GetBidirectionalLightingMenuString(),	'B');
-                m_pitemStyleHUD                    = pmenu->AddMenuItem(idmStyleHUD,                    GetStyleHUDMenuString()             ,	'H'); //Imago 6/30/09 adjust new dx9 settings in game
-				
-				// BT - 10/17 - HighRes Textures
-				m_pitemToggleHighResTextures	   = pmenu->AddMenuItem(idmHighResTextures,				GetHighResTexturesString(),				'X');
- 				
-				break;
-
-            case idmGameOptions:
-                m_pitemMuteFilter		           = pmenu->AddMenuItem(idmMuteFilterOptions,					"Mute/Filter",						'M', m_psubmenuEventSink); //TheBored 30-JUL-07: Filter Unknown Chat patch
-                m_pitemToggleStickyChase           = pmenu->AddMenuItem(idmToggleStickyChase,           GetStickyChaseMenuString (),        'K');
-                m_pitemToggleLinearControls        = pmenu->AddMenuItem(idmToggleLinearControls,        GetLinearControlsMenuString(),      'L');
-                m_pitemToggleLargeDeadZone         = pmenu->AddMenuItem(idmToggleLargeDeadZone,         GetDeadzoneMenuString(),       'Z'); //imago updated 7/8/09
-                m_pitemToggleVirtualJoystick       = pmenu->AddMenuItem(idmToggleVirtualJoystick,       GetVirtualJoystickMenuString(),     'J');
-                m_pitemToggleFlipY                 = pmenu->AddMenuItem(idmToggleFlipY,                 GetFlipYMenuString(),               'Y');
-                //m_pitemToggleEnableFeedback        = pmenu->AddMenuItem(idmToggleEnableFeedback,        GetEnableFeedbackMenuString(),      'E'); //imago sunk 7/10
-													 pmenu->AddMenuItem(idmFFOptions,					"Force Feedback",				  'E', m_psubmenuEventSink);
-													 pmenu->AddMenuItem(idmMouseOptions,				"Mouse Options",				  'Q', m_psubmenuEventSink);
-					
-				/* pkk May 6th: Disabled bandwidth patch // w0dk4 June 2007: Bandwith Patch
-				m_pitemToggleBandwidth			   = pmenu->AddMenuItem(idmBandwidth,					GetBandwidthMenuString(),		    'B');*/
-                                                     pmenu->AddMenuItem(idmConfigure           ,        "Map Keys and Controls"      ,      'C');
-                break;
-
-            case idmSoundOptions:
-                #ifdef _DEBUG
-                pmenu->AddMenuItem(idmResetSound, "Reset Sound", 'R');
-                #endif
-                m_pitemSoundQuality         = pmenu->AddMenuItem(idmSoundQuality, GetSoundQualityMenuString());
-                m_pitemToggleSoundHardware  = pmenu->AddMenuItem(idmSoundHardware, GetSoundHardwareMenuString());
-				m_pitemToggleDSound8Usage   = pmenu->AddMenuItem(idmUseDSound8, GetDSound8EnabledString());
-                m_pitemToggleMusic          = pmenu->AddMenuItem(idmToggleMusic, GetMusicMenuString());
-                m_pitemMusicVolumeUp        = pmenu->AddMenuItem(idmMusicVolumeUp,
-                    GetGainMenuString("Music", m_pnumMusicGain->GetValue(), c_fVolumeDelta), 'M');
-                m_pitemMusicVolumeDown      = pmenu->AddMenuItem(idmMusicVolumeDown,
-                    GetGainMenuString("Music", m_pnumMusicGain->GetValue(), -c_fVolumeDelta), 'N');
-                m_pitemSFXVolumeUp          = pmenu->AddMenuItem(idmSFXVolumeUp,
-                    GetGainMenuString("Sound Effect", m_pnumSFXGain->GetValue(), c_fVolumeDelta), 'S');
-                m_pitemSFXVolumeDown        = pmenu->AddMenuItem(idmSFXVolumeDown,
-                    GetGainMenuString("Sound Effect", m_pnumSFXGain->GetValue(), -c_fVolumeDelta), 'A');
-                m_pitemVoiceOverVolumeUp    = pmenu->AddMenuItem(idmVoiceOverVolumeUp,
-                    GetGainMenuString("Voice Over", m_pnumVoiceOverGain->GetValue(), c_fVolumeDelta), 'V');
-                m_pitemVoiceOverVolumeDown  = pmenu->AddMenuItem(idmVoiceOverVolumeDown,
-                    GetGainMenuString("Voice Over", m_pnumVoiceOverGain->GetValue(), -c_fVolumeDelta), 'C');
-                break;
-
-				// BT - STEAM
-#ifdef STEAM_APP_ID
-			case idmTags:
-				AddAvailablePlayerTagsToMenu(pmenu);
-				break;
+        case idmOptions:
+            pmenu->AddMenuItem(idmDeviceOptions, "Advanced Options", 'A', m_psubmenuEventSink);
+            m_pitemToggleEnvironment = pmenu->AddMenuItem(idmToggleEnvironment, GetEnvironmentMenuString(), 'E');
+            m_pitemTogglePosters = pmenu->AddMenuItem(idmTogglePosters, GetPostersMenuString(), 'P');
+            m_pitemToggleDebris = pmenu->AddMenuItem(idmToggleDebris, GetDebrisMenuString(), 'D');
+            m_pitemToggleStars = pmenu->AddMenuItem(idmToggleStars, GetStarsMenuString(), 'S');
+            m_pitemToggleStrobes = pmenu->AddMenuItem(idmToggleStrobes, GetStrobesMenuString(), 'R');
+            m_pitemToggleTrails = pmenu->AddMenuItem(idmToggleTrails, GetTrailsMenuString(), 'T');
+#ifdef _DEBUG
+            m_pitemToggleBounds = pmenu->AddMenuItem(idmToggleBounds, GetBoundsMenuString(), 'N');
+            m_pitemToggleTransparentObjects = pmenu->AddMenuItem(idmToggleTransparentObjects, GetTransparentObjectsMenuString(), 'O');
 #endif
-			//TheBored 30-JUL-07: Filter Unknown Chat patch
-			case idmMuteFilterOptions:
-                m_pitemToggleCensorChats           = pmenu->AddMenuItem(idmToggleCensorChats,           GetCensorChatsMenuString(),         'D');
-				m_pitemFilterChatsToAll            = pmenu->AddMenuItem(idmFilterChatsToAll,            GetFilterChatsToAllMenuString(),    'A');
-                m_pitemFilterQuickComms            = pmenu->AddMenuItem(idmFilterQuickComms,            GetFilterQuickCommsMenuString(),    'V');
-				m_pitemFilterUnknownChats          = pmenu->AddMenuItem(idmFilterUnknownChats,          GetFilterUnknownChatsString(),      'U');
-                m_pitemFilterLobbyChats            = pmenu->AddMenuItem(idmFilterLobbyChats,            GetFilterLobbyChatsMenuString(),    'L');
-				
-				// #294 - Turkey
-				m_pitemIncreaseChatLines		   = pmenu->AddMenuItem(idmIncreaseChatLines,			GetIncreaseChatLinesMenuString(),	'I');
-				m_pitemReduceChatLines			   = pmenu->AddMenuItem(idmReduceChatLines,				GetReduceChatLinesMenuString(),		'R');
-				break;
-			//End TB 30-JUL-07
-			//imago 6/30/09: new graphics options dx9, removed vsync 7/10
-			case idmDeviceOptions:
-				m_pitemAA				= pmenu->AddMenuItem(idmAA   			  , GetAAString()                                       , 'A');
-			    m_pitemMip				= pmenu->AddMenuItem(idmMip    			  , GetMipString()                                      , 'M');
-				m_pitemVsync			= pmenu->AddMenuItem(idmVsync  			  , GetVsyncString()                                    , 'V'); //Spunky #265 backing out //Imago 7/10
-				// yp Your_Persona August 2 2006 : MaxTextureSize Patch
-				m_pitemMaxTextureSize	= pmenu->AddMenuItem(idmMaxTextureSize,     GetMaxTextureSizeMenuString(),    					  'X');
-				m_pitemPack				= pmenu->AddMenuItem(idmPack  			  , GetPackString()                                     , 'P');
-				break;
+            m_pitemToggleSmoke = pmenu->AddMenuItem(idmToggleSmoke, GetSmokeMenuString(), 'L'); //was same as posters - Imago 8/8/09
+            m_pitemToggleLensFlare = pmenu->AddMenuItem(idmToggleLensFlare, GetLensFlareMenuString(), 'F');
+            m_pitemToggleBidirectionalLighting = pmenu->AddMenuItem(idmToggleBidirectionalLighting, GetBidirectionalLightingMenuString(), 'B');
+            m_pitemStyleHUD = pmenu->AddMenuItem(idmStyleHUD, GetStyleHUDMenuString(), 'H'); //Imago 6/30/09 adjust new dx9 settings in game
 
-			//Imago 7/10 #187
-			case idmFFOptions:
-				m_pitemToggleEnableFeedback         = pmenu->AddMenuItem(idmToggleEnableFeedback  , GetEnableFeedbackMenuString(),      'E'); //imago sunk 7/10
-				m_pitemToggleFFGainUp				= pmenu->AddMenuItem(idmFFGainUp			  , GetFFGainMenuString(m_pnumFFGain->GetValue(), c_fFFGainDelta)   , 'U');
-				m_pitemToggleFFGainDown				= pmenu->AddMenuItem(idmFFGainDown			  , GetFFGainMenuString(m_pnumFFGain->GetValue(), -c_fFFGainDelta)  , 'D');
-			    m_pitemToggleFFAutoCenter			= pmenu->AddMenuItem(idmFFAutoCenter		  , GetFFAutoCenterMenuString()                                     , 'C');
-				break;
+                                                                                             // BT - 10/17 - HighRes Textures
+            m_pitemToggleHighResTextures = pmenu->AddMenuItem(idmHighResTextures, GetHighResTexturesString(), 'X');
 
-			//Imago 8/10 #215
-			case idmMouseOptions:
-                                 pmenu->AddMenuItem(0                     , "------------------------------------------------"     );
-                                 pmenu->AddMenuItem(0                     , "Options are only valid when in fullscreen"     );
-                                 pmenu->AddMenuItem(0                     , "------------------------------------------------"     );
-				m_pitemToggleMouseAccel		        = pmenu->AddMenuItem(idmMouseAccel			  , GetMouseAccelMenuString()										, 'A');
-				m_pitemToggleWheelDelay				= pmenu->AddMenuItem(idmWheelDelay			  ,	GetWheelDelayMenuString(), 'W'); //Spunky #282
-				m_pitemToggleMouseSensUp			= pmenu->AddMenuItem(idmMouseSensUp			  , GetMouseSensMenuString(m_pnumMouseSens->GetValue(), c_fMouseSensDelta)		, 'U');
-				m_pitemToggleMouseSensDown			= pmenu->AddMenuItem(idmMouseSensDown		  , GetMouseSensMenuString(m_pnumMouseSens->GetValue(), -c_fMouseSensDelta)		, 'D');
-				break;
+            break;
+
+        case idmGameOptions:
+            m_pitemMuteFilter = pmenu->AddMenuItem(idmMuteFilterOptions, "Mute/Filter", 'M', m_psubmenuEventSink); //TheBored 30-JUL-07: Filter Unknown Chat patch
+            m_pitemToggleStickyChase = pmenu->AddMenuItem(idmToggleStickyChase, GetStickyChaseMenuString(), 'K');
+            m_pitemToggleLinearControls = pmenu->AddMenuItem(idmToggleLinearControls, GetLinearControlsMenuString(), 'L');
+            m_pitemToggleLargeDeadZone = pmenu->AddMenuItem(idmToggleLargeDeadZone, GetDeadzoneMenuString(), 'Z'); //imago updated 7/8/09
+            m_pitemToggleVirtualJoystick = pmenu->AddMenuItem(idmToggleVirtualJoystick, GetVirtualJoystickMenuString(), 'J');
+            m_pitemToggleFlipY = pmenu->AddMenuItem(idmToggleFlipY, GetFlipYMenuString(), 'Y');
+            //m_pitemToggleEnableFeedback        = pmenu->AddMenuItem(idmToggleEnableFeedback,        GetEnableFeedbackMenuString(),      'E'); //imago sunk 7/10
+            pmenu->AddMenuItem(idmFFOptions, "Force Feedback", 'E', m_psubmenuEventSink);
+            pmenu->AddMenuItem(idmMouseOptions, "Mouse Options", 'Q', m_psubmenuEventSink);
+
+            /* pkk May 6th: Disabled bandwidth patch // w0dk4 June 2007: Bandwith Patch
+            m_pitemToggleBandwidth			   = pmenu->AddMenuItem(idmBandwidth,					GetBandwidthMenuString(),		    'B');*/
+            pmenu->AddMenuItem(idmConfigure, "Map Keys and Controls", 'C');
+            break;
+
+        case idmSoundOptions:
+#ifdef _DEBUG
+            pmenu->AddMenuItem(idmResetSound, "Reset Sound", 'R');
+#endif
+            m_pitemSoundQuality = pmenu->AddMenuItem(idmSoundQuality, GetSoundQualityMenuString());
+            m_pitemToggleSoundHardware = pmenu->AddMenuItem(idmSoundHardware, GetSoundHardwareMenuString());
+            m_pitemToggleDSound8Usage = pmenu->AddMenuItem(idmUseDSound8, GetDSound8EnabledString());
+            m_pitemToggleMusic = pmenu->AddMenuItem(idmToggleMusic, GetMusicMenuString());
+            m_pitemMusicVolumeUp = pmenu->AddMenuItem(idmMusicVolumeUp,
+                GetGainMenuString("Music", m_pnumMusicGain->GetValue(), c_fVolumeDelta), 'M');
+            m_pitemMusicVolumeDown = pmenu->AddMenuItem(idmMusicVolumeDown,
+                GetGainMenuString("Music", m_pnumMusicGain->GetValue(), -c_fVolumeDelta), 'N');
+            m_pitemSFXVolumeUp = pmenu->AddMenuItem(idmSFXVolumeUp,
+                GetGainMenuString("Sound Effect", m_pnumSFXGain->GetValue(), c_fVolumeDelta), 'S');
+            m_pitemSFXVolumeDown = pmenu->AddMenuItem(idmSFXVolumeDown,
+                GetGainMenuString("Sound Effect", m_pnumSFXGain->GetValue(), -c_fVolumeDelta), 'A');
+            m_pitemVoiceOverVolumeUp = pmenu->AddMenuItem(idmVoiceOverVolumeUp,
+                GetGainMenuString("Voice Over", m_pnumVoiceOverGain->GetValue(), c_fVolumeDelta), 'V');
+            m_pitemVoiceOverVolumeDown = pmenu->AddMenuItem(idmVoiceOverVolumeDown,
+                GetGainMenuString("Voice Over", m_pnumVoiceOverGain->GetValue(), -c_fVolumeDelta), 'C');
+            break;
+
+            // BT - STEAM
+#ifdef STEAM_APP_ID
+        case idmTags:
+            AddAvailablePlayerTagsToMenu(pmenu);
+            break;
+#endif
+            //TheBored 30-JUL-07: Filter Unknown Chat patch
+        case idmMuteFilterOptions:
+            m_pitemToggleCensorChats = pmenu->AddMenuItem(idmToggleCensorChats, GetCensorChatsMenuString(), 'D');
+            m_pitemFilterChatsToAll = pmenu->AddMenuItem(idmFilterChatsToAll, GetFilterChatsToAllMenuString(), 'A');
+            m_pitemFilterQuickComms = pmenu->AddMenuItem(idmFilterQuickComms, GetFilterQuickCommsMenuString(), 'V');
+            m_pitemFilterUnknownChats = pmenu->AddMenuItem(idmFilterUnknownChats, GetFilterUnknownChatsString(), 'U');
+            m_pitemFilterLobbyChats = pmenu->AddMenuItem(idmFilterLobbyChats, GetFilterLobbyChatsMenuString(), 'L');
+
+            // #294 - Turkey
+            m_pitemIncreaseChatLines = pmenu->AddMenuItem(idmIncreaseChatLines, GetIncreaseChatLinesMenuString(), 'I');
+            m_pitemReduceChatLines = pmenu->AddMenuItem(idmReduceChatLines, GetReduceChatLinesMenuString(), 'R');
+            break;
+            //End TB 30-JUL-07
+            //imago 6/30/09: new graphics options dx9, removed vsync 7/10
+        case idmDeviceOptions:
+            m_pitemAA = pmenu->AddMenuItem(idmAA, GetAAString(), 'A');
+            m_pitemMip = pmenu->AddMenuItem(idmMip, GetMipString(), 'M');
+            m_pitemVsync = pmenu->AddMenuItem(idmVsync, GetVsyncString(), 'V'); //Spunky #265 backing out //Imago 7/10
+                                                                                // yp Your_Persona August 2 2006 : MaxTextureSize Patch
+            m_pitemMaxTextureSize = pmenu->AddMenuItem(idmMaxTextureSize, GetMaxTextureSizeMenuString(), 'X');
+            m_pitemPack = pmenu->AddMenuItem(idmPack, GetPackString(), 'P');
+            break;
+
+            //Imago 7/10 #187
+        case idmFFOptions:
+            m_pitemToggleEnableFeedback = pmenu->AddMenuItem(idmToggleEnableFeedback, GetEnableFeedbackMenuString(), 'E'); //imago sunk 7/10
+            m_pitemToggleFFGainUp = pmenu->AddMenuItem(idmFFGainUp, GetFFGainMenuString(m_pnumFFGain->GetValue(), c_fFFGainDelta), 'U');
+            m_pitemToggleFFGainDown = pmenu->AddMenuItem(idmFFGainDown, GetFFGainMenuString(m_pnumFFGain->GetValue(), -c_fFFGainDelta), 'D');
+            m_pitemToggleFFAutoCenter = pmenu->AddMenuItem(idmFFAutoCenter, GetFFAutoCenterMenuString(), 'C');
+            break;
+
+            //Imago 8/10 #215
+        case idmMouseOptions:
+            pmenu->AddMenuItem(0, "------------------------------------------------");
+            pmenu->AddMenuItem(0, "Options are only valid when in fullscreen");
+            pmenu->AddMenuItem(0, "------------------------------------------------");
+            m_pitemToggleMouseAccel = pmenu->AddMenuItem(idmMouseAccel, GetMouseAccelMenuString(), 'A');
+            m_pitemToggleWheelDelay = pmenu->AddMenuItem(idmWheelDelay, GetWheelDelayMenuString(), 'W'); //Spunky #282
+            m_pitemToggleMouseSensUp = pmenu->AddMenuItem(idmMouseSensUp, GetMouseSensMenuString(m_pnumMouseSens->GetValue(), c_fMouseSensDelta), 'U');
+            m_pitemToggleMouseSensDown = pmenu->AddMenuItem(idmMouseSensDown, GetMouseSensMenuString(m_pnumMouseSens->GetValue(), -c_fMouseSensDelta), 'D');
+            break;
 
 
 
@@ -4723,7 +4756,8 @@ public:
         if (m_pwrapGeoDebris->GetGeo() == Geo::GetEmpty()) {
             m_pwrapGeoDebris->SetGeo(m_pgeoDebris);
             SavePreference("Debris", TRUE);
-        } else {
+        }
+        else {
             m_pwrapGeoDebris->SetGeo(Geo::GetEmpty());
             SavePreference("Debris", FALSE);
         }
@@ -4735,11 +4769,12 @@ public:
 
     void ToggleEnvironment()
     {
-		if (m_pwrapImageEnvironment->GetImage() == m_pimageEnvironment || IsWine()) { //Imago 8/17/09
+        if (m_pwrapImageEnvironment->GetImage() == m_pimageEnvironment || IsWine()) { //Imago 8/17/09
             m_pwrapImageEnvironment->SetImage(Image::GetEmpty());
             SavePreference("Environment", FALSE);
-        } else {
-			m_pwrapImageEnvironment->SetImage(m_pimageEnvironment);
+        }
+        else {
+            m_pwrapImageEnvironment->SetImage(m_pimageEnvironment);
             SavePreference("Environment", TRUE);
         }
 
@@ -4768,19 +4803,19 @@ public:
 
     void ToggleCensorChats()
     {
-        if (CensorDisplay ())
+        if (CensorDisplay())
             SavePreference("CensorChats", FALSE);
         else
             SavePreference("CensorChats", TRUE);
 
-        ToggleCensorDisplay ();
+        ToggleCensorDisplay();
 
         if (m_pitemToggleCensorChats != NULL) {
             m_pitemToggleCensorChats->SetString(GetCensorChatsMenuString());
         }
     }
 
-    void ToggleStickyChase ()
+    void ToggleStickyChase()
     {
         if (m_bPreferChaseView)
         {
@@ -4790,11 +4825,11 @@ public:
         else
         {
             m_bPreferChaseView = true;
-            SavePreference ("PreferChaseView", TRUE);
+            SavePreference("PreferChaseView", TRUE);
         }
 
         if (m_pitemToggleStickyChase != NULL)
-            m_pitemToggleStickyChase->SetString (GetStickyChaseMenuString ());
+            m_pitemToggleStickyChase->SetString(GetStickyChaseMenuString());
     }
 
     void ToggleFilterChatsToAll()
@@ -4832,7 +4867,7 @@ public:
             m_pitemFilterQuickComms->SetString(GetFilterQuickCommsMenuString());
         }
     }
-	//TheBored 30-JUL-07: Filter Unknown Chat patch
+    //TheBored 30-JUL-07: Filter Unknown Chat patch
     void ToggleFilterUnknownChats()
     {
         if (trekClient.FilterUnknownChats())
@@ -4850,91 +4885,91 @@ public:
             m_pitemFilterUnknownChats->SetString(GetFilterUnknownChatsString());
         }
     }
-	//End TB 30-JUL-07
-	//TheBored 25-JUN-07: Altered function allowing for 3 options. 1 = Filter Lobby, 2 = Filter Lobby and PMs, 3 = Dont Filter Anything
+    //End TB 30-JUL-07
+    //TheBored 25-JUN-07: Altered function allowing for 3 options. 1 = Filter Lobby, 2 = Filter Lobby and PMs, 3 = Dont Filter Anything
     void ToggleFilterLobbyChats(DWORD dwLobbyChatSetting)
     {
-		if (dwLobbyChatSetting > 3){dwLobbyChatSetting = 1;}
-		switch (dwLobbyChatSetting)
-		{
-			case 1:
-				trekClient.FilterLobbyChats(dwLobbyChatSetting);
-				SavePreference("FilterLobbyChats", dwLobbyChatSetting);
-				break;
-			case 2:
-				trekClient.FilterLobbyChats(dwLobbyChatSetting);
-				SavePreference("FilterLobbyChats", dwLobbyChatSetting);
-			case 3:
-				trekClient.FilterLobbyChats(dwLobbyChatSetting);
-				SavePreference("FilterLobbyChats", dwLobbyChatSetting);
-		}
+        if (dwLobbyChatSetting > 3) { dwLobbyChatSetting = 1; }
+        switch (dwLobbyChatSetting)
+        {
+        case 1:
+            trekClient.FilterLobbyChats(dwLobbyChatSetting);
+            SavePreference("FilterLobbyChats", dwLobbyChatSetting);
+            break;
+        case 2:
+            trekClient.FilterLobbyChats(dwLobbyChatSetting);
+            SavePreference("FilterLobbyChats", dwLobbyChatSetting);
+        case 3:
+            trekClient.FilterLobbyChats(dwLobbyChatSetting);
+            SavePreference("FilterLobbyChats", dwLobbyChatSetting);
+        }
         if (m_pitemFilterLobbyChats != NULL) {
             m_pitemFilterLobbyChats->SetString(GetFilterLobbyChatsMenuString());
         }
     }
 
-	// #294 - Turkey 8/13
-	void IncreaseChatLines()
-	{
-		DWORD lines = (DWORD)m_pnumberChatLinesDesired->GetValue() + 1;
+    // #294 - Turkey 8/13
+    void IncreaseChatLines()
+    {
+        DWORD lines = (DWORD)m_pnumberChatLinesDesired->GetValue() + 1;
 
-		if (SetChatLines(lines))
-		{
-			m_pitemIncreaseChatLines->SetString(GetIncreaseChatLinesMenuString());
-			m_pitemReduceChatLines->SetString(GetReduceChatLinesMenuString());
+        if (SetChatLines(lines))
+        {
+            m_pitemIncreaseChatLines->SetString(GetIncreaseChatLinesMenuString());
+            m_pitemReduceChatLines->SetString(GetReduceChatLinesMenuString());
 
-			if (m_pchatListPane)
-			{
-				if (GetViewMode() == vmLoadout)
-				{
-					m_pchatListPane->SetChatLines(min(lines, 6));
-					m_pnumberChatLines->SetValue(min(lines, 6));
-				}
-				else if (GetViewMode() <= vmOverride)
-				{
-					m_pchatListPane->SetChatLines(lines);
-					m_pnumberChatLines->SetValue(lines);
-				}
-			}
+            if (m_pchatListPane)
+            {
+                if (GetViewMode() == vmLoadout)
+                {
+                    m_pchatListPane->SetChatLines(min(lines, 6));
+                    m_pnumberChatLines->SetValue(min(lines, 6));
+                }
+                else if (GetViewMode() <= vmOverride)
+                {
+                    m_pchatListPane->SetChatLines(lines);
+                    m_pnumberChatLines->SetValue(lines);
+                }
+            }
 
-			SavePreference("ChatLines", lines);
-		}
-	}
+            SavePreference("ChatLines", lines);
+        }
+    }
 
-	void ReduceChatLines()
-	{
-		DWORD lines = (DWORD)m_pnumberChatLinesDesired->GetValue() - 1;
+    void ReduceChatLines()
+    {
+        DWORD lines = (DWORD)m_pnumberChatLinesDesired->GetValue() - 1;
 
-		if (SetChatLines(lines))
-		{
-			m_pitemIncreaseChatLines->SetString(GetIncreaseChatLinesMenuString());
-			m_pitemReduceChatLines->SetString(GetReduceChatLinesMenuString());
+        if (SetChatLines(lines))
+        {
+            m_pitemIncreaseChatLines->SetString(GetIncreaseChatLinesMenuString());
+            m_pitemReduceChatLines->SetString(GetReduceChatLinesMenuString());
 
-			if (m_pchatListPane)
-			{
-				if (GetViewMode() == vmLoadout)
-				{
-					m_pchatListPane->SetChatLines(min(lines, 6));
-					m_pnumberChatLines->SetValue(min(lines, 6));
-				}
-				else if (GetViewMode() <= vmOverride)
-				{
-					m_pchatListPane->SetChatLines(lines);
-					m_pnumberChatLines->SetValue(lines);
-				}
-			}
-
-
-			SavePreference("ChatLines", lines);
-		}
-	}
+            if (m_pchatListPane)
+            {
+                if (GetViewMode() == vmLoadout)
+                {
+                    m_pchatListPane->SetChatLines(min(lines, 6));
+                    m_pnumberChatLines->SetValue(min(lines, 6));
+                }
+                else if (GetViewMode() <= vmOverride)
+                {
+                    m_pchatListPane->SetChatLines(lines);
+                    m_pnumberChatLines->SetValue(lines);
+                }
+            }
 
 
+            SavePreference("ChatLines", lines);
+        }
+    }
 
-	// end #294
 
 
-	//End TB 25-JUN-07
+    // end #294
+
+
+    //End TB 25-JUN-07
     void ToggleLinearControls()
     {
         if (m_bLinearControls)
@@ -4958,7 +4993,8 @@ public:
         if (m_pwrapImageStars->GetImage() == Image::GetEmpty()) {
             m_pwrapImageStars->SetImage(m_pimageStars);
             SavePreference("Stars", TRUE);
-        } else {
+        }
+        else {
             m_pwrapImageStars->SetImage(Image::GetEmpty());
             SavePreference("Stars", FALSE);
         }
@@ -4971,9 +5007,10 @@ public:
     void TogglePosters()
     {
         if (m_pwrapImagePosters->GetImage() == Image::GetEmpty()) {
-			m_pwrapImagePosters->SetImage(m_pwrapImagePostersInside);
-			SavePreference("Posters", TRUE);
-        } else {
+            m_pwrapImagePosters->SetImage(m_pwrapImagePostersInside);
+            SavePreference("Posters", TRUE);
+        }
+        else {
             m_pwrapImagePosters->SetImage(Image::GetEmpty());
             SavePreference("Posters", FALSE);
         }
@@ -4992,7 +5029,8 @@ public:
         if (!CommandCamera(m_cm)) {
             if (m_bLensFlare) {
                 m_pwrapImageLensFlare->SetImage(m_pimageLensFlare);
-            } else {
+            }
+            else {
                 m_pwrapImageLensFlare->SetImage(Image::GetEmpty());
             }
         }
@@ -5007,7 +5045,8 @@ public:
         if (m_bBidirectionalLighting) {
             m_pimageScene->SetLight(m_color, m_colorAlt);
             m_pimageScene->SetAmbientLevel(m_ambientLevelBidirectional);
-        } else {
+        }
+        else {
             m_pimageScene->SetLight(m_color);
             m_pimageScene->SetAmbientLevel(m_ambientLevel);
         }
@@ -5026,35 +5065,35 @@ public:
         }
     }
 
-	// yp Your_Persona August 2 2006 : MaxTextureSize Patch  //Imago OBSOLOETE REMOVE REVIEW 7/20/09
-	void ToggleMaxTextureSize(DWORD dwNewMaxSize)
-	{
-		if(dwNewMaxSize > 3){dwNewMaxSize =0;}
+    // yp Your_Persona August 2 2006 : MaxTextureSize Patch  //Imago OBSOLOETE REMOVE REVIEW 7/20/09
+    void ToggleMaxTextureSize(DWORD dwNewMaxSize)
+    {
+        if (dwNewMaxSize > 3) { dwNewMaxSize = 0; }
         trekClient.MaxTextureSize(dwNewMaxSize); //? Imago REVIEW we use g_DX9Settings.m_iMaxTextureSize now
 
-		g_DX9Settings.m_iMaxTextureSize = dwNewMaxSize;
+        g_DX9Settings.m_iMaxTextureSize = dwNewMaxSize;
 
-		GetEngine()->SetMaxTextureSize(trekClient.MaxTextureSize());
+        GetEngine()->SetMaxTextureSize(trekClient.MaxTextureSize());
         SavePreference("MaxTextureSize", trekClient.MaxTextureSize());
 
         if (m_pitemMaxTextureSize != NULL) {
             m_pitemMaxTextureSize->SetString(GetMaxTextureSizeMenuString());
         }
-	}
+    }
 
-	/* pkk May 6th: Disabled bandwidth patch
-	// w0dk4 June 2007: Bandwith Patch
-	void ToggleBandwidth(unsigned int iBandwidth)
-	{
-		if(iBandwidth > 32){iBandwidth = 2;}
-		trekClient.MaxBandwidth(iBandwidth);
+    /* pkk May 6th: Disabled bandwidth patch
+    // w0dk4 June 2007: Bandwith Patch
+    void ToggleBandwidth(unsigned int iBandwidth)
+    {
+    if(iBandwidth > 32){iBandwidth = 2;}
+    trekClient.MaxBandwidth(iBandwidth);
 
-		SavePreference("Bandwidth", (DWORD)trekClient.MaxBandwidth());
+    SavePreference("Bandwidth", (DWORD)trekClient.MaxBandwidth());
 
-        if (m_pitemToggleBandwidth != NULL) {
-            m_pitemToggleBandwidth->SetString(GetBandwidthMenuString());
-        }
-	}*/
+    if (m_pitemToggleBandwidth != NULL) {
+    m_pitemToggleBandwidth->SetString(GetBandwidthMenuString());
+    }
+    }*/
 
     SoundID GetFlightMusic()
     {
@@ -5149,24 +5188,24 @@ public:
         {
             switch (m_screen)
             {
-                case ScreenIDCombat:
-                    newMusicSound = GetFlightMusic();
-                    break;
+            case ScreenIDCombat:
+                newMusicSound = GetFlightMusic();
+                break;
 
-                case ScreenIDSplashScreen:
-                    newMusicSound = NA;
-                    break;
+            case ScreenIDSplashScreen:
+                newMusicSound = NA;
+                break;
 
-                default:
-                    if ((m_musicId == gameOverWonMusicSound
-                            || m_musicId == gameOverLostMusicSound)
-                        && m_psoundMusic && m_psoundMusic->IsPlaying() == S_OK)
-                    {
-                        newMusicSound = m_musicId;
-                    }
-                    else
-                        newMusicSound = gameScreenMusicSound;
-                    break;
+            default:
+                if ((m_musicId == gameOverWonMusicSound
+                    || m_musicId == gameOverLostMusicSound)
+                    && m_psoundMusic && m_psoundMusic->IsPlaying() == S_OK)
+                {
+                    newMusicSound = m_musicId;
+                }
+                else
+                    newMusicSound = gameScreenMusicSound;
+                break;
             }
         }
 
@@ -5189,15 +5228,15 @@ public:
         }
     }
 
-    bool GetMusicIsOn (void)
+    bool GetMusicIsOn(void)
     {
         return m_bMusic;
     }
 
-    void SetMusicOn (bool bMusicOn)
+    void SetMusicOn(bool bMusicOn)
     {
         m_bMusic = bMusicOn;
-        UpdateMusic ();
+        UpdateMusic();
     }
 
     void ToggleStrobes()
@@ -5244,47 +5283,48 @@ public:
         }
     }
 
-    void SetSmoke (DWORD value)
+    void SetSmoke(DWORD value)
     {
         if (value == 2) { //imago 8/16/09
-			ThingGeo::SetPerformance(true);
-            ThingGeo::SetShowSmoke (1);
-        } else {
-            ThingGeo::SetShowSmoke (int (value));
-           }
+            ThingGeo::SetPerformance(true);
+            ThingGeo::SetShowSmoke(1);
+        }
+        else {
+            ThingGeo::SetShowSmoke(int(value));
+        }
     }
 
     void ToggleSmoke()
     {
         int     iSmoke = ThingGeo::GetShowSmoke();
-        if (iSmoke == 0) 
+        if (iSmoke == 0)
             iSmoke = 2;
-        else if (iSmoke == 2) 
+        else if (iSmoke == 2)
             iSmoke = 0;
         bool bPerformance = false;
         switch (iSmoke)
         {
-            case 2: //Imago 8/16/09
-                bPerformance = true;
-                iSmoke = 1;
-                break;
-            case 0:
-                iSmoke = 1;
-                break;
-            case 1:
-                iSmoke = 3;
-                break;
-            case 3:
-                iSmoke = 5;
-                break;
-            default:
-                iSmoke = 0;
+        case 2: //Imago 8/16/09
+            bPerformance = true;
+            iSmoke = 1;
+            break;
+        case 0:
+            iSmoke = 1;
+            break;
+        case 1:
+            iSmoke = 3;
+            break;
+        case 3:
+            iSmoke = 5;
+            break;
+        default:
+            iSmoke = 0;
         }
-        
-		ThingGeo::SetPerformance(bPerformance);
+
+        ThingGeo::SetPerformance(bPerformance);
 
         ThingGeo::SetShowSmoke(iSmoke);
-        SavePreference("SmokeEffects", (DWORD) (bPerformance) ? 2 : iSmoke);
+        SavePreference("SmokeEffects", (DWORD)(bPerformance) ? 2 : iSmoke);
 
         if (m_pitemToggleSmoke != NULL) {
             m_pitemToggleSmoke->SetString(GetSmokeMenuString());
@@ -5319,7 +5359,7 @@ public:
     }
 
     //Something of a misnomer since there are only two styles but this may change
-	//Andon: Changed to support up to 5 styles
+    //Andon: Changed to support up to 5 styles
     void CycleStyleHUD()
     {
         int style = (int(m_pnumberStyleHUD->GetValue()) + 1) % 5;
@@ -5331,34 +5371,34 @@ public:
             m_pitemStyleHUD->SetString(GetStyleHUDMenuString());
     }
 
-	//Imago 7/8/09 7/13/09
+    //Imago 7/8/09 7/13/09
     void SetDeadzone(DWORD value)
     {
         switch (value)
         {
-            case 0:
-			case 31:
-				//g_fJoystickDeadZone = g_fJoystickDeadZoneNone;  removed 7/23/09 causes crash imago
-				//break;
-			case 4:
-			case 1:
-				g_fJoystickDeadZone = g_fJoystickDeadZoneSmallest;
-				break;
-			case 10:
-			case 5:
-				g_fJoystickDeadZone = g_fJoystickDeadZoneSmall;
-				break;
-			case 30:
-			case 11:
-				g_fJoystickDeadZone = g_fJoystickDeadZoneLarge;
-				break;
-            default:
-                g_fJoystickDeadZone = g_fJoystickDeadZoneLarge;
+        case 0:
+        case 31:
+            //g_fJoystickDeadZone = g_fJoystickDeadZoneNone;  removed 7/23/09 causes crash imago
+            //break;
+        case 4:
+        case 1:
+            g_fJoystickDeadZone = g_fJoystickDeadZoneSmallest;
+            break;
+        case 10:
+        case 5:
+            g_fJoystickDeadZone = g_fJoystickDeadZoneSmall;
+            break;
+        case 30:
+        case 11:
+            g_fJoystickDeadZone = g_fJoystickDeadZoneLarge;
+            break;
+        default:
+            g_fJoystickDeadZone = g_fJoystickDeadZoneLarge;
         }
-		g_fInverseJoystickDeadZone = (g_fJoystickDeadZone == 0) ? 0 : g_fJoystickDeadZone - 1.0f;
-        SavePreference("DeadZone", (DWORD) value);
+        g_fInverseJoystickDeadZone = (g_fJoystickDeadZone == 0) ? 0 : g_fJoystickDeadZone - 1.0f;
+        SavePreference("DeadZone", (DWORD)value);
         if (m_pitemToggleLargeDeadZone != NULL) {
-           m_pitemToggleLargeDeadZone->SetString(GetDeadzoneMenuString());
+            m_pitemToggleLargeDeadZone->SetString(GetDeadzoneMenuString());
         }
     }
 
@@ -5373,67 +5413,67 @@ public:
         }
     }
 
-	// BT - 10/17 - HighRes Textures
-	void ToggleHighResTextures()
-	{
-		m_bUseHighResTextures = !m_bUseHighResTextures;
+    // BT - 10/17 - HighRes Textures
+    void ToggleHighResTextures()
+    {
+        m_bUseHighResTextures = !m_bUseHighResTextures;
 
-		SavePreference("HighResTextures", m_bUseHighResTextures);
+        SavePreference("HighResTextures", m_bUseHighResTextures);
 
-		GetWindow()->GetModeler()->SetHighResTextures(m_bUseHighResTextures);
+        GetWindow()->GetModeler()->SetHighResTextures(m_bUseHighResTextures);
 
-		if (m_pitemToggleHighResTextures != NULL) {
-			m_pitemToggleHighResTextures->SetString(GetHighResTexturesString());
-		}
+        if (m_pitemToggleHighResTextures != NULL) {
+            m_pitemToggleHighResTextures->SetString(GetHighResTexturesString());
+        }
 
-		m_pmessageBox = CreateMessageBox("Enabling or Disabling the High Resolution Textures will require you to restart Allegiance.", NULL, true, false);
-		GetWindow()->GetPopupContainer()->OpenPopup(m_pmessageBox, false);
+        m_pmessageBox = CreateMessageBox("Enabling or Disabling the High Resolution Textures will require you to restart Allegiance.", NULL, true, false);
+        GetWindow()->GetPopupContainer()->OpenPopup(m_pmessageBox, false);
 
-	}
+    }
 
-	//Imago 7/8/09 #24
+    //Imago 7/8/09 #24
     void ToggleShowGrid()
     {
-		//only do this when loading, save is in the cycle
-		m_bCommandGrid = !m_bCommandGrid;
+        //only do this when loading, save is in the cycle
+        m_bCommandGrid = !m_bCommandGrid;
     }
 
     void SetRadarLOD(DWORD value)
     {
-		//only do this when loading, save is in the cycle
-		m_radarCockpit = m_radarCommand = value;
+        //only do this when loading, save is in the cycle
+        m_radarCockpit = m_radarCommand = value;
     }
 
-	//Imago 7/8/09 #24
+    //Imago 7/8/09 #24
     void SetGamma(ZString& value)
     {
-       //we save only when loading non-default or terminate()
-		GetEngine()->SetGammaLevel(atof(ZString(value)));
+        //we save only when loading non-default or terminate()
+        GetEngine()->SetGammaLevel(atof(ZString(value)));
         SavePreference("Gamma", value);
     }
 
-	// #294 - Turkey returns true if the requested value was within range (1-10), false otherwise
-	bool SetChatLines(DWORD value)
-	{
-		bool bInRange = false;
-		if (value >= 1)
-		{
-			if (value > 10) m_pnumberChatLinesDesired->SetValue(10.0f);
-			else
-			{
-				m_pnumberChatLinesDesired->SetValue((float)value);
-				bInRange = true;
-			}
-		}
-		else
-		{
-			m_pnumberChatLinesDesired->SetValue(1.0f);
-		}
+    // #294 - Turkey returns true if the requested value was within range (1-10), false otherwise
+    bool SetChatLines(DWORD value)
+    {
+        bool bInRange = false;
+        if (value >= 1)
+        {
+            if (value > 10) m_pnumberChatLinesDesired->SetValue(10.0f);
+            else
+            {
+                m_pnumberChatLinesDesired->SetValue((float)value);
+                bInRange = true;
+            }
+        }
+        else
+        {
+            m_pnumberChatLinesDesired->SetValue(1.0f);
+        }
 
-		m_pnumberChatLines->SetValue(m_pnumberChatLinesDesired->GetValue());
+        m_pnumberChatLines->SetValue(m_pnumberChatLinesDesired->GetValue());
 
-		return bInRange;
-	}
+        return bInRange;
+    }
 
 
     void ToggleFlipY()
@@ -5457,12 +5497,12 @@ public:
             m_pitemToggleEnableFeedback->SetString(GetEnableFeedbackMenuString());
         }
     }
-	
-	//Imago 7/10
+
+    //Imago 7/10
     void ToggleEnableFFAutoCenter()
     {
-		if (GetInputEngine() == NULL || GetInputEngine()->GetJoystick(0) == NULL)
-			return;
+        if (GetInputEngine() == NULL || GetInputEngine()->GetJoystick(0) == NULL)
+            return;
 
         m_bFFAutoCenter = !m_bFFAutoCenter;
 
@@ -5471,14 +5511,15 @@ public:
         if (m_pitemToggleFFAutoCenter != NULL) {
             m_pitemToggleFFAutoCenter->SetString(GetFFAutoCenterMenuString());
         }
-		GetInputEngine()->GetJoystick(0)->SetRanges();
+        GetInputEngine()->GetJoystick(0)->SetRanges();
     }
 
     void RenderSizeChanged(bool bSmaller)
     {
         if (bSmaller && GetFullscreen()) {
             m_pwrapNumberStyleHUD->SetWrappedValue(new Number(1.0f));
-        } else {
+        }
+        else {
             m_pwrapNumberStyleHUD->SetWrappedValue(m_pnumberStyleHUD);
         }
     }
@@ -5529,7 +5570,7 @@ public:
             m_pitemSoundQuality->SetString(GetSoundQualityMenuString());
     };
 
-	//Imago #215 8/10
+    //Imago #215 8/10
     void SwitchMouseAccel()
     {
         switch (m_iMouseAccel)
@@ -5552,8 +5593,8 @@ public:
             break;
         }
 
-		GetInputEngine()->GetMouse()->SetAccel(m_iMouseAccel);
-		SavePreference("MouseAcceleration", (DWORD)m_iMouseAccel);
+        GetInputEngine()->GetMouse()->SetAccel(m_iMouseAccel);
+        SavePreference("MouseAcceleration", (DWORD)m_iMouseAccel);
 
         if (m_pitemToggleMouseAccel != NULL)
             m_pitemToggleMouseAccel->SetString(GetMouseAccelMenuString());
@@ -5561,14 +5602,14 @@ public:
 
     void SwitchWheelDelay() //Spunky #282
     {
-		if (++m_iWheelDelay == 5)
-			m_iWheelDelay = 0;
+        if (++m_iWheelDelay == 5)
+            m_iWheelDelay = 0;
 
         SavePreference("WheelDelay", (DWORD)m_iWheelDelay);
 
-		if (m_pitemToggleWheelDelay != NULL)
+        if (m_pitemToggleWheelDelay != NULL)
             m_pitemToggleWheelDelay->SetString(GetWheelDelayMenuString());
-	};
+    };
 
     void ToggleSoundHardware()
     {
@@ -5582,15 +5623,15 @@ public:
             m_pitemToggleSoundHardware->SetString(GetSoundHardwareMenuString());
     }
 
-	void ToggleUseDSound8()
-	{
-		m_bUseDSound8 = !m_bUseDSound8;
+    void ToggleUseDSound8()
+    {
+        m_bUseDSound8 = !m_bUseDSound8;
 
-		SavePreference("UseDSound8", (DWORD)m_bUseDSound8);
+        SavePreference("UseDSound8", (DWORD)m_bUseDSound8);
 
-		if(m_pitemToggleDSound8Usage != NULL)
-			m_pitemToggleDSound8Usage->SetString(GetDSound8EnabledString());
-	}
+        if (m_pitemToggleDSound8Usage != NULL)
+            m_pitemToggleDSound8Usage->SetString(GetDSound8EnabledString());
+    }
 
     void ToggleMusic()
     {
@@ -5662,7 +5703,7 @@ public:
         }
     }
 
-	//Imago 7/10 #187
+    //Imago 7/10 #187
     void AdjustFFGain(float fDelta)
     {
         float fNewValue = min(10000, max(c_nMinFFGain, m_pnumFFGain->GetValue() + fDelta));
@@ -5681,8 +5722,8 @@ public:
                 GetFFGainMenuString(m_pnumFFGain->GetValue(), -c_fFFGainDelta));
         }
 
-		if (GetInputEngine() != NULL && GetInputEngine()->GetJoystick(0) != NULL)
-			GetInputEngine()->GetJoystick(0)->SetRanges();
+        if (GetInputEngine() != NULL && GetInputEngine()->GetJoystick(0) != NULL)
+            GetInputEngine()->GetJoystick(0)->SetRanges();
     }
 
     void AdjustMouseSens(float fDelta)
@@ -5702,10 +5743,10 @@ public:
             m_pitemToggleMouseSensDown->SetString(
                 GetMouseSensMenuString(m_pnumMouseSens->GetValue(), -c_fMouseSensDelta));
         }
-		
-		GetInputEngine()->GetMouse()->SetSensitivity(fNewValue);
+
+        GetInputEngine()->GetMouse()->SetSensitivity(fNewValue);
     }
-	//Imago
+    //Imago
 
     ZString GetPostersMenuString()
     {
@@ -5714,7 +5755,7 @@ public:
 
     ZString GetDebrisMenuString()
     {
-        return (m_pwrapGeoDebris->GetGeo() != Geo::GetEmpty())   ? "Debris On " : "Debris Off ";
+        return (m_pwrapGeoDebris->GetGeo() != Geo::GetEmpty()) ? "Debris On " : "Debris Off ";
     }
 
     ZString GetEnvironmentMenuString()
@@ -5722,38 +5763,38 @@ public:
         return (m_pwrapImageEnvironment->GetImage() == m_pimageEnvironment) ? "Environment On " : "Environment Off ";
     }
 
-// yp Your_Persona August 2 2006 : MaxTextureSize Patch //Imago 7/18/09
-	ZString GetMaxTextureSizeMenuString()
+    // yp Your_Persona August 2 2006 : MaxTextureSize Patch //Imago 7/18/09
+    ZString GetMaxTextureSizeMenuString()
     {
-		int i = 0;
-		int j = 2;
+        int i = 0;
+        int j = 2;
 
-		i = 8 + g_DX9Settings.m_iMaxTextureSize;
+        i = 8 + g_DX9Settings.m_iMaxTextureSize;
 
-		j = pow((float)j,(float)i);
-        return "Max Texture Size ("  + ZString( j)  + ") ";
+        j = pow((float)j, (float)i);
+        return "Max Texture Size (" + ZString(j) + ") ";
     }
 
-	/* pkk May 6th: Disabled bandwidth patch
-	// w0dk4 June 2007: Bandwith Patch
-	ZString GetBandwidthMenuString()
-	{
-		if(trekClient.MaxBandwidth() == 2)
-			return "Bandwidth: Dial-Up (33k)";
-		if(trekClient.MaxBandwidth() == 4)
-			return "Bandwidth: Dial-Up (56k)";
-		if(trekClient.MaxBandwidth() == 8)
-			return "Bandwidth: Broadband (128k)";
-		if(trekClient.MaxBandwidth() == 16)
-			return "Bandwidth: Broadband (512k)";
-		if(trekClient.MaxBandwidth() == 32)
-			return "Bandwidth: Broadband (>1mbit)";
+    /* pkk May 6th: Disabled bandwidth patch
+    // w0dk4 June 2007: Bandwith Patch
+    ZString GetBandwidthMenuString()
+    {
+    if(trekClient.MaxBandwidth() == 2)
+    return "Bandwidth: Dial-Up (33k)";
+    if(trekClient.MaxBandwidth() == 4)
+    return "Bandwidth: Dial-Up (56k)";
+    if(trekClient.MaxBandwidth() == 8)
+    return "Bandwidth: Broadband (128k)";
+    if(trekClient.MaxBandwidth() == 16)
+    return "Bandwidth: Broadband (512k)";
+    if(trekClient.MaxBandwidth() == 32)
+    return "Bandwidth: Broadband (>1mbit)";
 
-		return "Error";
-	}*/
+    return "Error";
+    }*/
 
 
-	// Imago #215 8/10
+    // Imago #215 8/10
     ZString GetMouseSensMenuString(float fCurrentSens, float fDelta)
     {
         ZString strResult = ((fDelta > 0) ? "Raise " : "Lower ") + ZString("Mouse Sensitivity ");
@@ -5767,42 +5808,42 @@ public:
         }
         else
         {
-			float value = (min(2, max(0.1f, fCurrentSens + fDelta))) * 100;
-			char szValue[4] = {'\0'};
-			sprintf(szValue,"%.0f",value);
+            float value = (min(2, max(0.1f, fCurrentSens + fDelta))) * 100;
+            char szValue[4] = { '\0' };
+            sprintf(szValue, "%.0f", value);
             strResult += "to " + ZString(szValue) + " %";
         }
 
         return strResult;
     }
 
-	ZString GetMouseAccelMenuString()
-	{
-		if(m_iMouseAccel == 0)
-			return "Mouse Acceleration: Off";
-		if(m_iMouseAccel == 1)
-			return "Mouse Acceleration: Low (2x)";
-		if(m_iMouseAccel == 2)
-			return "Mouse Acceleration: High (4x)";
+    ZString GetMouseAccelMenuString()
+    {
+        if (m_iMouseAccel == 0)
+            return "Mouse Acceleration: Off";
+        if (m_iMouseAccel == 1)
+            return "Mouse Acceleration: Low (2x)";
+        if (m_iMouseAccel == 2)
+            return "Mouse Acceleration: High (4x)";
 
-		return "Error";
-	}
+        return "Error";
+    }
 
-	//Spunky #282
-	ZString GetWheelDelayMenuString()
-	{
-		static const ZString str[] = {"Max", "High", "Med", "Min", "None"};
-		if (m_iWheelDelay >= 0 && m_iWheelDelay < 5)
-			return "Wheel & Keyboard Throttle Delay: " + str[m_iWheelDelay];
-		return "Error";
-	}
+    //Spunky #282
+    ZString GetWheelDelayMenuString()
+    {
+        static const ZString str[] = { "Max", "High", "Med", "Min", "None" };
+        if (m_iWheelDelay >= 0 && m_iWheelDelay < 5)
+            return "Wheel & Keyboard Throttle Delay: " + str[m_iWheelDelay];
+        return "Error";
+    }
 
-	//Imago 7/10
+    //Imago 7/10
     ZString GetFFAutoCenterMenuString()
     {
         return (m_bFFAutoCenter) ? "Auto Center On" : "Auto Center Off ";
     }
-	//
+    //
 
     ZString GetRoundRadarMenuString()
     {
@@ -5811,10 +5852,10 @@ public:
 
     ZString GetCensorChatsMenuString()
     {
-        return (CensorDisplay ()) ? "Censor Display" : "Don't Censor Display";
+        return (CensorDisplay()) ? "Censor Display" : "Don't Censor Display";
     }
 
-    ZString GetStickyChaseMenuString ()
+    ZString GetStickyChaseMenuString()
     {
         return m_bPreferChaseView ? "Default To Chase View" : "Default To Cockpit View";
     }
@@ -5829,7 +5870,7 @@ public:
         return trekClient.FilterQuickComms() ? "Filter Voice Commands" : "Don't Filter Voice Commands";
     }
 
-	//TheBored 30-JUL-07: Filter Unknown Chat patch
+    //TheBored 30-JUL-07: Filter Unknown Chat patch
     ZString GetFilterUnknownChatsString()
     {
         return trekClient.FilterUnknownChats() ? "Filter Unknown Chats" : "Don't Filter Unknown Chats";
@@ -5837,37 +5878,37 @@ public:
 
     ZString GetFilterLobbyChatsMenuString()
     {
-		//TheBored 25-JUN-07: Added a new option so the user can choose if PMs are filtered.
+        //TheBored 25-JUN-07: Added a new option so the user can choose if PMs are filtered.
         switch (trekClient.FilterLobbyChats())
         {
-            case 1:
-                return "Filter Chats Sent From Lobby";
-                break;
-            case 2:
-                return "Filter Chats Sent From Lobby Including PMs";
-                break;
-            case 3:
-                return "Don't Filter Chats Sent From Lobby";
-                break;
-            default:
-                return "Default Case"; //TB: Shouldn't happen, but left in for testing.
-                break;
+        case 1:
+            return "Filter Chats Sent From Lobby";
+            break;
+        case 2:
+            return "Filter Chats Sent From Lobby Including PMs";
+            break;
+        case 3:
+            return "Don't Filter Chats Sent From Lobby";
+            break;
+        default:
+            return "Default Case"; //TB: Shouldn't happen, but left in for testing.
+            break;
         }
     }
 
-	// #294 - Turkey
-	ZString GetIncreaseChatLinesMenuString()
-	{
-		if (m_pnumberChatLinesDesired->GetValue() > 9.9f) return "Chat Lines At Maximum";
-		return "Increase To " + ZString((int)m_pnumberChatLinesDesired->GetValue() + 1) + " Chat Lines";
-	}
+    // #294 - Turkey
+    ZString GetIncreaseChatLinesMenuString()
+    {
+        if (m_pnumberChatLinesDesired->GetValue() > 9.9f) return "Chat Lines At Maximum";
+        return "Increase To " + ZString((int)m_pnumberChatLinesDesired->GetValue() + 1) + " Chat Lines";
+    }
 
-	// #294 - Turkey
-	ZString GetReduceChatLinesMenuString()
-	{
-		if (m_pnumberChatLinesDesired->GetValue() < 1.1f) return "Chat Lines At Minimum";
-		return "Reduce To " + ZString((int)m_pnumberChatLinesDesired->GetValue() - 1) + " Chat Lines";
-	}
+    // #294 - Turkey
+    ZString GetReduceChatLinesMenuString()
+    {
+        if (m_pnumberChatLinesDesired->GetValue() < 1.1f) return "Chat Lines At Minimum";
+        return "Reduce To " + ZString((int)m_pnumberChatLinesDesired->GetValue() - 1) + " Chat Lines";
+    }
 
     ZString GetLinearControlsMenuString()
     {
@@ -5908,21 +5949,21 @@ public:
     {
         switch (ThingGeo::GetShowSmoke())
         {
-            case 0:
-                return ZString ("Particles Off");
-                break;
-            case 2: //Imago 8/16/09
-                return ZString ("Particles On - Performance");
-                break;
-            case 1:
-                return ZString ("Particles On - Low Quality");
-                break;
-            case 3:
-                return ZString ("Particles On - Medium Quality");
-                break;
-            default:
-                return ZString ("Particles On - High Quality");
-                break;
+        case 0:
+            return ZString("Particles Off");
+            break;
+        case 2: //Imago 8/16/09
+            return ZString("Particles On - Performance");
+            break;
+        case 1:
+            return ZString("Particles On - Low Quality");
+            break;
+        case 3:
+            return ZString("Particles On - Medium Quality");
+            break;
+        default:
+            return ZString("Particles On - High Quality");
+            break;
         }
     }
 
@@ -5950,12 +5991,12 @@ public:
         return m_bEnableSoundHardware ? "Sound Card Acceleration On" : "Sound Card Acceleration Off";
     }
 
-	// mdv new sound8 or old sound engine
-	// mmf changed wording
-	ZString GetDSound8EnabledString()
-	{
-		return m_bUseDSound8 ? "DirectSound (Restart Reqd.): New" : "DirectSound (Restart Reqd.): Old";
-	}
+    // mdv new sound8 or old sound engine
+    // mmf changed wording
+    ZString GetDSound8EnabledString()
+    {
+        return m_bUseDSound8 ? "DirectSound (Restart Reqd.): New" : "DirectSound (Restart Reqd.): Old";
+    }
 
     ZString GetMusicMenuString()
     {
@@ -5983,59 +6024,59 @@ public:
     }
 
     //Andon: Expanding the number of HUD style switches available
-	const ZString& GetStyleHUDMenuString()
+    const ZString& GetStyleHUDMenuString()
     {
         static const ZString    c_strNormal("Style: Normal");
         static const ZString    c_strSoftware("Style: Software");
-		static const ZString    c_strCust1("Style: Custom Hud 1");//Add in the first custom one
-		static const ZString    c_strCust2("Style: Custom Hud 2");//Add in the second custom one
-		static const ZString    c_strCust3("Style: Custom Hud 3");//Add in the third custom one
-		static const ZString    c_strOops("Style: Error"); //Just in case I goofed
+        static const ZString    c_strCust1("Style: Custom Hud 1");//Add in the first custom one
+        static const ZString    c_strCust2("Style: Custom Hud 2");//Add in the second custom one
+        static const ZString    c_strCust3("Style: Custom Hud 3");//Add in the third custom one
+        static const ZString    c_strOops("Style: Error"); //Just in case I goofed
 
-		if (m_pnumberStyleHUD->GetValue() == 0)
-		{
-			return c_strNormal;
-		}
-		else if (m_pnumberStyleHUD->GetValue() == 1)
-		{
-			return c_strSoftware;
-		}
-		else if (m_pnumberStyleHUD->GetValue() == 2)
-		{
-			return c_strCust1;
-		}
-		else if (m_pnumberStyleHUD->GetValue() == 3)
-		{
-			return c_strCust2;
-		}
-		else
-		{
-			return c_strCust3;
-		}
-		//Andon: The old version, was simply True/False
-		//return (m_pnumberStyleHUD->GetValue()) ? c_strSoftware : c_strNormal;
+        if (m_pnumberStyleHUD->GetValue() == 0)
+        {
+            return c_strNormal;
+        }
+        else if (m_pnumberStyleHUD->GetValue() == 1)
+        {
+            return c_strSoftware;
+        }
+        else if (m_pnumberStyleHUD->GetValue() == 2)
+        {
+            return c_strCust1;
+        }
+        else if (m_pnumberStyleHUD->GetValue() == 3)
+        {
+            return c_strCust2;
+        }
+        else
+        {
+            return c_strCust3;
+        }
+        //Andon: The old version, was simply True/False
+        //return (m_pnumberStyleHUD->GetValue()) ? c_strSoftware : c_strNormal;
     }
 
     const ZString& GetDeadzoneMenuString()
     {
-		static const ZString    strLarge = "Large dead zone";
-		//static const ZString    strNone = "No dead zone";
-		static const ZString    strSmall = "Small dead zone";
-		static const ZString    strSmallest = "Smallest dead zone";
-		static const ZString    strInvalid = "Invalid dead zone";
-		int     iDZ = int(g_fJoystickDeadZone * 100);
+        static const ZString    strLarge = "Large dead zone";
+        //static const ZString    strNone = "No dead zone";
+        static const ZString    strSmall = "Small dead zone";
+        static const ZString    strSmallest = "Smallest dead zone";
+        static const ZString    strInvalid = "Invalid dead zone";
+        int     iDZ = int(g_fJoystickDeadZone * 100);
         switch (iDZ)
         {
-           // case 0:
-			//	return strNone;
-			case 4:
-				return strSmallest;
-			case 10:
-				return strSmall;
-			case 30:
-				return strLarge;
-            default:
-				return strInvalid;
+            // case 0:
+            //	return strNone;
+        case 4:
+            return strSmallest;
+        case 10:
+            return strSmall;
+        case 30:
+            return strLarge;
+        default:
+            return strInvalid;
         }
     }
 
@@ -6049,11 +6090,11 @@ public:
         return (m_bFlipY ? "Y Axis Flipped " : "Y Axis Not Flipped ");
     }
 
-	// BT - 10/17 - HighRes Textures
-	ZString GetHighResTexturesString()
-	{
-		return "Use High Resolution Textures: " + ZString(m_bUseHighResTextures ? "On" : "Off");
-	}
+    // BT - 10/17 - HighRes Textures
+    ZString GetHighResTexturesString()
+    {
+        return "Use High Resolution Textures: " + ZString(m_bUseHighResTextures ? "On" : "Off");
+    }
 
     ZString GetEnableFeedbackMenuString()
     {
@@ -6079,7 +6120,7 @@ public:
         return strResult;
     }
 
-	//Imago 7/10
+    //Imago 7/10
     ZString GetFFGainMenuString(float fCurrentGain, float fDelta)
     {
         ZString strResult = ((fDelta > 0) ? "Raise " : "Lower ") + ZString("Force Feedback Gain ");
@@ -6099,29 +6140,29 @@ public:
         return strResult;
     }
 
-	//imago WIP 6/30/09 7/18/09
+    //imago WIP 6/30/09 7/18/09
 
-	ZString GetAAString()
-	{
-		return "Antialiasing (" + ZString(CD3DDevice9::Get()->GetDeviceSetupParams()->szAAType) + ")";
-	}
-	ZString GetMipString()
-	{
-		ZString strResult = (CD3DDevice9::Get()->GetDeviceSetupParams()->bAutoGenMipmap) ? "Yes" : "No";
-		return "Auto Mipmap (" + strResult + ")";
-	}
-	ZString GetPackString()
-	{
-		if (g_DX9Settings.mbUseTexturePackFiles)
-			return "Use Texture Pack (Yes)";
-		else
-			return "Use Texture Pack (No)";
-	}
-	ZString GetVsyncString()
-	{
-		ZString strResult = (CD3DDevice9::Get()->GetDeviceSetupParams()->bWaitForVSync) ? "On" : "Off";
-		return "Vertical Sync (" + strResult + ")";
-	}
+    ZString GetAAString()
+    {
+        return "Antialiasing (" + ZString(CD3DDevice9::Get()->GetDeviceSetupParams()->szAAType) + ")";
+    }
+    ZString GetMipString()
+    {
+        ZString strResult = (CD3DDevice9::Get()->GetDeviceSetupParams()->bAutoGenMipmap) ? "Yes" : "No";
+        return "Auto Mipmap (" + strResult + ")";
+    }
+    ZString GetPackString()
+    {
+        if (g_DX9Settings.mbUseTexturePackFiles)
+            return "Use Texture Pack (Yes)";
+        else
+            return "Use Texture Pack (No)";
+    }
+    ZString GetVsyncString()
+    {
+        ZString strResult = (CD3DDevice9::Get()->GetDeviceSetupParams()->bWaitForVSync) ? "On" : "Off";
+        return "Vertical Sync (" + strResult + ")";
+    }
 
     void DoInputConfigure()
     {
@@ -6150,503 +6191,504 @@ public:
         );
     }
 
-	// w0dk4 player-pings feature
-	void ShowPlayerPings()
+    // w0dk4 player-pings feature
+    void ShowPlayerPings()
     {
-		const ShipListIGC* ships = trekClient.m_pCoreIGC->GetShips();
+        const ShipListIGC* ships = trekClient.m_pCoreIGC->GetShips();
 
-		ZString str1;
-		str1 += "<Color|yellow><Font|medBoldVerdana>Connection Info of Players<Font|smallFont><Color|white><p><p>";
-		ZString str2;
-		PlayerInfo* pPlayerInfo;
-		ShipID shipID;
+        ZString str1;
+        str1 += "<Color|yellow><Font|medBoldVerdana>Connection Info of Players<Font|smallFont><Color|white><p><p>";
+        ZString str2;
+        PlayerInfo* pPlayerInfo;
+        ShipID shipID;
 
-		int iAveragePing = 0;
-		int iAverageLoss = 0;
-		int iShips = 0;
+        int iAveragePing = 0;
+        int iAverageLoss = 0;
+        int iShips = 0;
 
-		for (ShipLinkIGC*   l = ships->first();
-                     (l != NULL);
-                     l = l->next())
+        for (ShipLinkIGC*   l = ships->first();
+            (l != NULL);
+            l = l->next())
         {
             IshipIGC*  s = l->data();
 
-			unsigned int m_ping;
-			unsigned int m_loss;
+            unsigned int m_ping;
+            unsigned int m_loss;
 
-			if ((pPlayerInfo = (PlayerInfo*)s->GetPrivateData()) && (pPlayerInfo == trekClient.GetPlayerInfo())){
-				pPlayerInfo->GetConnectionData(&m_ping,&m_loss);
+            if ((pPlayerInfo = (PlayerInfo*)s->GetPrivateData()) && (pPlayerInfo == trekClient.GetPlayerInfo())) {
+                pPlayerInfo->GetConnectionData(&m_ping, &m_loss);
 
-				if(m_ping > 1000)
-					m_ping = 999;
-				if(m_ping < 10)
-					m_ping = 10;
+                if (m_ping > 1000)
+                    m_ping = 999;
+                if (m_ping < 10)
+                    m_ping = 10;
 
-				if(m_loss > 100)
-					m_loss = 99;
+                if (m_loss > 100)
+                    m_loss = 99;
 
-				iAveragePing += m_ping;
-				iAverageLoss += m_loss;
-				iShips++;
+                iAveragePing += m_ping;
+                iAverageLoss += m_loss;
+                iShips++;
 
-				ZString formatPing;
-				if(m_ping < 150)
-					formatPing = "<Color|green>";
-				else if(m_ping < 300)
-					formatPing = "<Color|yellow>";
-				else
-					formatPing = "<Color|red>";
+                ZString formatPing;
+                if (m_ping < 150)
+                    formatPing = "<Color|green>";
+                else if (m_ping < 300)
+                    formatPing = "<Color|yellow>";
+                else
+                    formatPing = "<Color|red>";
 
-				ZString formatLoss;
-				if(m_loss < 5)
-					formatLoss = "<Color|green>";
-				else if(m_loss < 15)
-					formatLoss = "<Color|yellow>";
-				else
-					formatLoss = "<Color|red>";
+                ZString formatLoss;
+                if (m_loss < 5)
+                    formatLoss = "<Color|green>";
+                else if (m_loss < 15)
+                    formatLoss = "<Color|yellow>";
+                else
+                    formatLoss = "<Color|red>";
 
-				str1 += "<Color|cyan>Your Connection Info<Color|white><p>Ping: " + formatPing + ZString((int)m_ping) + "ms<Color|white>	Packet Loss: " + formatLoss + ZString((int)m_loss) + "%<Color|white><p><p>";
+                str1 += "<Color|cyan>Your Connection Info<Color|white><p>Ping: " + formatPing + ZString((int)m_ping) + "ms<Color|white>	Packet Loss: " + formatLoss + ZString((int)m_loss) + "%<Color|white><p><p>";
 
-			} else if ((pPlayerInfo = (PlayerInfo*)s->GetPrivateData()) && pPlayerInfo->IsHuman()) {
-				pPlayerInfo->GetConnectionData(&m_ping,&m_loss);
+            }
+            else if ((pPlayerInfo = (PlayerInfo*)s->GetPrivateData()) && pPlayerInfo->IsHuman()) {
+                pPlayerInfo->GetConnectionData(&m_ping, &m_loss);
 
-				if(m_ping > 1000)
-					m_ping = 999;
-				if(m_ping < 10)
-					m_ping = 10;
+                if (m_ping > 1000)
+                    m_ping = 999;
+                if (m_ping < 10)
+                    m_ping = 10;
 
-				if(m_loss > 100)
-					m_loss = 99;
+                if (m_loss > 100)
+                    m_loss = 99;
 
-				iAveragePing += m_ping;
-				iAverageLoss += m_loss;
-				iShips++;
+                iAveragePing += m_ping;
+                iAverageLoss += m_loss;
+                iShips++;
 
-				ZString formatPing;
-				if(m_ping < 150)
-					formatPing = "<Color|green>";
-				else if(m_ping < 300)
-					formatPing = "<Color|yellow>";
-				else
-					formatPing = "<Color|red>";
+                ZString formatPing;
+                if (m_ping < 150)
+                    formatPing = "<Color|green>";
+                else if (m_ping < 300)
+                    formatPing = "<Color|yellow>";
+                else
+                    formatPing = "<Color|red>";
 
-				ZString formatLoss;
-				if(m_loss < 5)
-					formatLoss = "<Color|green>";
-				else if(m_loss < 15)
-					formatLoss = "<Color|yellow>";
-				else
-					formatLoss = "<Color|red>";
+                ZString formatLoss;
+                if (m_loss < 5)
+                    formatLoss = "<Color|green>";
+                else if (m_loss < 15)
+                    formatLoss = "<Color|yellow>";
+                else
+                    formatLoss = "<Color|red>";
 
-				str2 += "Ping: " + formatPing + ((m_ping < 100) ? ZString("0") : ZString("")) + ZString((int)m_ping)
-					+ "ms<Color|white>	Packet Loss: " + formatLoss + ((m_loss < 10) ? ZString("0") : ZString("")) + ZString((int)m_loss) + "%<Color|white>		Name: <Color|cyan>" + ZString(pPlayerInfo->CharacterName()) + "<Color|white><p>";
-			}
-		}
+                str2 += "Ping: " + formatPing + ((m_ping < 100) ? ZString("0") : ZString("")) + ZString((int)m_ping)
+                    + "ms<Color|white>	Packet Loss: " + formatLoss + ((m_loss < 10) ? ZString("0") : ZString("")) + ZString((int)m_loss) + "%<Color|white>		Name: <Color|cyan>" + ZString(pPlayerInfo->CharacterName()) + "<Color|white><p>";
+            }
+        }
 
-		if(iShips > 0) {
-			iAveragePing = iAveragePing/iShips;
-			iAverageLoss = iAverageLoss/iShips;
+        if (iShips > 0) {
+            iAveragePing = iAveragePing / iShips;
+            iAverageLoss = iAverageLoss / iShips;
 
-			ZString formatPing;
-				if(iAveragePing < 150)
-					formatPing = "<Color|green>";
-				else if(iAveragePing < 300)
-					formatPing = "<Color|yellow>";
-				else
-					formatPing = "<Color|red>";
+            ZString formatPing;
+            if (iAveragePing < 150)
+                formatPing = "<Color|green>";
+            else if (iAveragePing < 300)
+                formatPing = "<Color|yellow>";
+            else
+                formatPing = "<Color|red>";
 
-				ZString formatLoss;
-				if(iAverageLoss < 5)
-					formatLoss = "<Color|green>";
-				else if(iAverageLoss < 15)
-					formatLoss = "<Color|yellow>";
-				else
-					formatLoss = "<Color|red>";
+            ZString formatLoss;
+            if (iAverageLoss < 5)
+                formatLoss = "<Color|green>";
+            else if (iAverageLoss < 15)
+                formatLoss = "<Color|yellow>";
+            else
+                formatLoss = "<Color|red>";
 
-			str2 += "<p>Average Ping: " + formatPing + ZString(iAveragePing) + "ms<Color|white>	Average Packet Loss: " + formatLoss + ZString(iAverageLoss) + "%";
-		}
+            str2 += "<p>Average Ping: " + formatPing + ZString(iAveragePing) + "ms<Color|white>	Average Packet Loss: " + formatLoss + ZString(iAverageLoss) + "%";
+        }
 
         GetPopupContainer()->OpenPopup(
-			CreateMMLPopup(
-            GetModeler(),
-            (str1+str2),
-            true)
-			);
+            CreateMMLPopup(
+                GetModeler(),
+                (str1 + str2),
+                true)
+        );
     }
     // end w0dk4 player-pings feature
     void OnMenuCommand(IMenuItem* pitem)
     {
         switch (pitem->GetID()) {
-            case idmConfigure:
-                DoInputConfigure();
-                break;
-
-            case idmHelp:
-                CloseMenu();
-                OnHelp(true);
-                break;
-
-            case idmGameDetails:
-                CloseMenu();
-                OnGameState();
-                break;
-
-			// w0dk4 player-pings feature
-			case idmPings:
-				{
-					CloseMenu();
-					if (trekClient.m_fm.IsConnected()){
-						trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
-						BEGIN_PFM_CREATE(trekClient.m_fm, pfmPingDataReq, C, REQPINGDATA)
-						END_PFM_CREATE
-					}
-				}
-				break;
-
-            case idmExitGame:
-                CloseMenu();
-                StartQuitMission();
-                break;
-
-            case idmExitApp:
-                CloseMenu();
-                StartClose();
-                break;
-
-            case idmTogglePosters:
-                TogglePosters();
-                break;
-
-            case idmToggleDebris:
-                ToggleDebris();
-                break;
-
-            case idmToggleStars:
-                ToggleStars();
-                break;
-
-            case idmToggleEnvironment:
-                ToggleEnvironment();
-                break;
-
-				// BT - 10/17 - HighRes Textures
-			case idmHighResTextures:
-				ToggleHighResTextures();
-				break;
-
-
-			/* pkk May 6th: Disabled bandwidth patch
-			// w0dk4 June 2007: Bandwith Patch
-			case idmBandwidth:
-				ToggleBandwidth(trekClient.MaxBandwidth()*2);
-				if(trekClient.m_fLoggedOn) {
-					// send change to server if connected
-					trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
-					BEGIN_PFM_CREATE(trekClient.m_fm, pfmBandwidth, C, BANDWIDTH)
-					END_PFM_CREATE
-					pfmBandwidth->value = trekClient.MaxBandwidth();
-				}
-                break;*/
-
-			//Imago 7/18/09
-			// yp Your_Persona August 2 2006 : MaxTextureSize Patch
-            case idmMaxTextureSize:
-				//ToggleMaxTextureSize(trekClient.MaxTextureSize()+1); Obsolete REMOVE REVIEW, extra, unneeded functions
-				GetEngine()->SetMaxTextureSize(g_DX9Settings.m_iMaxTextureSize + 1);
-				SavePreference("MaxTextureSize", g_DX9Settings.m_iMaxTextureSize);
-				if (m_pitemMaxTextureSize != NULL) {
-					m_pitemMaxTextureSize->SetString(GetMaxTextureSizeMenuString());
-				}
-				break;
-
-			case idmAA:
-				GetEngine()->SetAA(g_DX9Settings.m_dwAA + 1);
-				SavePreference("UseAntialiasing", g_DX9Settings.m_dwAA);
-				if (m_pitemAA != NULL) {
-					m_pitemAA->SetString(GetAAString());
-				}
-				break;
-			case idmMip:
-				GetEngine()->SetAutoGenMipMaps(!g_DX9Settings.m_bAutoGenMipmaps);
-				SavePreference("UseAutoMipMaps", g_DX9Settings.m_bAutoGenMipmaps);
-				if (m_pitemMip != NULL) {
-					m_pitemMip->SetString(GetMipString());
-				}
-				break;
-
-			case idmPack: { //this apparently doesn't even do anything yet....but we'll let them push it anyways.
-				ZString strArtwork = ZString(UTL::artworkPath()); //duh
-				CDX9PackFile textures(strArtwork, "CommonTextures");
-				if (!textures.Exists() && !g_DX9Settings.mbUseTexturePackFiles) {
-					GetWindow()->SetWaitCursor();
-					pmsgBoxPack = CreateMessageBox("Please wait while the texture pack file is being created.", NULL, false, false);
-					GetPopupContainer()->OpenPopup(pmsgBoxPack, true);
-					CreateThread(NULL, 0, DummyPackCreateThreadProc, NULL, THREAD_PRIORITY_HIGHEST, 0);
-				}
-				GetEngine()->SetUsePack(!g_DX9Settings.mbUseTexturePackFiles);
-				SavePreference("UseTexturePack", g_DX9Settings.mbUseTexturePackFiles);
-				if (m_pitemPack != NULL) {
-					m_pitemPack->SetString(GetPackString());
-				}
-				break;
-						  }
-
-			case idmVsync:
-				//only does anything if the device is fullscreen...but we'll let them push it anyways.
-				GetEngine()->SetVSync(!g_DX9Settings.m_bVSync);
-				SavePreference("UseVSync", g_DX9Settings.m_bVSync);
-				if (m_pitemVsync != NULL) {
-					m_pitemVsync->SetString(GetVsyncString());
-				}
-				break;
-			//
-
-            case idmToggleRoundRadar:
-                ToggleRoundRadar ();
-                break;
-
-            case idmToggleCensorChats:
-                ToggleCensorChats ();
-                break;
-
-            case idmToggleStickyChase:
-                ToggleStickyChase ();
-                break;
-
-            case idmFilterChatsToAll:
-                ToggleFilterChatsToAll();
-                break;
-
-            case idmFilterQuickComms:
-                ToggleFilterQuickComms();
-                break;
-
-			//TheBored 30-JUL-07: Filter Unknown Chat patch
-			case idmFilterUnknownChats:
-                ToggleFilterUnknownChats();
-                break;
-
-            case idmFilterLobbyChats:
-                //TheBored 25-JUN-07: Lobby filter change.
-				ToggleFilterLobbyChats(trekClient.FilterLobbyChats() + 1);
-                break;
-
-				// #294 - Turkey
-			case idmIncreaseChatLines:
-				IncreaseChatLines();
-				break;
-
-				// #294 - Turkey
-			case idmReduceChatLines:
-				ReduceChatLines();
-				break;
-
-            case idmToggleLinearControls:
-                ToggleLinearControls ();
-                break;
-
-            case idmToggleLargeDeadZone:
-                SetDeadzone( (g_fJoystickDeadZone * 100) + 1 ); //Imago 7/8/09 //ToggleLargeDeadZone(); 7/13/09
-                break;
-
-            case idmToggleVirtualJoystick:
-                ToggleVirtualJoystick();
-                break;
-
-            case idmToggleFlipY:
-                ToggleFlipY();
-                break;
-
-            case idmToggleEnableFeedback:
-                ToggleEnableFeedback();
-                break;
-
-            case idmToggleStrobes:
-                ToggleStrobes();
-                break;
-
-            case idmToggleTrails:
-                ToggleTrails();
-                break;
-
-            case idmToggleBounds:
-                ToggleBounds();
-                break;
-
-            case idmToggleTransparentObjects:
-                ToggleTransparentObjects();
-                break;
-
-            case idmToggleSmoke:
-                ToggleSmoke();
-                break;
-
-            case idmToggleLensFlare:
-                ToggleLensFlare();
-                break;
-
-            case idmToggleBidirectionalLighting:
-                ToggleBidirectionalLighting();
-                break;
-
-            case idmToggleChatHistoryHUD:
-                ToggleChatHistoryHUD();     //Not persisted
-                break;
-
-            case idmToggleCenterHUD:
-                ToggleCenterHUD();
-                break;
-
-            case idmToggleTargetHUD:
-                ToggleTargetHUD();
-                break;
-
-            case idmStyleHUD:
-                CycleStyleHUD();
-                break;
-
-            case idmResetSound:
-                ResetSound();
-                break;
-
-            case idmSoundQuality:
-                SwitchSoundQuality();
-                break;
-
-            case idmSoundHardware:
-                ToggleSoundHardware();
-                break;
-
-			case idmUseDSound8:
-				ToggleUseDSound8();
-				break;
-
-            case idmToggleMusic:
-                ToggleMusic();
-                break;
-
-            case idmMusicVolumeUp:
-                AdjustMusicVolume(c_fVolumeDelta);
-                break;
-
-            case idmMusicVolumeDown:
-                AdjustMusicVolume(-c_fVolumeDelta);
-                break;
-
-            case idmSFXVolumeUp:
-                AdjustSFXVolume(c_fVolumeDelta);
-                break;
-
-            case idmSFXVolumeDown:
-                AdjustSFXVolume(-c_fVolumeDelta);
-                break;
-
-            case idmVoiceOverVolumeUp:
-                AdjustVoiceOverVolume(c_fVolumeDelta);
-                break;
-
-            case idmVoiceOverVolumeDown:
-                AdjustVoiceOverVolume(-c_fVolumeDelta);
-                break;
-			// YP: Add cases for rightclick lobby patch
-			case idmContextAcceptPlayer:
-				contextAcceptPlayer();	CloseMenu();
-				break;
-
-			case idmContextRejectPlayer:
-				contextRejectPlayer();	CloseMenu();
-				break;
-
-			case idmContextMakeLeader:
-				contextMakeLeader();	CloseMenu();
-				break;
-
-			case idmContextMutePlayer:
-				contextMute();			CloseMenu();
-				break;
-
-				// BT - STEAM - Enable moderators to ban players by context menu.
-			case idmContextKickPlayer:
-				contextKickPlayer();			CloseMenu();
-				break;
-
-				// BT - STEAM - Enable moderators to ban players by context menu.
-			case idmContextBanPlayer:
-				contextBanPlayer();				CloseMenu();
-				break;
-
-			//Xynth #48 8/2010
-			case idmContextDockDrone:
-				contextDockDrone();		CloseMenu();
-				break;
-			//Xynth #197 8/2010
-			case idmContextChat:
-				contextChat();		CloseMenu();
-				break;	
-
-			//Imago #187 7/10
-			case idmFFAutoCenter:
-				ToggleEnableFFAutoCenter();
-				break;
-
-			case idmFFGainUp:
-				AdjustFFGain(c_fFFGainDelta);
-				break;
-
-			case idmFFGainDown:
-				AdjustFFGain(-c_fFFGainDelta);
-				break;
-
-			// #215 8/10
-			case idmMouseAccel:
-				SwitchMouseAccel();
-				break;
-
-			//Spunky #282
-			case idmWheelDelay: 
-				SwitchWheelDelay();
-				break;
-
-			case idmMouseSensUp:
-				AdjustMouseSens(c_fMouseSensDelta);
-				break;
-
-			case idmMouseSensDown:
-				AdjustMouseSens(-c_fMouseSensDelta);
-				break;
-			// End Imago
+        case idmConfigure:
+            DoInputConfigure();
+            break;
+
+        case idmHelp:
+            CloseMenu();
+            OnHelp(true);
+            break;
+
+        case idmGameDetails:
+            CloseMenu();
+            OnGameState();
+            break;
+
+            // w0dk4 player-pings feature
+        case idmPings:
+        {
+            CloseMenu();
+            if (trekClient.m_fm.IsConnected()) {
+                trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
+                BEGIN_PFM_CREATE(trekClient.m_fm, pfmPingDataReq, C, REQPINGDATA)
+                    END_PFM_CREATE
+            }
+        }
+        break;
+
+        case idmExitGame:
+            CloseMenu();
+            StartQuitMission();
+            break;
+
+        case idmExitApp:
+            CloseMenu();
+            StartClose();
+            break;
+
+        case idmTogglePosters:
+            TogglePosters();
+            break;
+
+        case idmToggleDebris:
+            ToggleDebris();
+            break;
+
+        case idmToggleStars:
+            ToggleStars();
+            break;
+
+        case idmToggleEnvironment:
+            ToggleEnvironment();
+            break;
+
+            // BT - 10/17 - HighRes Textures
+        case idmHighResTextures:
+            ToggleHighResTextures();
+            break;
+
+
+            /* pkk May 6th: Disabled bandwidth patch
+            // w0dk4 June 2007: Bandwith Patch
+            case idmBandwidth:
+            ToggleBandwidth(trekClient.MaxBandwidth()*2);
+            if(trekClient.m_fLoggedOn) {
+            // send change to server if connected
+            trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
+            BEGIN_PFM_CREATE(trekClient.m_fm, pfmBandwidth, C, BANDWIDTH)
+            END_PFM_CREATE
+            pfmBandwidth->value = trekClient.MaxBandwidth();
+            }
+            break;*/
+
+            //Imago 7/18/09
+            // yp Your_Persona August 2 2006 : MaxTextureSize Patch
+        case idmMaxTextureSize:
+            //ToggleMaxTextureSize(trekClient.MaxTextureSize()+1); Obsolete REMOVE REVIEW, extra, unneeded functions
+            GetEngine()->SetMaxTextureSize(g_DX9Settings.m_iMaxTextureSize + 1);
+            SavePreference("MaxTextureSize", g_DX9Settings.m_iMaxTextureSize);
+            if (m_pitemMaxTextureSize != NULL) {
+                m_pitemMaxTextureSize->SetString(GetMaxTextureSizeMenuString());
+            }
+            break;
+
+        case idmAA:
+            GetEngine()->SetAA(g_DX9Settings.m_dwAA + 1);
+            SavePreference("UseAntialiasing", g_DX9Settings.m_dwAA);
+            if (m_pitemAA != NULL) {
+                m_pitemAA->SetString(GetAAString());
+            }
+            break;
+        case idmMip:
+            GetEngine()->SetAutoGenMipMaps(!g_DX9Settings.m_bAutoGenMipmaps);
+            SavePreference("UseAutoMipMaps", g_DX9Settings.m_bAutoGenMipmaps);
+            if (m_pitemMip != NULL) {
+                m_pitemMip->SetString(GetMipString());
+            }
+            break;
+
+        case idmPack: { //this apparently doesn't even do anything yet....but we'll let them push it anyways.
+            ZString strArtwork = ZString(UTL::artworkPath()); //duh
+            CDX9PackFile textures(strArtwork, "CommonTextures");
+            if (!textures.Exists() && !g_DX9Settings.mbUseTexturePackFiles) {
+                GetWindow()->SetWaitCursor();
+                pmsgBoxPack = CreateMessageBox("Please wait while the texture pack file is being created.", NULL, false, false);
+                GetPopupContainer()->OpenPopup(pmsgBoxPack, true);
+                CreateThread(NULL, 0, DummyPackCreateThreadProc, NULL, THREAD_PRIORITY_HIGHEST, 0);
+            }
+            GetEngine()->SetUsePack(!g_DX9Settings.mbUseTexturePackFiles);
+            SavePreference("UseTexturePack", g_DX9Settings.mbUseTexturePackFiles);
+            if (m_pitemPack != NULL) {
+                m_pitemPack->SetString(GetPackString());
+            }
+            break;
+        }
+
+        case idmVsync:
+            //only does anything if the device is fullscreen...but we'll let them push it anyways.
+            GetEngine()->SetVSync(!g_DX9Settings.m_bVSync);
+            SavePreference("UseVSync", g_DX9Settings.m_bVSync);
+            if (m_pitemVsync != NULL) {
+                m_pitemVsync->SetString(GetVsyncString());
+            }
+            break;
+            //
+
+        case idmToggleRoundRadar:
+            ToggleRoundRadar();
+            break;
+
+        case idmToggleCensorChats:
+            ToggleCensorChats();
+            break;
+
+        case idmToggleStickyChase:
+            ToggleStickyChase();
+            break;
+
+        case idmFilterChatsToAll:
+            ToggleFilterChatsToAll();
+            break;
+
+        case idmFilterQuickComms:
+            ToggleFilterQuickComms();
+            break;
+
+            //TheBored 30-JUL-07: Filter Unknown Chat patch
+        case idmFilterUnknownChats:
+            ToggleFilterUnknownChats();
+            break;
+
+        case idmFilterLobbyChats:
+            //TheBored 25-JUN-07: Lobby filter change.
+            ToggleFilterLobbyChats(trekClient.FilterLobbyChats() + 1);
+            break;
+
+            // #294 - Turkey
+        case idmIncreaseChatLines:
+            IncreaseChatLines();
+            break;
+
+            // #294 - Turkey
+        case idmReduceChatLines:
+            ReduceChatLines();
+            break;
+
+        case idmToggleLinearControls:
+            ToggleLinearControls();
+            break;
+
+        case idmToggleLargeDeadZone:
+            SetDeadzone((g_fJoystickDeadZone * 100) + 1); //Imago 7/8/09 //ToggleLargeDeadZone(); 7/13/09
+            break;
+
+        case idmToggleVirtualJoystick:
+            ToggleVirtualJoystick();
+            break;
+
+        case idmToggleFlipY:
+            ToggleFlipY();
+            break;
+
+        case idmToggleEnableFeedback:
+            ToggleEnableFeedback();
+            break;
+
+        case idmToggleStrobes:
+            ToggleStrobes();
+            break;
+
+        case idmToggleTrails:
+            ToggleTrails();
+            break;
+
+        case idmToggleBounds:
+            ToggleBounds();
+            break;
+
+        case idmToggleTransparentObjects:
+            ToggleTransparentObjects();
+            break;
+
+        case idmToggleSmoke:
+            ToggleSmoke();
+            break;
+
+        case idmToggleLensFlare:
+            ToggleLensFlare();
+            break;
+
+        case idmToggleBidirectionalLighting:
+            ToggleBidirectionalLighting();
+            break;
+
+        case idmToggleChatHistoryHUD:
+            ToggleChatHistoryHUD();     //Not persisted
+            break;
+
+        case idmToggleCenterHUD:
+            ToggleCenterHUD();
+            break;
+
+        case idmToggleTargetHUD:
+            ToggleTargetHUD();
+            break;
+
+        case idmStyleHUD:
+            CycleStyleHUD();
+            break;
+
+        case idmResetSound:
+            ResetSound();
+            break;
+
+        case idmSoundQuality:
+            SwitchSoundQuality();
+            break;
+
+        case idmSoundHardware:
+            ToggleSoundHardware();
+            break;
+
+        case idmUseDSound8:
+            ToggleUseDSound8();
+            break;
+
+        case idmToggleMusic:
+            ToggleMusic();
+            break;
+
+        case idmMusicVolumeUp:
+            AdjustMusicVolume(c_fVolumeDelta);
+            break;
+
+        case idmMusicVolumeDown:
+            AdjustMusicVolume(-c_fVolumeDelta);
+            break;
+
+        case idmSFXVolumeUp:
+            AdjustSFXVolume(c_fVolumeDelta);
+            break;
+
+        case idmSFXVolumeDown:
+            AdjustSFXVolume(-c_fVolumeDelta);
+            break;
+
+        case idmVoiceOverVolumeUp:
+            AdjustVoiceOverVolume(c_fVolumeDelta);
+            break;
+
+        case idmVoiceOverVolumeDown:
+            AdjustVoiceOverVolume(-c_fVolumeDelta);
+            break;
+            // YP: Add cases for rightclick lobby patch
+        case idmContextAcceptPlayer:
+            contextAcceptPlayer();	CloseMenu();
+            break;
+
+        case idmContextRejectPlayer:
+            contextRejectPlayer();	CloseMenu();
+            break;
+
+        case idmContextMakeLeader:
+            contextMakeLeader();	CloseMenu();
+            break;
+
+        case idmContextMutePlayer:
+            contextMute();			CloseMenu();
+            break;
+
+            // BT - STEAM - Enable moderators to ban players by context menu.
+        case idmContextKickPlayer:
+            contextKickPlayer();			CloseMenu();
+            break;
+
+            // BT - STEAM - Enable moderators to ban players by context menu.
+        case idmContextBanPlayer:
+            contextBanPlayer();				CloseMenu();
+            break;
+
+            //Xynth #48 8/2010
+        case idmContextDockDrone:
+            contextDockDrone();		CloseMenu();
+            break;
+            //Xynth #197 8/2010
+        case idmContextChat:
+            contextChat();		CloseMenu();
+            break;
+
+            //Imago #187 7/10
+        case idmFFAutoCenter:
+            ToggleEnableFFAutoCenter();
+            break;
+
+        case idmFFGainUp:
+            AdjustFFGain(c_fFFGainDelta);
+            break;
+
+        case idmFFGainDown:
+            AdjustFFGain(-c_fFFGainDelta);
+            break;
+
+            // #215 8/10
+        case idmMouseAccel:
+            SwitchMouseAccel();
+            break;
+
+            //Spunky #282
+        case idmWheelDelay:
+            SwitchWheelDelay();
+            break;
+
+        case idmMouseSensUp:
+            AdjustMouseSens(c_fMouseSensDelta);
+            break;
+
+        case idmMouseSensDown:
+            AdjustMouseSens(-c_fMouseSensDelta);
+            break;
+            // End Imago
 
 #ifdef STEAM_APP_ID
-			// BT - STEAM
-			case idmCallsignTag0:
-			case idmCallsignTag1:
-			case idmCallsignTag2:
-			case idmCallsignTag3:
-			case idmCallsignTag4:
-			case idmCallsignTag5:
-			case idmCallsignTag6:
-			case idmCallsignTag7:
-			case idmCallsignTag8:
-			case idmCallsignTag9:
-				SetPlayerCallsign(pitem->GetID());
-				CloseMenu();
-				break;
+            // BT - STEAM
+        case idmCallsignTag0:
+        case idmCallsignTag1:
+        case idmCallsignTag2:
+        case idmCallsignTag3:
+        case idmCallsignTag4:
+        case idmCallsignTag5:
+        case idmCallsignTag6:
+        case idmCallsignTag7:
+        case idmCallsignTag8:
+        case idmCallsignTag9:
+            SetPlayerCallsign(pitem->GetID());
+            CloseMenu();
+            break;
 
-				// BT - STEAM
-			case idmCallsignTagNone:
-				UnsetPlayerCallsign();
-				CloseMenu();
-				break;
+            // BT - STEAM
+        case idmCallsignTagNone:
+            UnsetPlayerCallsign();
+            CloseMenu();
+            break;
 
-				// BT - STEAM
-			case idmToken0:
-			case idmToken1:
-			case idmToken2:
-			case idmToken3:
-			case idmToken4:
-				SetPlayerToken(pitem->GetID());
-				CloseMenu();
-				break;
+            // BT - STEAM
+        case idmToken0:
+        case idmToken1:
+        case idmToken2:
+        case idmToken3:
+        case idmToken4:
+            SetPlayerToken(pitem->GetID());
+            CloseMenu();
+            break;
 #endif
         }
     }
@@ -6660,8 +6702,8 @@ public:
     {
         m_viewmode = vmOverride;
         m_pwrapImageBackdrop->SetImage(trekClient.GetCluster() ? m_pgroupImage3D : Image::GetEmpty());
-		m_pscreen = NULL;
-		m_pimageScreen = NULL;
+        m_pscreen = NULL;
+        m_pimageScreen = NULL;
 
         SetCameraMode(cmExternalOverride);
 
@@ -6671,8 +6713,8 @@ public:
 
         // always use the upright coordinate system as a starting point here
         //m_cameraControl.SetOrientation (trekClient.GetShip()->GetSourceShip()->GetOrientation());
-        Orientation     orthogonal (Vector (1.0f, 0.0f, 0.0f), Vector (0.0f, 0.0f, 1.0f));
-        m_cameraControl.SetOrientation (orthogonal);
+        Orientation     orthogonal(Vector(1.0f, 0.0f, 0.0f), Vector(0.0f, 0.0f, 1.0f));
+        m_cameraControl.SetOrientation(orthogonal);
 
         // this controls how long the launch animation lasts
         m_timeOverrideStop = now + (bOverridePosition ? 5.0f : 3.0f);
@@ -6702,7 +6744,7 @@ public:
             trekClient.GetShip()->SetCluster(NULL);
             trekClient.SetViewCluster(pcluster);
             TrackCamera(pshipSource->GetPosition(), *pPositionTarget,
-                        offset * 3.0f);
+                offset * 3.0f);
         }
         else
         {
@@ -6726,14 +6768,14 @@ public:
         }
         else if (screen() == ScreenIDCombat)
         {
-            if (Training::IsTraining ())
+            if (Training::IsTraining())
             {
                 // training missions will usually just put the ship back where
                 // it was and proceed. However, this call can signal us that
                 // the mission doesn't want to resume for some reason, so
                 // we stay in override mode if that happens. The mission *should*
                 // terminate when this happens, so it shouldn't last forever.
-                if (!Training::RestoreShip ())
+                if (!Training::RestoreShip())
                 {
                     m_cm = cmExternalOverride;
                     m_timeOverrideStop = m_timeOverrideStop + 10.0f;
@@ -6744,7 +6786,7 @@ public:
                 SetViewMode(trekClient.GetShip()->IsGhost() ? vmCommand : vmHangar);
                 PositionCommandView(NULL, 0.0f);
                 StartSound(personalJumpSound);
-                assert (trekClient.GetShip()->IsGhost() || trekClient.GetViewCluster() == NULL);
+                assert(trekClient.GetShip()->IsGhost() || trekClient.GetViewCluster() == NULL);
             }
         }
     }
@@ -6770,7 +6812,7 @@ public:
 
             if (!CommandCamera(cm))
             {
-                m_cameraControl.SetAnimation (InternalCamera(cm) ? 1.0f : 2.0f);
+                m_cameraControl.SetAnimation(InternalCamera(cm) ? 1.0f : 2.0f);
                 if (m_bLensFlare)
                     m_pwrapImageLensFlare->SetImage(m_pimageLensFlare);
             }
@@ -6779,7 +6821,7 @@ public:
             m_cameraControl.SetFOV(s_fDefaultFOV);
 
             // adjust the display of damage effects for the camera view
-            ThingSitePrivate* pSite; CastTo(pSite, trekClient.GetShip ()->GetSourceShip()->GetThingSite());
+            ThingSitePrivate* pSite; CastTo(pSite, trekClient.GetShip()->GetSourceShip()->GetThingSite());
             TRef<ThingGeo> pThing = pSite ? pSite->GetThingGeo() : NULL;
 
             // turn things on or off based on internal or external camera modes
@@ -6792,27 +6834,27 @@ public:
                     m_cameraControl.SetAnimatePosition(false);
                 }
                 if (pThing)
-                    pThing->SetShowDamage (false);
+                    pThing->SetShowDamage(false);
             }
-            else if (ExternalCamera (cm))
+            else if (ExternalCamera(cm))
             {
                 if (pThing)
-                    pThing->SetShowDamage (true);
+                    pThing->SetShowDamage(true);
             }
 
             UpdateOverlayFlags();
 
-			// BT - 10/17 - Map and Sector Panes are now shown on launch and remember the pilots settings on last dock. 
-			if (m_bShowInventoryPane == true)
-				TurnOnOverlayFlags(ofInventory);
+            // BT - 10/17 - Map and Sector Panes are now shown on launch and remember the pilots settings on last dock. 
+            if (m_bShowInventoryPane == true)
+                TurnOnOverlayFlags(ofInventory);
 
-			// BT - 10/17 - Map and Sector Panes are now shown on launch and remember the pilots settings on last dock. 
-			if(m_bShowSectorMapPane == true)
-				TurnOnOverlayFlags(ofSectorPane);
+            // BT - 10/17 - Map and Sector Panes are now shown on launch and remember the pilots settings on last dock. 
+            if (m_bShowSectorMapPane == true)
+                TurnOnOverlayFlags(ofSectorPane);
 
             // REVIEW: why not expose this in MDL?
-			if (GetOverlayFlags() & (ofInCockpit | ofInChase))
-				m_pradarImage->SetRadarLOD((RadarImage::RadarLOD)m_radarCockpit);
+            if (GetOverlayFlags() & (ofInCockpit | ofInChase))
+                m_pradarImage->SetRadarLOD((RadarImage::RadarLOD)m_radarCockpit);
             else if (GetOverlayFlags() & (ofInFlightCommand | ofInStationCommand))
                 m_pradarImage->SetRadarLOD((RadarImage::RadarLOD)m_radarCommand);
             else
@@ -6859,31 +6901,31 @@ public:
             // kill any mouse capture
             m_pwrapImageTop->RemoveCapture();
 
-			// yp - Your_Persona buttons get stuck patch. aug-03-2006
-			// clear the keyboard buttons.
-			m_ptrekInput->ClearButtonStates();
+            // yp - Your_Persona buttons get stuck patch. aug-03-2006
+            // clear the keyboard buttons.
+            m_ptrekInput->ClearButtonStates();
 
-			// #294 - Turkey / #361 Use different number of chatlines for the loadout screen cos there's less space
-			if (m_pchatListPane)
-			{
-				int lines = m_pnumberChatLinesDesired->GetValue();
+            // #294 - Turkey / #361 Use different number of chatlines for the loadout screen cos there's less space
+            if (m_pchatListPane)
+            {
+                int lines = m_pnumberChatLinesDesired->GetValue();
 
-				if (vm == vmLoadout)
-				{
-					m_pchatListPane->SetChatLines(min(lines, 6));
-					m_pnumberChatLines->SetValue(min(lines, 6));
-				}
-				else if (vm <= vmOverride)
-				{
-					m_pchatListPane->SetChatLines(lines);
-					m_pnumberChatLines->SetValue(lines);
-				}
-			}
+                if (vm == vmLoadout)
+                {
+                    m_pchatListPane->SetChatLines(min(lines, 6));
+                    m_pnumberChatLines->SetValue(min(lines, 6));
+                }
+                else if (vm <= vmOverride)
+                {
+                    m_pchatListPane->SetChatLines(lines);
+                    m_pnumberChatLines->SetValue(lines);
+                }
+            }
 
             switch (vm)
             {
             case vmHangar:
-				SetCombatScreen(CreateHangarScreen(GetModeler(), "hangar"));
+                SetCombatScreen(CreateHangarScreen(GetModeler(), "hangar"));
 
                 // reset the current selected cluster
                 trekClient.RequestViewCluster(NULL);
@@ -6894,7 +6936,7 @@ public:
                 break;
 
             case vmLoadout:
-				SetCombatScreen(CreateLoadout(GetModeler(), GetWindow()->GetTime()));
+                SetCombatScreen(CreateLoadout(GetModeler(), GetWindow()->GetTime()));
 
                 // reset the current selected cluster
                 trekClient.RequestViewCluster(NULL);
@@ -6912,11 +6954,11 @@ public:
                 break;
 
             case vmCombat:
-                assert (trekClient.GetViewCluster() == NULL);
+                assert(trekClient.GetViewCluster() == NULL);
                 SetCameraMode(cmCockpit);
                 m_pwrapImageBackdrop->SetImage(trekClient.GetCluster() ? m_pgroupImage3D : Image::GetEmpty());
-				m_pscreen = NULL;
-				m_pimageScreen = NULL;
+                m_pscreen = NULL;
+                m_pimageScreen = NULL;
                 break;
 
             case vmOverride:
@@ -7025,10 +7067,10 @@ public:
 
 
     void    TrackCamera(const Vector&       position1,
-                        const Vector&       position2,
-                        float               length)
+        const Vector&       position2,
+        float               length)
     {
-        assert ((position2 - position1).LengthSquared() > 0.0f);
+        assert((position2 - position1).LengthSquared() > 0.0f);
         Vector      axis = (position2 - position1).Normalize();
         // GetOrthogonalVector does not return consistent results, which
         // causes an unsightly jump when tracking the camera. I replaced it with
@@ -7038,17 +7080,17 @@ public:
         // should always give smooth results. BSW 2/2/2000
         //Vector  side = axis.GetOrthogonalVector();
         Orientation orientation = m_cameraControl.GetOrientation();
-        Vector      up = orientation.GetUp ();
+        Vector      up = orientation.GetUp();
         float       dot_product = up * axis;
-        if (fabsf (dot_product) > 0.95f)
+        if (fabsf(dot_product) > 0.95f)
         {
-            up = orientation.GetRight ();
+            up = orientation.GetRight();
             dot_product = up * axis;
-            if (fabsf (dot_product) > 0.95f)
-                up = orientation.GetRight ();
-            assert (up * axis < 0.95f);
+            if (fabsf(dot_product) > 0.95f)
+                up = orientation.GetRight();
+            assert(up * axis < 0.95f);
         }
-        Vector      side = CrossProduct (axis, up);
+        Vector      side = CrossProduct(axis, up);
 
         m_cameraControl.SetPosition(position1 - axis * (length * 2.0f) + side * (length * 0.25f));
 
@@ -7056,10 +7098,10 @@ public:
         m_cameraControl.SetOrientation(orientation);
     }
 
-    void ComputeExternalChase (IshipIGC* pShip, Orientation& orientationBfr, Vector& positionBfr, float& offset)
+    void ComputeExternalChase(IshipIGC* pShip, Orientation& orientationBfr, Vector& positionBfr, float& offset)
     {
         // get the ship orientation and position
-        const Orientation&  shipOrientation = pShip->GetOrientation ();
+        const Orientation&  shipOrientation = pShip->GetOrientation();
         const Vector&       shipPosition = pShip->GetPosition();
 
         // This part is for dealing with the zoomable camera
@@ -7070,14 +7112,14 @@ public:
         // find the sample index to interpolate
         int     iSampleIndex = ((m_turnRateSampleIndex - 1) + ARRAY_OF_SAMPLES_SIZE) % ARRAY_OF_SAMPLES_SIZE;
 
-		// BT - 8/17 Fixing DX9 hang when in chase mode, and the camera is zoomed all the way out, this would cause a hang withe Dx9 engine. 
-		// The experiance is still bad (it's jumping all over the place), but at  least it doesn't hang. The Dx7 engine 
-		// works smoothly here, and the ship itself turns a lot nicer under DX7. 
-		// I believe that if you can figure out why this is different between the two engines, you will have solved the issue that was 
-		// introduced with the Dx9 conversion that is causing some players to report aiming issues. 
-		// The issue with the Dx9 version is that the m_turnRateSamples[iSampleIndex].time + fDelayTime) > m_turnRateSamples[m_turnRateSampleIndex].time is always true. 
-		// In the Dx7 engine version, this is NOT always true. 
-		// TODO: Resolve difference between Dx7 and Dx9 versions of the engines. 
+        // BT - 8/17 Fixing DX9 hang when in chase mode, and the camera is zoomed all the way out, this would cause a hang withe Dx9 engine. 
+        // The experiance is still bad (it's jumping all over the place), but at  least it doesn't hang. The Dx7 engine 
+        // works smoothly here, and the ship itself turns a lot nicer under DX7. 
+        // I believe that if you can figure out why this is different between the two engines, you will have solved the issue that was 
+        // introduced with the Dx9 conversion that is causing some players to report aiming issues. 
+        // The issue with the Dx9 version is that the m_turnRateSamples[iSampleIndex].time + fDelayTime) > m_turnRateSamples[m_turnRateSampleIndex].time is always true. 
+        // In the Dx7 engine version, this is NOT always true. 
+        // TODO: Resolve difference between Dx7 and Dx9 versions of the engines. 
         while ((m_turnRateSamples[iSampleIndex].time + fDelayTime) > m_turnRateSamples[m_turnRateSampleIndex].time && iSampleIndex != 0)
             iSampleIndex = ((iSampleIndex - 1) + ARRAY_OF_SAMPLES_SIZE) % ARRAY_OF_SAMPLES_SIZE;
 
@@ -7092,9 +7134,9 @@ public:
         float   fPitchDisplacement = 0.0f;
         float   fRollDisplacement = 0.0f;
 
-        float   fPreviousYawRate = Interpolate (m_turnRateSamples[iNextSampleIndex].fTurnRate[c_axisYaw], m_turnRateSamples[iSampleIndex].fTurnRate[c_axisYaw], fInterpolant);
-        float   fPreviousPitchRate = Interpolate (m_turnRateSamples[iNextSampleIndex].fTurnRate[c_axisPitch], m_turnRateSamples[iSampleIndex].fTurnRate[c_axisPitch], fInterpolant);
-        float   fPreviousRollRate = Interpolate (m_turnRateSamples[iNextSampleIndex].fTurnRate[c_axisRoll], m_turnRateSamples[iSampleIndex].fTurnRate[c_axisRoll], fInterpolant);
+        float   fPreviousYawRate = Interpolate(m_turnRateSamples[iNextSampleIndex].fTurnRate[c_axisYaw], m_turnRateSamples[iSampleIndex].fTurnRate[c_axisYaw], fInterpolant);
+        float   fPreviousPitchRate = Interpolate(m_turnRateSamples[iNextSampleIndex].fTurnRate[c_axisPitch], m_turnRateSamples[iSampleIndex].fTurnRate[c_axisPitch], fInterpolant);
+        float   fPreviousRollRate = Interpolate(m_turnRateSamples[iNextSampleIndex].fTurnRate[c_axisRoll], m_turnRateSamples[iSampleIndex].fTurnRate[c_axisRoll], fInterpolant);
         float   fTimeInterval = fInterpolant * fIntervalSize * 0.5f;
 
         while (iNextSampleIndex != m_turnRateSampleIndex)
@@ -7118,34 +7160,34 @@ public:
 
         // Compute orientation matrix from angular displacements
         orientationBfr = shipOrientation;
-        orientationBfr.Roll (-fRollDisplacement);
-        orientationBfr.Pitch (fPitchDisplacement); // not negated, because it is already backwards for some reason
-        orientationBfr.Yaw (-fYawDisplacement);
+        orientationBfr.Roll(-fRollDisplacement);
+        orientationBfr.Pitch(fPitchDisplacement); // not negated, because it is already backwards for some reason
+        orientationBfr.Yaw(-fYawDisplacement);
 
         // compute vector scaling quantities
         float   fRadius = pShip->GetHullType()->GetLength();
-        float   fMaxVelocity = pShip->GetHullType()->GetMaxSpeed ();
-        Vector  velocityVector = pShip->GetVelocity ();
-        float   fVelocity = velocityVector.Length ();
+        float   fMaxVelocity = pShip->GetHullType()->GetMaxSpeed();
+        Vector  velocityVector = pShip->GetVelocity();
+        float   fVelocity = velocityVector.Length();
         float   fFractionMaxVelocity = fVelocity / fMaxVelocity;
         if (fVelocity > 0.0f)
         {
             // this computes a proper multiplier for the scalar regardless of what
             // direction the ship is travelling with respect to its orientation
             velocityVector /= fVelocity;
-            float   fVelocityScalar = velocityVector * shipOrientation.GetForward ();
+            float   fVelocityScalar = velocityVector * shipOrientation.GetForward();
             fVelocity *= (fVelocityScalar < 0.0f) ? (fVelocityScalar * 0.5f) : fVelocityScalar;
         }
         float   fFractionMaxForwardVelocity = fVelocity / fMaxVelocity;                     // range 0..1
 
-        // compute vector offset quantities
+                                                                                            // compute vector offset quantities
         float   fCurrentVelocityOffset = fRadius * -0.5f * fFractionMaxVelocity;            // half the radius times the fraction of max velocity
         float   fOldForwardVelocityOffset = fRadius * fFractionMaxForwardVelocity;          // range of the radius * (0 .. 1)
         float   fOldUpOffset = fRadius * 0.3333f;                                           // one quarter of the radius
         float   fCurrentOrientationOffset = offset * 0.5f;                                  // range 0 .. 50
         float   fOldOrientationOffset = (offset + 100.0f) * 0.5f;                           // range 50 .. 100
 
-        // compute orientations taking into account the POV (the joystick hat control)
+                                                                                            // compute orientations taking into account the POV (the joystick hat control)
         const Orientation&  headOrientation = m_cameraControl.GetHeadOrientation();
         Orientation         currentLookOrientation = headOrientation * shipOrientation;
         Orientation         oldLookOrientation = headOrientation * orientationBfr;
@@ -7155,11 +7197,11 @@ public:
         // vector, an offset along the actual velocity vector, and a bit
         // of up offset so you can see what's on the other side of the ship.
         positionBfr = shipPosition
-            + (orientationBfr.GetUp ()                  * fOldUpOffset)
-            + (orientationBfr.GetBackward ()            * fOldForwardVelocityOffset)
+            + (orientationBfr.GetUp()                  * fOldUpOffset)
+            + (orientationBfr.GetBackward()            * fOldForwardVelocityOffset)
             + (velocityVector                           * fCurrentVelocityOffset)
-            + (currentLookOrientation.GetBackward ()    * fCurrentOrientationOffset)
-            + (oldLookOrientation.GetBackward ()        * fOldOrientationOffset)
+            + (currentLookOrientation.GetBackward()    * fCurrentOrientationOffset)
+            + (oldLookOrientation.GetBackward()        * fOldOrientationOffset)
             ;
 
         // don't let the camera mode add an additional offset later
@@ -7172,7 +7214,7 @@ public:
         {
             bool        bJiggle = false;
 
-            assert (trekClient.GetShip()->GetBaseHullType() || trekClient.GetShip()->GetParentShip());
+            assert(trekClient.GetShip()->GetBaseHullType() || trekClient.GetShip()->GetParentShip());
 
             IshipIGC*   pshipSource = trekClient.GetShip()->GetSourceShip();
 
@@ -7185,10 +7227,10 @@ public:
 
             // fill in samples for chase view
             m_turnRateSampleIndex = (m_turnRateSampleIndex + 1) % ARRAY_OF_SAMPLES_SIZE;
-            m_turnRateSamples[m_turnRateSampleIndex].fTurnRate[c_axisYaw] = pshipSource->GetCurrentTurnRate (c_axisYaw);
-            m_turnRateSamples[m_turnRateSampleIndex].fTurnRate[c_axisPitch] = pshipSource->GetCurrentTurnRate (c_axisPitch);
-            m_turnRateSamples[m_turnRateSampleIndex].fTurnRate[c_axisRoll] = pshipSource->GetCurrentTurnRate (c_axisRoll);
-            m_turnRateSamples[m_turnRateSampleIndex].time = trekClient.GetCore()->GetLastUpdate ();
+            m_turnRateSamples[m_turnRateSampleIndex].fTurnRate[c_axisYaw] = pshipSource->GetCurrentTurnRate(c_axisYaw);
+            m_turnRateSamples[m_turnRateSampleIndex].fTurnRate[c_axisPitch] = pshipSource->GetCurrentTurnRate(c_axisPitch);
+            m_turnRateSamples[m_turnRateSampleIndex].fTurnRate[c_axisRoll] = pshipSource->GetCurrentTurnRate(c_axisRoll);
+            m_turnRateSamples[m_turnRateSampleIndex].time = trekClient.GetCore()->GetLastUpdate();
 
             if (InternalCamera(m_cm))
             {
@@ -7197,7 +7239,7 @@ public:
                 const Vector*  poffset;
                 if (pshipSource != trekClient.GetShip())
                 {
-                    assert (trekClient.GetShip()->GetParentShip() != NULL);
+                    assert(trekClient.GetShip()->GetParentShip() != NULL);
                     Mount   turretID = trekClient.GetShip()->GetTurretID();
                     if (turretID != NA)
                     {
@@ -7207,22 +7249,22 @@ public:
                         /*
                         if (m_cameraControl.GetAnimation() == 0.0f)
                         {
-                            Orientation oTurret = pshipSource->GetHullType()->GetWeaponOrientation(turretID) *
-                                                  shipOrientation;
-                            m_pmtTurret->SetValue(Matrix(oTurret, Vector::GetZero(), 1.0f));
+                        Orientation oTurret = pshipSource->GetHullType()->GetWeaponOrientation(turretID) *
+                        shipOrientation;
+                        m_pmtTurret->SetValue(Matrix(oTurret, Vector::GetZero(), 1.0f));
 
-                            //m_pwrapImageTurret->SetImage(m_pimageTurret);
-                            //m_pcameraTurret->SetOrientation(m_cameraControl.GetHeadOrientation() * clientOrientation);
+                        //m_pwrapImageTurret->SetImage(m_pimageTurret);
+                        //m_pcameraTurret->SetOrientation(m_cameraControl.GetHeadOrientation() * clientOrientation);
                         }
                         else
                         {
-                            //m_pwrapImageTurret->SetImage(Image::GetEmpty());
+                        //m_pwrapImageTurret->SetImage(Image::GetEmpty());
                         }
                         */
 
                         /* NYI gun orientation depends on parent ship orientation
                         Orientation oTurret = pshipSource->GetHullType()->GetWeaponOrientation(turretID) *
-                                              shipOrientation;
+                        shipOrientation;
 
                         orientationBfr = clientOrientation * oTurret;
                         pMyOrientation = &orientationBfr;
@@ -7243,7 +7285,7 @@ public:
                     poffset = &(pshipSource->GetHullType()->GetCockpit());
                     /*if (m_cameraControl.GetAnimation() == 0.0f)
                     {
-                        m_pcameraTurret->SetOrientation(m_cameraControl.GetHeadOrientation());
+                    m_pcameraTurret->SetOrientation(m_cameraControl.GetHeadOrientation());
                     }
                     */
                 }
@@ -7264,7 +7306,7 @@ public:
                 }
                 else
                 {
-                    assert (ExternalCamera(m_cm));
+                    assert(ExternalCamera(m_cm));
 
                     Orientation         orientationBfr;
                     Vector              positionBfr;
@@ -7275,193 +7317,193 @@ public:
 
                     switch (m_cm)
                     {
-                        case cmExternalTarget:
-                        {
-                            ImodelIGC*  pmodelTarget = GetCurrentTarget();
-                            if (pmodelTarget)
-                            {
-                                {
-                                    float   fMin = 5.0f + 2.0f * pmodelTarget->GetRadius();
-                                    if (offset < fMin)
-                                        offset = m_distanceExternalCamera = fMin;
-                                }
-                                pPosition = &(pmodelTarget->GetPosition());
-                                pOrientation = &m_orientationExternalCamera;
-                                break;
-                            }
-                        }
-                        //No break
-
-                        case cmExternal:
+                    case cmExternalTarget:
+                    {
+                        ImodelIGC*  pmodelTarget = GetCurrentTarget();
+                        if (pmodelTarget)
                         {
                             {
-                                float   fMin = 5.0f + 2.0f * pshipSource->GetRadius();
+                                float   fMin = 5.0f + 2.0f * pmodelTarget->GetRadius();
                                 if (offset < fMin)
                                     offset = m_distanceExternalCamera = fMin;
                             }
+                            pPosition = &(pmodelTarget->GetPosition());
+                            pOrientation = &m_orientationExternalCamera;
+                            break;
+                        }
+                    }
+                    //No break
 
+                    case cmExternal:
+                    {
+                        {
+                            float   fMin = 5.0f + 2.0f * pshipSource->GetRadius();
+                            if (offset < fMin)
+                                offset = m_distanceExternalCamera = fMin;
+                        }
+
+                        pPosition = &myPosition;
+                        pOrientation = &m_orientationExternalCamera;
+                    }
+                    break;
+
+                    case cmExternalChase:
+                    {
+                        ComputeExternalChase(pshipSource, orientationBfr, positionBfr, offset);
+                        pOrientation = &orientationBfr;
+                        pPosition = &(positionBfr);
+                    }
+                    break;
+
+                    case cmExternalFlyBy:
+                    {
+                        //Position the camera so that both the target and the player are in view
+                        //Basic algorithm:
+                        //Aim the camera at the midpoint, back far enough so both are in view
+                        ImodelIGC* pmodelTarget = GetCurrentTarget();
+                        if (pmodelTarget != NULL)
+                        {
+                            const Vector&   targetPosition = pmodelTarget->GetPosition();
+
+                            pPosition = &positionBfr;
+                            pOrientation = &m_orientationExternalCamera;
+
+                            positionBfr = (0.5f * (targetPosition + myPosition));
+
+                            const Vector& backward = pOrientation->GetBackward();
+
+                            //Now how far back to we have to move the camera to get both in view
+                            float   dTarget;
+                            {
+                                Vector  delta = targetPosition - positionBfr;
+
+                                //Find the distance the target is along the forward vector
+                                float   dBackward = delta * backward;
+
+                                //Find the distance the target is perpendicular to the forward vector
+                                float   dSide = (float)sqrt(delta.LengthSquared() + dBackward * dBackward);
+
+                                dTarget = dSide * 3.0f + dBackward;  //5.0 == fudge factor based on field of view
+                            }
+
+                            float   dMe;
+                            {
+                                Vector  delta = myPosition - positionBfr;
+                                float   dBackward = delta * backward;
+                                float   dSide = (float)sqrt(delta.LengthSquared() + dBackward * dBackward);
+                                dMe = dSide * 3.0f + dBackward;
+                            }
+
+                            offset = (1.25f * ((dTarget > dMe) ? dTarget : dMe));
+                        }
+                        else
+                        {
+                            //Degenerate case ... treat as external chase
                             pPosition = &myPosition;
                             pOrientation = &m_orientationExternalCamera;
                         }
-                        break;
+                    }
+                    break;
 
-                        case cmExternalChase:
+                    case cmExternalOrbit:
+                    {
+                        m_orientationExternalCamera.Pitch(dt * 0.35f);
+                        m_orientationExternalCamera.Yaw(dt * 0.2f);
+                        m_orientationExternalCamera.Roll(dt * 0.5f);
+
+                        pPosition = &myPosition;
+                        pOrientation = &m_orientationExternalCamera;
+                        offset = 5.0f + 2.5f * pshipSource->GetHullType()->GetLength();
+                    }
+                    break;
+
+                    case cmExternalOverride:
+                    {
+                        if (!m_bUseOverridePosition)
+                            TrackCamera(myPosition, m_positionOverrideTarget,
+                                pshipSource->GetRadius() * 3.0f);
+
+                        offset = -1.0f;
+                    }
+                    break;
+
+                    case cmExternalStation:
+                    {
+                        ImodelIGC*  myTarget = GetCurrentTarget();
+                        if ((myTarget != NULL) &&
+                            (myTarget != pshipSource) &&
+                            (pshipSource->GetCluster() == myTarget->GetCluster()) &&
+                            (myTarget->GetHitTest() != NULL) &&
+                            pshipSource->CanSee(myTarget))
                         {
-                            ComputeExternalChase (pshipSource, orientationBfr, positionBfr, offset);
-                            pOrientation = &orientationBfr;
-                            pPosition = &(positionBfr);
-                        }
-                        break;
-
-                        case cmExternalFlyBy:
-                        {
-                            //Position the camera so that both the target and the player are in view
-                            //Basic algorithm:
-                            //Aim the camera at the midpoint, back far enough so both are in view
-                            ImodelIGC* pmodelTarget = GetCurrentTarget();
-                            if (pmodelTarget != NULL)
-                            {
-                                const Vector&   targetPosition = pmodelTarget->GetPosition();
-
-                                pPosition = &positionBfr;
-                                pOrientation = &m_orientationExternalCamera;
-
-                                positionBfr = (0.5f * (targetPosition + myPosition));
-
-                                const Vector& backward = pOrientation->GetBackward();
-
-                                //Now how far back to we have to move the camera to get both in view
-                                float   dTarget;
-                                {
-                                    Vector  delta = targetPosition - positionBfr;
-
-                                    //Find the distance the target is along the forward vector
-                                    float   dBackward = delta * backward;
-
-                                    //Find the distance the target is perpendicular to the forward vector
-                                    float   dSide = (float)sqrt(delta.LengthSquared() + dBackward * dBackward);
-
-                                    dTarget = dSide * 3.0f + dBackward;  //5.0 == fudge factor based on field of view
-                                }
-
-                                float   dMe;
-                                {
-                                    Vector  delta = myPosition - positionBfr;
-                                    float   dBackward = delta * backward;
-                                    float   dSide = (float)sqrt(delta.LengthSquared() + dBackward * dBackward);
-                                    dMe = dSide * 3.0f + dBackward;
-                                }
-
-                                offset = (1.25f * ((dTarget > dMe) ? dTarget : dMe));
-                            }
-                            else
-                            {
-                                //Degenerate case ... treat as external chase
-                                pPosition = &myPosition;
-                                pOrientation = &m_orientationExternalCamera;
-                            }
-                        }
-                        break;
-
-                        case cmExternalOrbit:
-                        {
-                            m_orientationExternalCamera.Pitch(dt * 0.35f);
-                            m_orientationExternalCamera.Yaw(dt * 0.2f);
-                            m_orientationExternalCamera.Roll(dt * 0.5f);
-
                             pPosition = &myPosition;
                             pOrientation = &m_orientationExternalCamera;
-                            offset = 5.0f + 2.5f * pshipSource->GetHullType()->GetLength();
-                        }
-                        break;
-
-                        case cmExternalOverride:
-                        {
-                            if (!m_bUseOverridePosition)
-                                TrackCamera(myPosition, m_positionOverrideTarget,
-                                            pshipSource->GetRadius() * 3.0f);
-
+                            offset = 5.0f + pshipSource->GetRadius() * 2.5f;
+                            TrackCamera(myPosition, myTarget->GetPosition(), offset);
                             offset = -1.0f;
                         }
-                        break;
-
-                        case cmExternalStation:
+                        else
                         {
-                            ImodelIGC*  myTarget = GetCurrentTarget();
-                            if ((myTarget != NULL) &&
-                                (myTarget != pshipSource) &&
-                                (pshipSource->GetCluster() == myTarget->GetCluster()) &&
-                                (myTarget->GetHitTest() != NULL) &&
-                                pshipSource->CanSee(myTarget))
-                            {
-                                pPosition = &myPosition;
-                                pOrientation = &m_orientationExternalCamera;
-                                offset = 5.0f + pshipSource->GetRadius() * 2.5f;
-                                TrackCamera (myPosition, myTarget->GetPosition(), offset);
-                                offset = -1.0f;
-                            }
+                            // no target, or it wasn't visible...
+                            // so use external chase view
+                            ComputeExternalChase(pshipSource, orientationBfr, positionBfr, offset);
+                            pOrientation = &orientationBfr;
+                            pPosition = &(positionBfr);
+
+                            // and should we switch back to cockpit?
+                        }
+                    }
+                    break;
+
+                    case cmExternalMissile:
+                    {
+                        ImissileIGC*    pmissile = pshipSource->GetLastMissileFired();
+                        if (pmissile != m_pmissileLast)
+                        {
+                            m_cmOld = cmExternalMissile;    //Hack: prevent anything weird on the animated transition to the missile
+                            m_cameraControl.SetOrientation(pshipSource->GetOrientation());
+                            m_cameraControl.SetAnimation(1.0f); //Force an animation to the new missile/ship position
+                            m_pmissileLast = pmissile;
+                            UpdateOverlayFlags();
+                        }
+                        if (pmissile)
+                        {
+                            ImodelIGC*  pTarget = pmissile->GetTarget();
+                            if (pTarget && pTarget->GetMission())
+                                // if the missile has a valid target, we use the tracking camera
+                                TrackCamera(pmissile->GetPosition(), pTarget->GetPosition(), pmissile->GetRadius() * 3.0f);
                             else
-                            {
-                                // no target, or it wasn't visible...
-                                // so use external chase view
-                                ComputeExternalChase (pshipSource, orientationBfr, positionBfr, offset);
-                                pOrientation = &orientationBfr;
-                                pPosition = &(positionBfr);
-
-                                // and should we switch back to cockpit?
-                            }
+                                // otherwise track the missile and the ship it was fired from
+                                TrackCamera(pmissile->GetPosition(), pshipSource->GetPosition(), pmissile->GetRadius() * 3.0f);
+                            offset = -1.0f;
                         }
-                        break;
-
-                        case cmExternalMissile:
+                        else
                         {
-                            ImissileIGC*    pmissile = pshipSource->GetLastMissileFired();
-                            if (pmissile != m_pmissileLast)
-                            {
-                                m_cmOld = cmExternalMissile;    //Hack: prevent anything weird on the animated transition to the missile
-                                m_cameraControl.SetOrientation (pshipSource->GetOrientation ());
-                                m_cameraControl.SetAnimation(1.0f); //Force an animation to the new missile/ship position
-                                m_pmissileLast = pmissile;
-                                UpdateOverlayFlags ();
-                            }
-                            if (pmissile)
-                            {
-                                ImodelIGC*  pTarget = pmissile->GetTarget ();
-                                if (pTarget && pTarget->GetMission ())
-                                    // if the missile has a valid target, we use the tracking camera
-                                    TrackCamera (pmissile->GetPosition (), pTarget->GetPosition(), pmissile->GetRadius () * 3.0f);
-                                else
-                                    // otherwise track the missile and the ship it was fired from
-                                    TrackCamera (pmissile->GetPosition (), pshipSource->GetPosition(), pmissile->GetRadius () * 3.0f);
-                                offset = -1.0f;
-                            }
-                            else
-                            {
-                                // No missile ... treat as a chase view
-                                ComputeExternalChase (pshipSource, orientationBfr, positionBfr, offset);
-                                pOrientation = &orientationBfr;
-                                pPosition = &(positionBfr);
+                            // No missile ... treat as a chase view
+                            ComputeExternalChase(pshipSource, orientationBfr, positionBfr, offset);
+                            pOrientation = &orientationBfr;
+                            pPosition = &(positionBfr);
 
-                                // and check to see if we are out of missiles, just for the heck of it
-                                // and switch back to cockpit mode if we are?
-                            }
+                            // and check to see if we are out of missiles, just for the heck of it
+                            // and switch back to cockpit mode if we are?
                         }
-                        break;
+                    }
+                    break;
 
-                        default:
-                        {
-                            //Some unsupprted mode ... treat as external
-                            pPosition = &myPosition;
-                            pOrientation = &m_orientationExternalCamera;
-                        }
+                    default:
+                    {
+                        //Some unsupprted mode ... treat as external
+                        pPosition = &myPosition;
+                        pOrientation = &m_orientationExternalCamera;
+                    }
                     }
 
                     if (offset >= 0.0f)
                     {
 
                         m_cameraControl.SetPosition(offset == 0.0f
-                                                    ? *pPosition
-                                                    : (*pPosition + offset * pOrientation->GetBackward()));
+                            ? *pPosition
+                            : (*pPosition + offset * pOrientation->GetBackward()));
                         m_cameraControl.SetOrientation(*pOrientation);
                     }
                 }
@@ -7470,11 +7512,11 @@ public:
             bool    bAnimating = m_cameraControl.Apply(dt, bJiggle, m_pboolTargetHUD->GetValue());
 
             m_pCommandVisibleGeo->SetVisible(m_bCommandGrid || CommandCamera(m_cm) ||
-                                             (bAnimating && CommandCamera(m_cmOld)));
+                (bAnimating && CommandCamera(m_cmOld)));
 
             {
                 bool    v = !(InternalCamera(m_cm) &&
-                              ((!bAnimating) || InternalCamera(m_cmOld)));
+                    ((!bAnimating) || InternalCamera(m_cmOld)));
 
                 pshipSource->SetVisibleF(v);
             }
@@ -7487,11 +7529,11 @@ public:
     {
         /*  , doesn't work
         if (vecDirection.LengthSquared() != 0) {
-            Point pointNDC;
+        Point pointNDC;
 
-            if (m_pcamera->TransformEyeToNDC(vecDirection, pointNDC)) {
-                m_pmuzzleFlareImage->AddFlare(pointNDC, duration);
-            }
+        if (m_pcamera->TransformEyeToNDC(vecDirection, pointNDC)) {
+        m_pmuzzleFlareImage->AddFlare(pointNDC, duration);
+        }
         }
         */
     }
@@ -7511,10 +7553,10 @@ public:
             ZString str = ZString((int)mspf) + "," + ZString((int)fps) + ",";
 
             int i;
-            for (i=0; i<7; i++)
+            for (i = 0; i<7; i++)
                 str += ZString(g_fdInfo.objects_drawn[i]) + ",";
 
-            for (i=0; i<7; i++)
+            for (i = 0; i<7; i++)
                 str += ZString(g_fdInfo.objects_insector[i]) + ",";
 
             str += ZString(pcontext->GetPerformanceCounter(CounterTriangles)) + ",";
@@ -7527,11 +7569,12 @@ public:
         if (trekClient.flyingF()) {
             const Vector& myPosition = trekClient.GetShip()->GetPosition();
             strPosition =
-                  " pos("
+                " pos("
                 + ZString((int)myPosition.X()) + ","
                 + ZString((int)myPosition.Y()) + ","
                 + ZString((int)myPosition.Z()) + ")";
-        } else {
+        }
+        else {
             strPosition = " pos: (Dead)";
         }
 
@@ -7557,19 +7600,19 @@ public:
 
         int nNumPlayingSoundBuffers;
         ZSucceeded(m_pSoundEngine->GetNumPlayingVirtualBuffers(nNumPlayingSoundBuffers));
-        char szRemoteAddress [64];
+        char szRemoteAddress[16];
         if (trekClient.m_fm.IsConnected())
-          trekClient.m_fm.GetIPAddress(*trekClient.m_fm.GetServerConnection(), szRemoteAddress);
+            trekClient.m_fm.GetIPAddress(*trekClient.m_fm.GetServerConnection(), szRemoteAddress);
         else
-          lstrcpy(szRemoteAddress, "N/A");
+            lstrcpy(szRemoteAddress, "N/A");
 
         return
-              "TC:" + ZString(ThingGeo::GetTrashCount())
+            "TC:" + ZString(ThingGeo::GetTrashCount())
             + " CC:" + ZString(ThingGeo::GetCrashCount())
             + " Server: " + ZString(szRemoteAddress)
             + " fov: " + ((m_pcamera != NULL) ? ZString(DegreesFromRadians(m_pcamera->GetFOV())) : ZString())
             + strPosition
-            + " lag: " + ZString((long) trekClient.m_serverLag)
+            + " lag: " + ZString((long)trekClient.m_serverLag)
             + " ping: " + ZString(Time::Now() - trekClient.m_timeLastPing)
             + " sync: " + ZString(int(100.0f * trekClient.m_sync))
             + " snds: " + ZString(nNumPlayingSoundBuffers);
@@ -7577,32 +7620,32 @@ public:
         //return m_ptrekInput->GetFPSString();
     }
 
-    void StartTraining (int iMissionIndex)
+    void StartTraining(int iMissionIndex)
     {
-        if (Training::StartMission (iMissionIndex))
+        if (Training::StartMission(iMissionIndex))
         {
             screen(ScreenIDCombat);
 
             if (m_cm == cmExternalOverride)
                 EndOverrideCamera();
 
-            Training::SetupShipAndCamera ();
+            Training::SetupShipAndCamera();
             m_cameraControl.SetAnimatePosition(false);
             m_cameraControl.SetAnimation(0.0f);
 
             // set the ship status
             ShipStatus  status;
-            status.SetHullID (static_cast<HullID> (trekClient.GetShip ()->GetHullType ()->GetObjectID ()));
-            status.SetSectorID (Training::GetStartSectorID ());
-            status.SetState (c_ssFlying);
-            status.SetDetected (false);
-            trekClient.GetPlayerInfo ()->SetShipStatus (status);
+            status.SetHullID(static_cast<HullID> (trekClient.GetShip()->GetHullType()->GetObjectID()));
+            status.SetSectorID(Training::GetStartSectorID());
+            status.SetState(c_ssFlying);
+            status.SetDetected(false);
+            trekClient.GetPlayerInfo()->SetShipStatus(status);
         }
     }
 
     void OrientCommandView(void)
     {
-        assert (CommandCamera(m_cm));
+        assert(CommandCamera(m_cm));
 
         Orientation o;
         if (m_cm == cmExternalCommandView34)
@@ -7613,7 +7656,7 @@ public:
         }
         else
         {
-            assert (m_cm == cmExternalCommandViewTD);
+            assert(m_cm == cmExternalCommandViewTD);
 
             o.Reset();
         }
@@ -7637,7 +7680,7 @@ public:
         else
         {
             IshipIGC*   pship = trekClient.GetShip()->GetSourceShip();
-            assert (pship);
+            assert(pship);
 
             *pposition = pship->GetPosition();
             *pradiusMin = 5.0f + pship->GetRadius() * 2.0f;
@@ -7670,13 +7713,13 @@ public:
         }
     }
 
-	// mdvalley: the func return type has to be explicit now.
+    // mdvalley: the func return type has to be explicit now.
     virtual void UpdateCommandView(void)
     {
-        assert (CommandCamera(m_cm));
+        assert(CommandCamera(m_cm));
 
         IclusterIGC*    pcluster = trekClient.GetCluster();
-        assert (pcluster);
+        assert(pcluster);
 
         if (!m_pconsoleImage->DrawSelectionBox())
         {
@@ -7700,19 +7743,19 @@ public:
                             m_distanceCommandCamera = fMin;
 
                         m_positionCommandView = positionTarget +
-                                                m_displacementCommandView;
+                            m_displacementCommandView;
                     }
                 }
             }
             /*
             else
             {
-                GetDefaultPosition(&positionTarget, &fMin);
-                if (m_distanceCommandCamera < fMin)
-                    m_distanceCommandCamera = fMin;
+            GetDefaultPosition(&positionTarget, &fMin);
+            if (m_distanceCommandCamera < fMin)
+            m_distanceCommandCamera = fMin;
 
-                m_positionCommandView = positionTarget +
-                                        m_displacementCommandView;
+            m_positionCommandView = positionTarget +
+            m_displacementCommandView;
             }
             */
 
@@ -7735,35 +7778,35 @@ public:
     /*
     void OnLoadoutChanged(IpartIGC* ppart, LoadoutChange lc)
     {
-        if (lc == c_lcHullChange)
-        {
-            IshipIGC*     pship     = trekClient.GetShip()->GetSourceShip();
-            if (pship->GetCluster() != NULL)
-            {
-                // Change in flight ... update the display mdl
-                // NYI assume we'll only get this when being placed in a life pod
+    if (lc == c_lcHullChange)
+    {
+    IshipIGC*     pship     = trekClient.GetShip()->GetSourceShip();
+    if (pship->GetCluster() != NULL)
+    {
+    // Change in flight ... update the display mdl
+    // NYI assume we'll only get this when being placed in a life pod
 
-                if (m_pconsoleImage)
-                    m_pconsoleImage->SetDisplayMDL(pship->GetHullType()->GetPilotHUDName());
-            }
-        }
-        else if (lc == c_lcTurretChange)
-        {
-            //player switched positions
-            IhullTypeIGC*   pht = trekClient.GetShip()->GetSourceShip()->GetBaseHullType();
+    if (m_pconsoleImage)
+    m_pconsoleImage->SetDisplayMDL(pship->GetHullType()->GetPilotHUDName());
+    }
+    }
+    else if (lc == c_lcTurretChange)
+    {
+    //player switched positions
+    IhullTypeIGC*   pht = trekClient.GetShip()->GetSourceShip()->GetBaseHullType();
 
-            const char* pszDisplayMDL;
-            Mount   turretID = trekClient.GetShip()->GetTurretID();
-            if (turretID == NA)
-            {
-                pszDisplayMDL = pht->GetObserverHUDName();
-            }
-            else
-            {
-                pszDisplayMDL = pht->GetHardpointData(turretID).hudName;
-            }
-            m_pconsoleImage->SetDisplayMDL(pszDisplayMDL);
-        }
+    const char* pszDisplayMDL;
+    Mount   turretID = trekClient.GetShip()->GetTurretID();
+    if (turretID == NA)
+    {
+    pszDisplayMDL = pht->GetObserverHUDName();
+    }
+    else
+    {
+    pszDisplayMDL = pht->GetHardpointData(turretID).hudName;
+    }
+    m_pconsoleImage->SetDisplayMDL(pszDisplayMDL);
+    }
     }
     */
 
@@ -7771,7 +7814,7 @@ public:
     {
     }
 
-    float   GetDeltaTime (void) const
+    float   GetDeltaTime(void) const
     {
         return m_fDeltaTime;
     }
@@ -7784,8 +7827,8 @@ public:
         {
             m_ptrekInput->SetInputSite(this); //Imago 8/15/09
 
-            // allow the splash screen to draw itself before we do
-            // any other initialization
+                                              // allow the splash screen to draw itself before we do
+                                              // any other initialization
             bFirstFrame = false;
             if (m_screen != ScreenIDCombat)
                 return;
@@ -7800,7 +7843,7 @@ public:
 
         {
             bool bEnable =
-                   m_bEnableVirtualJoystick
+                m_bEnableVirtualJoystick
                 && GetPopupContainer()->IsEmpty()
                 && trekClient.flyingF()
                 && ((m_viewmode == vmCombat) || (m_viewmode == vmOverride))
@@ -7825,7 +7868,7 @@ public:
         // Handle AutoDownload as needed, if we're not downloading, do nothing
         if (trekClient.m_pAutoDownload)
         {
-            if(GetWindow()->GetFullscreen())
+            if (GetWindow()->GetFullscreen())
                 trekClient.HandleAutoDownload(50); // give smaller time slice to allow for mouse to update
             else
                 trekClient.HandleAutoDownload(500); // since the mouse is hardware in not full screen, the graphics engine doesn't need much CPU
@@ -7833,17 +7876,17 @@ public:
 
 
         // receive network messages
-        trekClient.m_lastUpdate  = m_timeLastFrame;
-        trekClient.m_now         = time;
+        trekClient.m_lastUpdate = m_timeLastFrame;
+        trekClient.m_now = time;
         if (FAILED(trekClient.ReceiveMessages())) {
-			debugf("*!* frame# %d dropped (net)\n",m_frameID);
-			return;     //bug out
-		}
-            
-            // (CRC) Too much spew: ShouldBe ((!trekClient.m_serverOffsetValidF) || (fabs(Time::Now() - trekClient.m_timeLastPing) < 30.0f));
+            debugf("*!* frame# %d dropped (net)\n", m_frameID);
+            return;     //bug out
+        }
+
+        // (CRC) Too much spew: ShouldBe ((!trekClient.m_serverOffsetValidF) || (fabs(Time::Now() - trekClient.m_timeLastPing) < 30.0f));
 
         // Update the world
-		DoTrekUpdate(m_timeLastFrame, time, dtime, (m_frameID > 1));
+        DoTrekUpdate(m_timeLastFrame, time, dtime, (m_frameID > 1));
 
         // Update sounds
         m_pSoundEngine->Update();
@@ -7871,7 +7914,7 @@ public:
 
         if (pcluster && m_screen == ScreenIDCombat)
         {
-            assert (m_screen == ScreenIDCombat);
+            assert(m_screen == ScreenIDCombat);
             m_frameID++;
 
             Rect rectImage = m_pviewport->GetViewRect()->GetValue();
@@ -7888,7 +7931,7 @@ public:
             //
 
             const ModelListIGC* models = pcluster->GetPickableModels();
-            assert (models);
+            assert(models);
 
             double   angleToPixels = double(rectImage.Size().X()) / double(m_cameraControl.GetFOV());
 
@@ -7898,7 +7941,7 @@ public:
 
                 rectImage.Expand(-c_flBorderSide);
             }
-            for (int i=0; i<7; i++)
+            for (int i = 0; i<7; i++)
             {
                 g_fdInfo.objects_drawn[i] = 0;
                 g_fdInfo.objects_insector[i] = 0;
@@ -7910,13 +7953,13 @@ public:
             IshipIGC*   pshipSource = pshipParent ? pshipParent : trekClient.GetShip();
 
             // store the screen size for later use
-            #if 1
+#if 1
             float           fScreenSize = (rectImage.YMax() - rectImage.YMin()) * 0.48f;    //NYI same constant as in radarimage.cpp
-            #else
+#else
             float           fScreenXSize = rectImage.XMax() - rectImage.XMin(),
-                            fScreenYSize = rectImage.YMax() - rectImage.YMin(),
-                            fScreenSize = sqrtf ((fScreenXSize * fScreenXSize) + (fScreenYSize * fScreenYSize)) * 0.5f;
-            #endif
+                fScreenYSize = rectImage.YMax() - rectImage.YMin(),
+                fScreenSize = sqrtf((fScreenXSize * fScreenXSize) + (fScreenYSize * fScreenYSize)) * 0.5f;
+#endif
 
             ImodelIGC*  pmodelTarget = trekClient.GetShip()->GetCommandTarget(c_cmdCurrent);
 
@@ -7925,7 +7968,7 @@ public:
             //
             {
                 SetTargetGeo(pmodelTarget);
-                assert (m_pconsoleImage);
+                assert(m_pconsoleImage);
                 m_pconsoleImage->GetConsoleData()->SetTarget(pmodelTarget);
             }
 
@@ -7957,37 +8000,37 @@ public:
                 float r = cosTheta2 > 0.0f ? float(c_fCommandGridRadius * sqrt(cosTheta2)) : 0.0f;
 
                 float   d = (*pcameraPosition * *pcameraBackward);
-                zMin = d-r;
-                zMax = d+r;
+                zMin = d - r;
+                zMax = d + r;
             }
 
-            for (ModelLinkIGC*  l = models->first(); (l != NULL); l = l->next())
+            for (ModelLinkIGC* l = models->first(); (l != NULL); l = l->next())
             {
                 ImodelIGC*        pmodel = l->data();
 
                 // check to see if this is a ship
-                if (pmodel->GetObjectType () == OT_ship)
+                if (pmodel->GetObjectType() == OT_ship)
                 {
                     // it is a ship, let's check to see if it is approaching an aleph
                     IshipIGC* pship; CastTo(pship, pmodel);
-                    ImodelIGC*  pmodelAleph = FindTarget (pship, c_ttWarp | c_ttNearest | c_ttAllSides);
+                    ImodelIGC*  pmodelAleph = FindTarget(pship, c_ttWarp | c_ttNearest | c_ttAllSides);
                     if (pmodelAleph)
                     {
                         Vector  vecDelta = pmodelAleph->GetPosition() - pship->GetPosition();
-                        float   fRange = vecDelta.Length ();
-                        float   fRelativeVelocity = pship->GetVelocity () * (vecDelta / fRange);
+                        float   fRange = vecDelta.Length();
+                        float   fRelativeVelocity = pship->GetVelocity() * (vecDelta / fRange);
                         if (fRelativeVelocity > 0.0f)
-                            pship->GetThingSite ()->SetTimeUntilAleph (fRange / fRelativeVelocity);
+                            pship->GetThingSite()->SetTimeUntilAleph(fRange / fRelativeVelocity);
                         else
-                            pship->GetThingSite ()->SetTimeUntilAleph (-1.0f);
+                            pship->GetThingSite()->SetTimeUntilAleph(-1.0f);
                     }
                 }
 
                 // do all other stuff
                 if (((pmodel != trekClient.GetShip()) &&
-                     (pmodel != pshipParent)) || pmodel->GetVisibleF())
+                    (pmodel != pshipParent)) || pmodel->GetVisibleF())
                 {
-                    ObjectType        type   = pmodel->GetObjectType();
+                    ObjectType        type = pmodel->GetObjectType();
                     if ((type != OT_ship) || (((IshipIGC*)pmodel)->GetParentShip() == NULL))
                     {
                         ThingSitePrivate* psite; CastTo(psite, pmodel->GetThingSite());
@@ -8030,7 +8073,7 @@ public:
                                     if (m_bRoundRadar)
                                     {
                                         // lock the blip to a circle inscribed in the view rectangle
-                                        float   fDistanceSquared = (pointScreenPosition.X () * pointScreenPosition.X ()) + (pointScreenPosition.Y () * pointScreenPosition.Y ());
+                                        float   fDistanceSquared = (pointScreenPosition.X() * pointScreenPosition.X()) + (pointScreenPosition.Y() * pointScreenPosition.Y());
                                         if (fDistanceSquared >= (fScreenSize * fScreenSize))
                                         {
                                             ucRadarState = c_ucRadarOffScreen;
@@ -8065,7 +8108,7 @@ public:
                                 {
                                     //No gutter for now ... icons are pinned to the circle
                                     float fLength = sqrtf(vecDirection.X() * vecDirection.X() +
-                                                          vecDirection.Y() * vecDirection.Y());
+                                        vecDirection.Y() * vecDirection.Y());
 
                                     float   f = fScreenSize / fLength;
                                     pointScreenPosition.SetX(vecDirection.X() * f);
@@ -8107,12 +8150,12 @@ public:
                             {
                                 double  sinAlpha = radius / (positionModel - positionCamera).Length();
                                 fScreenRadius = (sinAlpha < 1.0)
-                                                ? float(angleToPixels * asin(sinAlpha))      //hack ... 480/(50*pi/180) * 2asin(r/d)
-                                                : 640.0f;
+                                    ? float(angleToPixels * asin(sinAlpha))      //hack ... 480/(50*pi/180) * 2asin(r/d)
+                                    : 640.0f;
                                 if (fScreenRadius < CmdViewMaxIconScreenSize)
                                 {
                                     if ((fScreenRadius < AnyViewMinRenderScreenSize) ||
-                                         CommandCamera(m_cm))
+                                        CommandCamera(m_cm))
                                     {
                                         ucRadarState = c_ucRadarOnScreenSmall;
                                         renderMask = c_ucRenderTrail;
@@ -8125,17 +8168,17 @@ public:
                                 if (!m_bRoundRadar)
                                 {
                                     distanceToEdge = (pointScreenPosition.X() >= 0.0f)
-                                                     ? (rectImage.XMax() - pointScreenPosition.X())
-                                                     : (pointScreenPosition.X() - rectImage.XMin());
+                                        ? (rectImage.XMax() - pointScreenPosition.X())
+                                        : (pointScreenPosition.X() - rectImage.XMin());
                                     {
                                         float   d = (pointScreenPosition.Y() >= 0.0f)
-                                                    ? (rectImage.YMax() - pointScreenPosition.Y())
-                                                    : (pointScreenPosition.Y() - rectImage.YMin());
+                                            ? (rectImage.YMax() - pointScreenPosition.Y())
+                                            : (pointScreenPosition.Y() - rectImage.YMin());
                                         if (d < distanceToEdge)
                                             distanceToEdge = d;
                                     }
                                 }
-                                assert (distanceToEdge >= 0.0f);
+                                assert(distanceToEdge >= 0.0f);
                             }
                             g_fdInfo.objects_insector[type]++;
 
@@ -8168,7 +8211,7 @@ public:
                             if (!bAnyEnemyShips)
                             {
                                 //We haven't spotted any enemy ships yet ... see if this is one.
-                                bAnyEnemyShips = ( (pship->GetSide() != psideMe) && !psideMe->AlliedSides(psideMe,pship->GetSide()) ); //#ALLY -imago 7/3/09
+                                bAnyEnemyShips = ((pship->GetSide() != psideMe) && !psideMe->AlliedSides(psideMe, pship->GetSide())); //#ALLY -imago 7/3/09
                             }
 
                             bSetVisible = (pmodel != trekClient.GetShip()) && (pmodel != pshipParent);
@@ -8181,15 +8224,15 @@ public:
 
                                 if (afterburner)
                                     pthing->SetAfterburnerThrust(pship->GetOrientation().GetBackward(),
-                                                                 afterburner->GetPower());
+                                        afterburner->GetPower());
                                 else
                                     pthing->SetAfterburnerThrust(Vector::GetZero(),
-                                                                 0.0f);
+                                        0.0f);
 
                                 pthing->SetThrust(0.5f * (pship->GetControls().jsValues[3] + 1));
 
-								// mdvalley: Uneyed miners no bolties.
-								if ((stateM & miningMaskIGC) && trekClient.GetShip()->CanSee(pship))
+                                // mdvalley: Uneyed miners no bolties.
+                                if ((stateM & miningMaskIGC) && trekClient.GetShip()->CanSee(pship))
                                     psite->ActivateBolt();
                                 else
                                     psite->DeactivateBolt();
@@ -8205,24 +8248,24 @@ public:
                         {
                             switch (type)
                             {
-                                case OT_asteroid:
-                                    visibleF &=  m_bShowMeteors;
+                            case OT_asteroid:
+                                visibleF &= m_bShowMeteors;
                                 break;
 
-                                case OT_station:
-                                    visibleF &= m_bShowStations;
+                            case OT_station:
+                                visibleF &= m_bShowStations;
                                 break;
 
-                                case OT_projectile:
-                                    visibleF &= m_bShowProjectiles;
+                            case OT_projectile:
+                                visibleF &= m_bShowProjectiles;
                                 break;
 
-                                case OT_warp:
-                                    visibleF &= m_bShowAlephs;
+                            case OT_warp:
+                                visibleF &= m_bShowAlephs;
                                 break;
 
-                                case OT_ship:
-                                    visibleF &= m_bShowShips;
+                            case OT_ship:
+                                visibleF &= m_bShowShips;
                             }
 
                             pmodel->SetVisibleF(visibleF);
@@ -8243,45 +8286,45 @@ public:
 
                         if (afterburner)
                             pthing->SetAfterburnerThrust(pship->GetOrientation().GetBackward(),
-                                                         afterburner->GetPower());
+                                afterburner->GetPower());
                         else
                             pthing->SetAfterburnerThrust(Vector::GetZero(),
-                                                         0.0f);
+                                0.0f);
                     }
                 }
             }
 
             if (CommandCamera(m_cm))
                 m_cameraControl.SetZClip(zMin < 5.0f ? 5.0f : zMin,
-                                         zMax);
+                    zMax);
             else
                 m_cameraControl.SetZClip(5.0f, 10000.0f);
 
-            if ((pmodelTarget == NULL) && bAnyEnemyShips && (!Training::IsTraining ()))
+            if ((pmodelTarget == NULL) && bAnyEnemyShips && (!Training::IsTraining()))
             {
                 //We have no target and there are enemy ships ... select an appropriate ship
                 const Vector&   position = pshipSource->GetPosition();
 
                 ImodelIGC*  m = FindTarget(pshipSource,
-                                           (c_ttShip | c_ttEnemy | c_ttNearest),
-                                           NULL,
-                                           pcluster,
-                                           &position, NULL, c_habmRescue);
+                    (c_ttShip | c_ttEnemy | c_ttNearest),
+                    NULL,
+                    pcluster,
+                    &position, NULL, c_habmRescue);
 
                 if (m == NULL)
                 {
                     m = FindTarget(pshipSource,
-                                   (c_ttShip | c_ttEnemy | c_ttNearest),
-                                   NULL,
-                                   pcluster,
-                                   &position, NULL, c_habmMiner | c_habmBuilder);
+                        (c_ttShip | c_ttEnemy | c_ttNearest),
+                        NULL,
+                        pcluster,
+                        &position, NULL, c_habmMiner | c_habmBuilder);
 
                     if (m == NULL)
                         m = FindTarget(pshipSource,
-                                       (c_ttShip | c_ttEnemy | c_ttNearest),
-                                       NULL,
-                                       pcluster,
-                                       &position);
+                        (c_ttShip | c_ttEnemy | c_ttNearest),
+                            NULL,
+                            pcluster,
+                            &position);
                 }
 
                 if (m)
@@ -8325,11 +8368,11 @@ public:
         }
     }
 
-    void OnEnterMission (void)
+    void OnEnterMission(void)
     {
-        if (!(Training::IsTraining () || (Training::GetTrainingMissionID () == Training::c_TM_7_Live)))
+        if (!(Training::IsTraining() || (Training::GetTrainingMissionID() == Training::c_TM_7_Live)))
         {
-            Training::StartMission (0);
+            Training::StartMission(0);
 
             SetCluster(trekClient.GetShip()->GetCluster());
             screen(ScreenIDCombat);
@@ -8348,54 +8391,55 @@ public:
     }
 
     void DoTrekUpdate(Time  lastUpdate,
-                      Time  now,
-                      float dt,
-                      bool  activeControlsF)
-	{
-		// BT - STEAM
-		SteamAPI_RunCallbacks();
+        Time  now,
+        float dt,
+        bool  activeControlsF)
+    {
+        // BT - STEAM
+        SteamAPI_RunCallbacks();
 
-		//Spunky #76 - only update throttle if enough time elapsed
-		static const float delay[] = {0.066f, 0.033f, 0.022f, 0.016f, 0.0f}; //#282
-		static float TimeSinceThrottleUpdate;
-		static bool bUpdateThrottle = true;
+        //Spunky #76 - only update throttle if enough time elapsed
+        static const float delay[] = { 0.066f, 0.033f, 0.022f, 0.016f, 0.0f }; //#282
+        static float TimeSinceThrottleUpdate;
+        static bool bUpdateThrottle = true;
 
-		// - Imago: Only set AFK from inactivity when logged on
-		if (trekClient.m_fLoggedOn) {
-			Time timeLastMouseMove;
-			timeLastMouseMove = GetMouseActivity();
-			if (g_bActivity || timeLastMouseMove.clock() >= m_timeLastActivity.clock()) {
-				m_timeLastActivity = now;
-				g_bActivity = false;
-				if (!g_bAFKToggled && trekClient.GetPlayerInfo() && !trekClient.GetPlayerInfo ()->IsReady()) {
-					trekClient.GetPlayerInfo ()->SetReady(true);
-					trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
-					BEGIN_PFM_CREATE(trekClient.m_fm, pfmReady, CS, PLAYER_READY)
-					END_PFM_CREATE
-					pfmReady->fReady = true;
-					pfmReady->shipID = trekClient.GetShipID();
-					//trekClient.SendChat(trekClient.GetShip(), CHAT_EVERYONE, NA, NA, "I'm back from being AFK!");
-				}
-			} else {
-				int inactive_threshold; // mmf added this so those in NOAT go afk quicker
-				if (trekClient.GetSideID() == SIDE_TEAMLOBBY) inactive_threshold = 90000;
-				else inactive_threshold = 180000;
-				if (now.clock() - m_timeLastActivity.clock() > inactive_threshold) {
-					if (!g_bAFKToggled && trekClient.GetPlayerInfo() && trekClient.GetPlayerInfo ()->IsReady()) {
-						trekClient.GetPlayerInfo ()->SetReady(false);
-						trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
-						BEGIN_PFM_CREATE(trekClient.m_fm, pfmReady, CS, PLAYER_READY)
-						END_PFM_CREATE
-						pfmReady->fReady = false;
-						pfmReady->shipID = trekClient.GetShipID();
-						//trekClient.SendChat(trekClient.GetShip(), CHAT_EVERYONE, NA, NA, "I've been AFK for 3 minutes!");
-					}
-				}
-			}
-		}
+        // - Imago: Only set AFK from inactivity when logged on
+        if (trekClient.m_fLoggedOn) {
+            Time timeLastMouseMove;
+            timeLastMouseMove = GetMouseActivity();
+            if (g_bActivity || timeLastMouseMove.clock() >= m_timeLastActivity.clock()) {
+                m_timeLastActivity = now;
+                g_bActivity = false;
+                if (!g_bAFKToggled && trekClient.GetPlayerInfo() && !trekClient.GetPlayerInfo()->IsReady()) {
+                    trekClient.GetPlayerInfo()->SetReady(true);
+                    trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
+                    BEGIN_PFM_CREATE(trekClient.m_fm, pfmReady, CS, PLAYER_READY)
+                        END_PFM_CREATE
+                        pfmReady->fReady = true;
+                    pfmReady->shipID = trekClient.GetShipID();
+                    //trekClient.SendChat(trekClient.GetShip(), CHAT_EVERYONE, NA, NA, "I'm back from being AFK!");
+                }
+            }
+            else {
+                int inactive_threshold; // mmf added this so those in NOAT go afk quicker
+                if (trekClient.GetSideID() == SIDE_TEAMLOBBY) inactive_threshold = 90000;
+                else inactive_threshold = 180000;
+                if (now.clock() - m_timeLastActivity.clock() > inactive_threshold) {
+                    if (!g_bAFKToggled && trekClient.GetPlayerInfo() && trekClient.GetPlayerInfo()->IsReady()) {
+                        trekClient.GetPlayerInfo()->SetReady(false);
+                        trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
+                        BEGIN_PFM_CREATE(trekClient.m_fm, pfmReady, CS, PLAYER_READY)
+                            END_PFM_CREATE
+                            pfmReady->fReady = false;
+                        pfmReady->shipID = trekClient.GetShipID();
+                        //trekClient.SendChat(trekClient.GetShip(), CHAT_EVERYONE, NA, NA, "I've been AFK for 3 minutes!");
+                    }
+                }
+            }
+        }
 
         if (trekClient.GetCluster() && GetWindow()->screen() == ScreenIDCombat)
-		{
+        {
             //For now, leave joystick specific code here.
             //Only process joystick if we have focus
             if (GetFocus())
@@ -8424,14 +8468,14 @@ public:
                     if (!GetUI() && activeControlsF)
                     {
                         //Spunky #76 #282
-						if (!bUpdateThrottle)
-							if ((TimeSinceThrottleUpdate += dt) > delay[m_iWheelDelay])
-							{
-								bUpdateThrottle = true;
-								TimeSinceThrottleUpdate = 0;
-							}
+                        if (!bUpdateThrottle)
+                            if ((TimeSinceThrottleUpdate += dt) > delay[m_iWheelDelay])
+                            {
+                                bUpdateThrottle = true;
+                                TimeSinceThrottleUpdate = 0;
+                            }
 
-						bool    bControlsInUse = SenseJoystick(&js, bNoCameraControl, bAllowKeyboardMovement, bUpdateThrottle);
+                        bool    bControlsInUse = SenseJoystick(&js, bNoCameraControl, bAllowKeyboardMovement, bUpdateThrottle);
                         int     oldButtonsM = buttonsM;
 
                         if (m_ptrekInput->IsTrekKeyDown(TK_ThrustLeft, bAllowKeyboardMovement))
@@ -8446,7 +8490,7 @@ public:
                             buttonsM |= forwardButtonIGC;
                         if (m_ptrekInput->IsTrekKeyDown(TK_ThrustBackward, bAllowKeyboardMovement))
                             buttonsM |= backwardButtonIGC;
-						 if (m_ptrekInput->IsTrekKeyDown(TK_FireBooster, bAllowKeyboardMovement))
+                        if (m_ptrekInput->IsTrekKeyDown(TK_FireBooster, bAllowKeyboardMovement))
                             buttonsM |= afterburnerButtonIGC;
 
                         if (fAutoPilot)
@@ -8456,7 +8500,7 @@ public:
                             else
                             {
                                 bControlsInUse = bControlsInUse ||
-                                                 js.button1 || js.button2 || js.button3 || js.button4 || js.button5 || js.button6;
+                                    js.button1 || js.button2 || js.button3 || js.button4 || js.button5 || js.button6;
                             }
 
                             if (trekClient.bInitTrekJoyStick)
@@ -8470,12 +8514,12 @@ public:
                             {
                                 const float c_fAutopilotDisengage = g_fJoystickDeadZone * 2.0f;
                                 bControlsInUse = bControlsInUse ||
-                                                 (js.controls.jsValues[c_axisYaw] - trekClient.trekJoyStick[c_axisYaw] < -c_fAutopilotDisengage) ||
-                                                 (js.controls.jsValues[c_axisYaw] - trekClient.trekJoyStick[c_axisYaw] >  c_fAutopilotDisengage) ||
-                                                 (js.controls.jsValues[c_axisPitch] - trekClient.trekJoyStick[c_axisPitch] < -c_fAutopilotDisengage) ||
-                                                 (js.controls.jsValues[c_axisPitch] - trekClient.trekJoyStick[c_axisPitch] >  c_fAutopilotDisengage) ||
-                                                 (js.controls.jsValues[c_axisRoll] - trekClient.trekJoyStick[c_axisRoll] < -c_fAutopilotDisengage) ||
-                                                 (js.controls.jsValues[c_axisRoll] - trekClient.trekJoyStick[c_axisRoll] >  c_fAutopilotDisengage);
+                                    (js.controls.jsValues[c_axisYaw] - trekClient.trekJoyStick[c_axisYaw] < -c_fAutopilotDisengage) ||
+                                    (js.controls.jsValues[c_axisYaw] - trekClient.trekJoyStick[c_axisYaw] >  c_fAutopilotDisengage) ||
+                                    (js.controls.jsValues[c_axisPitch] - trekClient.trekJoyStick[c_axisPitch] < -c_fAutopilotDisengage) ||
+                                    (js.controls.jsValues[c_axisPitch] - trekClient.trekJoyStick[c_axisPitch] >  c_fAutopilotDisengage) ||
+                                    (js.controls.jsValues[c_axisRoll] - trekClient.trekJoyStick[c_axisRoll] < -c_fAutopilotDisengage) ||
+                                    (js.controls.jsValues[c_axisRoll] - trekClient.trekJoyStick[c_axisRoll] >  c_fAutopilotDisengage);
                             }
 
                             if (bControlsInUse)
@@ -8483,8 +8527,8 @@ public:
                                 /*
                                 if (now >= m_timeAutopilotWarning)
                                 {
-                                    m_timeAutopilotWarning = now + 5.0f;
-                                    trekClient.PostText(true, "Hit P to disengage the autopilot");
+                                m_timeAutopilotWarning = now + 5.0f;
+                                trekClient.PostText(true, "Hit P to disengage the autopilot");
                                 }
                                 */
 
@@ -8492,27 +8536,28 @@ public:
                                 SwitchToJoyThrottle();
                                 fAutoPilot = false;
                                 trekClient.PlaySoundEffect(salAutopilotDisengageSound);
-								g_bActivity = true; // Imago: Joystick movment while Autopiloting = active!
+                                g_bActivity = true; // Imago: Joystick movment while Autopiloting = active!
                             }
-                        } else //Imago: Joystick movment while not Autopiloting = active!
+                        }
+                        else //Imago: Joystick movment while not Autopiloting = active!
                         {
-							if (oldButtonsM != buttonsM)
-								bControlsInUse = true;
-							else
-							{
-								bControlsInUse = bControlsInUse ||
-												 js.button1 || js.button2 || js.button3 || js.button4 || js.button5 || js.button6;
-							}
-							bControlsInUse = bControlsInUse ||
-								(js.controls.jsValues[c_axisYaw] - trekClient.trekJoyStick[c_axisYaw] < -g_fJoystickDeadZone) ||
-								(js.controls.jsValues[c_axisYaw] - trekClient.trekJoyStick[c_axisYaw] >  g_fJoystickDeadZone) ||
-								(js.controls.jsValues[c_axisPitch] - trekClient.trekJoyStick[c_axisPitch] < -g_fJoystickDeadZone) ||
-								(js.controls.jsValues[c_axisPitch] - trekClient.trekJoyStick[c_axisPitch] >  g_fJoystickDeadZone) ||
-								(js.controls.jsValues[c_axisRoll] - trekClient.trekJoyStick[c_axisRoll] < -g_fJoystickDeadZone) ||
-								(js.controls.jsValues[c_axisRoll] - trekClient.trekJoyStick[c_axisRoll] >  g_fJoystickDeadZone);
+                            if (oldButtonsM != buttonsM)
+                                bControlsInUse = true;
+                            else
+                            {
+                                bControlsInUse = bControlsInUse ||
+                                    js.button1 || js.button2 || js.button3 || js.button4 || js.button5 || js.button6;
+                            }
+                            bControlsInUse = bControlsInUse ||
+                                (js.controls.jsValues[c_axisYaw] - trekClient.trekJoyStick[c_axisYaw] < -g_fJoystickDeadZone) ||
+                                (js.controls.jsValues[c_axisYaw] - trekClient.trekJoyStick[c_axisYaw] >  g_fJoystickDeadZone) ||
+                                (js.controls.jsValues[c_axisPitch] - trekClient.trekJoyStick[c_axisPitch] < -g_fJoystickDeadZone) ||
+                                (js.controls.jsValues[c_axisPitch] - trekClient.trekJoyStick[c_axisPitch] >  g_fJoystickDeadZone) ||
+                                (js.controls.jsValues[c_axisRoll] - trekClient.trekJoyStick[c_axisRoll] < -g_fJoystickDeadZone) ||
+                                (js.controls.jsValues[c_axisRoll] - trekClient.trekJoyStick[c_axisRoll] >  g_fJoystickDeadZone);
 
-							if (bControlsInUse) g_bActivity = true;
-						}
+                            if (bControlsInUse) g_bActivity = true;
+                        }
                     }
                     else
                     {
@@ -8536,8 +8581,8 @@ public:
                         buttonsM |= (trekClient.m_selectedWeapon << selectedWeaponShiftIGC);
                         if (js.button1 & buttonDown)
                             buttonsM |= trekClient.fGroupFire
-                                        ? allWeaponsIGC
-                                        : oneWeaponIGC;
+                            ? allWeaponsIGC
+                            : oneWeaponIGC;
 
                         if (js.button2 & buttonDown)
                             buttonsM |= missileFireIGC;
@@ -8557,20 +8602,20 @@ public:
                         buttonsM &= ~chaffFireIGC;
 
                     // training mission hook
-                    Training::ApproveControls (js.controls);
-                    buttonsM = Training::ApproveActions (buttonsM);
+                    Training::ApproveControls(js.controls);
+                    buttonsM = Training::ApproveActions(buttonsM);
                     // end training mission hook
 
                     if (m_cm == cmCockpit)
-					{
+                    {
                         if (trekClient.GetShip()->GetTurretID() != NA)
                         {
                             float   fov = (s_fMinFOV + 0.5f * (s_fMaxFOV - s_fMinFOV)) +
-                                          (0.5f * (s_fMaxFOV - s_fMinFOV)) * js.controls.jsValues[c_axisThrottle];
+                                (0.5f * (s_fMaxFOV - s_fMinFOV)) * js.controls.jsValues[c_axisThrottle];
                             m_cameraControl.SetFOV(fov);
                         }
                         else
-						{
+                        {
                             float   fov = m_cameraControl.GetFOV();
                             if (m_ptrekInput->IsTrekKeyDown(TK_ZoomIn, true))
                             {
@@ -8589,60 +8634,60 @@ public:
                                 m_cameraControl.SetFOV(fov);
                             }
 
-							// BT 3/13/2016 - Wasp's slew rate fix. 
-							if (trekClient.GetShip()->GetBaseHullType() != NULL)
-							{
-								//What is the maximum desired rate of turn for this field of view?
-								//Use the same calculation as for turrets.
-								//Keep in sync with wintrek.cpp's FOV by throttle
-								static const float  c_minRate = RadiansFromDegrees(7.5f);
-								static const float  c_maxRate = RadiansFromDegrees(75.0f);
-								float   maxSlewRate = c_minRate +
-									(c_maxRate - c_minRate) * fov / s_fMaxFOV;
+                            // BT 3/13/2016 - Wasp's slew rate fix. 
+                            if (trekClient.GetShip()->GetBaseHullType() != NULL)
+                            {
+                                //What is the maximum desired rate of turn for this field of view?
+                                //Use the same calculation as for turrets.
+                                //Keep in sync with wintrek.cpp's FOV by throttle
+                                static const float  c_minRate = RadiansFromDegrees(7.5f);
+                                static const float  c_maxRate = RadiansFromDegrees(75.0f);
+                                float   maxSlewRate = c_minRate +
+                                    (c_maxRate - c_minRate) * fov / s_fMaxFOV;
 
-								const IhullTypeIGC* pht = trekClient.GetShip()->GetHullType();
-								{
-									float               pitch = pht->GetMaxTurnRate(c_axisPitch);
+                                const IhullTypeIGC* pht = trekClient.GetShip()->GetHullType();
+                                {
+                                    float               pitch = pht->GetMaxTurnRate(c_axisPitch);
 
-									if (pitch > maxSlewRate)
-										js.controls.jsValues[c_axisPitch] *= maxSlewRate / pitch;
-								}
-								{
-									float               yaw = pht->GetMaxTurnRate(c_axisYaw);
+                                    if (pitch > maxSlewRate)
+                                        js.controls.jsValues[c_axisPitch] *= maxSlewRate / pitch;
+                                }
+                                {
+                                    float               yaw = pht->GetMaxTurnRate(c_axisYaw);
 
-									if (yaw > maxSlewRate)
-										js.controls.jsValues[c_axisYaw] *= maxSlewRate / yaw;
-								}
-							}
+                                    if (yaw > maxSlewRate)
+                                        js.controls.jsValues[c_axisYaw] *= maxSlewRate / yaw;
+                                }
+                            }
                         }
                     }
 
 
                     trekClient.GetShip()->SetControls(js.controls);
                     trekClient.GetShip()->SetStateBits(buttonsMaskIGC | weaponsMaskIGC | selectedWeaponMaskIGC |
-                                                       missileFireIGC | mineFireIGC | chaffFireIGC, buttonsM);
+                        missileFireIGC | mineFireIGC | chaffFireIGC, buttonsM);
 
-					if ((m_cm == cmCockpit) || (m_cm == cmExternalChase)) { 
-						if (!m_ptrekInput->IsTrekKeyDown(TK_ViewRearLeft,bAllowKeyboardMovement) //TheRock 31-7-2009 Allow keyboard users to look around
-							&& !m_ptrekInput->IsTrekKeyDown(TK_ViewRearRight,bAllowKeyboardMovement) 
-							&& !m_ptrekInput->IsTrekKeyDown(TK_ViewFrontLeft,bAllowKeyboardMovement)
-							&& !m_ptrekInput->IsTrekKeyDown(TK_ViewFrontRight,bAllowKeyboardMovement)
-							&& !m_ptrekInput->IsTrekKeyDown(TK_ViewRear,bAllowKeyboardMovement)
-							&& !m_ptrekInput->IsTrekKeyDown(TK_ViewLeft,bAllowKeyboardMovement)
-							&& !m_ptrekInput->IsTrekKeyDown(TK_ViewRight,bAllowKeyboardMovement))
+                    if ((m_cm == cmCockpit) || (m_cm == cmExternalChase)) {
+                        if (!m_ptrekInput->IsTrekKeyDown(TK_ViewRearLeft, bAllowKeyboardMovement) //TheRock 31-7-2009 Allow keyboard users to look around
+                            && !m_ptrekInput->IsTrekKeyDown(TK_ViewRearRight, bAllowKeyboardMovement)
+                            && !m_ptrekInput->IsTrekKeyDown(TK_ViewFrontLeft, bAllowKeyboardMovement)
+                            && !m_ptrekInput->IsTrekKeyDown(TK_ViewFrontRight, bAllowKeyboardMovement)
+                            && !m_ptrekInput->IsTrekKeyDown(TK_ViewRear, bAllowKeyboardMovement)
+                            && !m_ptrekInput->IsTrekKeyDown(TK_ViewLeft, bAllowKeyboardMovement)
+                            && !m_ptrekInput->IsTrekKeyDown(TK_ViewRight, bAllowKeyboardMovement))
 
-							m_cameraControl.SetHeadOrientation(js.hat);
-					}
+                            m_cameraControl.SetHeadOrientation(js.hat);
+                    }
                     else
                         m_cameraControl.SetHeadOrientation(0.0f);
 
 
                     m_pplayerThrottle->SetValue(pshipParent
-                                                ? 0.0f
-                                                : ((buttonsM & (leftButtonIGC | rightButtonIGC | upButtonIGC | downButtonIGC |
-                                                                forwardButtonIGC | backwardButtonIGC | afterburnerButtonIGC))
-                                                   ? 1.0f
-                                                   : (js.controls.jsValues[c_axisThrottle] * 0.5f + 0.5f)));
+                        ? 0.0f
+                        : ((buttonsM & (leftButtonIGC | rightButtonIGC | upButtonIGC | downButtonIGC |
+                            forwardButtonIGC | backwardButtonIGC | afterburnerButtonIGC))
+                            ? 1.0f
+                            : (js.controls.jsValues[c_axisThrottle] * 0.5f + 0.5f)));
                 }
 
                 if (CommandCamera(m_cm) && m_bEnableDisplacementCommandView && !m_pconsoleImage->DrawSelectionBox())
@@ -8661,13 +8706,14 @@ public:
                         point.SetY(GetScreenRectValue()->GetValue().YMax() - 1 - point.Y());
                         bInside = rectImage.Inside(point);
                         point = point - rectImage.Min();
-                    } else {
+                    }
+                    else {
                         WinPoint   xy;
                         bInside = false;
                         if (GetCursorPos(&xy)) {
-                            point   = Point::Cast(ScreenToClient(xy));
+                            point = Point::Cast(ScreenToClient(xy));
                             bInside = rectImage.Inside(point);
-                            point   = point - rectImage.Min();
+                            point = point - rectImage.Min();
                         }
                     }
 
@@ -8677,7 +8723,8 @@ public:
 
                         if (point.X() < gutter) {
                             dRight = delta * (point.X() - gutter) / maxGutter;
-                        } else {
+                        }
+                        else {
                             float x = rectImage.XSize() - point.X();
                             if (x < gutter) {
                                 dRight = delta * (gutter - x) / maxGutter;
@@ -8686,7 +8733,8 @@ public:
 
                         if (point.Y() < gutter) {
                             dUp = delta * (point.Y() - gutter) / maxGutter;
-                        } else {
+                        }
+                        else {
                             float y = rectImage.YSize() - point.Y();
                             if (y < gutter) {
                                 dUp = delta * (gutter - y) / maxGutter;
@@ -8760,7 +8808,7 @@ public:
                         up.z = 0.0f;
 
                         float   l = (float)sqrt(up.x * up.x + up.y * up.y);
-                        assert (l != 0.0f);
+                        assert(l != 0.0f);
 
 
                         Vector  v = up * (dUp / l);
@@ -8844,7 +8892,7 @@ public:
             const float alpha = 0.75f;
 
             IsideIGC* pside = trekClient.GetShip()->GetSide();
-            assert (pside);
+            assert(pside);
             Color   colorHUD = pside->GetColor();
             colorHUD = colorHUD * g_hudBright;
             colorHUD.SetAlpha(alpha);
@@ -8866,21 +8914,22 @@ public:
             // maintain the state, and provide guidance and restrictions as applicable.
             //------------------------------------------------------------------------------
 
-            Training::HandleMission ();
+            Training::HandleMission();
 
             //------------------------------------------------------------------------------
             // End interception for training missions
             //------------------------------------------------------------------------------
 
-		} else {
+        }
+        else {
 
-			// //-Imago 7/13/09 we're not actually in a sector playing the game...
-			// this is the right time & place place to rest our CPU. We can also give it more of a break now.
-			if (!GetFullscreen())
-				Sleep(5);
-			else
-				Sleep(1);
-		}
+            // //-Imago 7/13/09 we're not actually in a sector playing the game...
+            // this is the right time & place place to rest our CPU. We can also give it more of a break now.
+            if (!GetFullscreen())
+                Sleep(5);
+            else
+                Sleep(1);
+        }
         //
         // Handle sending network messages
         //
@@ -8898,16 +8947,16 @@ public:
 
         if (!bWarnedAboutClockBug && trekClient.m_sync < 0.30)
         {
-            bWarnedAboutClockBug = true;
-            TRef<IMessageBox> pmsgBox = CreateMessageBox("You are experiencing the clock bug.");
-            OpenPopup(pmsgBox);
+        bWarnedAboutClockBug = true;
+        TRef<IMessageBox> pmsgBox = CreateMessageBox("You are experiencing the clock bug.");
+        OpenPopup(pmsgBox);
         }
         */
-	}
+    }
 
     bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& bForceTranslate)
     {
-        if (IsInputEnabled (ks.vk)) {
+        if (IsInputEnabled(ks.vk)) {
             m_ptrekInput->SetFocus(true);
             TrekKey tk = m_ptrekInput->HandleKeyMessage(ks);
 
@@ -8915,13 +8964,13 @@ public:
                 if (ks.bDown) {
 
                     // hook to send this keypress to training missions
-                    if (Training::RecordKeyPress (tk))
+                    if (Training::RecordKeyPress(tk))
                     {
                         if (
-                               trekClient.IsInGame()
+                            trekClient.IsInGame()
                             && ((GetViewMode() != vmOverride) || (tk == TK_StartChat))
                             && !trekClient.IsLockedDown()
-                        ) {
+                            ) {
                             OnTrekKey(tk);
                         }
 
@@ -8938,7 +8987,8 @@ public:
     {
         if (!GetUI()) {
             return m_pconsoleImage->OnChar(ks);
-        } else {
+        }
+        else {
             return false;
         }
     }
@@ -8999,10 +9049,10 @@ public:
         {
             trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
             BEGIN_PFM_CREATE(trekClient.m_fm, pfmOC, CS, ORDER_CHANGE)
-            END_PFM_CREATE
+                END_PFM_CREATE
 
-            //Don't bother to set ship ID
-            pfmOC->command = c_cmdCurrent;
+                //Don't bother to set ship ID
+                pfmOC->command = c_cmdCurrent;
             pfmOC->commandID = cid;
             if (pmodel)
             {
@@ -9049,14 +9099,14 @@ public:
         /*
         if (trekClient.autoPilot())
         {
-            if (pmodel)
-                SetTarget(pmodel, cid);
-            else
-            {
-                trekClient.SetAutoPilot(false);
-                SwitchToJoyThrottle();
-                trekClient.PlaySoundEffect(salAutopilotDisengageSound);
-            }
+        if (pmodel)
+        SetTarget(pmodel, cid);
+        else
+        {
+        trekClient.SetAutoPilot(false);
+        SwitchToJoyThrottle();
+        trekClient.PlaySoundEffect(salAutopilotDisengageSound);
+        }
         }
         */
 
@@ -9064,10 +9114,10 @@ public:
         {
             trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
             BEGIN_PFM_CREATE(trekClient.m_fm, pfmOC, CS, ORDER_CHANGE)
-            END_PFM_CREATE
+                END_PFM_CREATE
 
-            //Don't bother to set ship ID
-            pfmOC->command = c_cmdAccepted;
+                //Don't bother to set ship ID
+                pfmOC->command = c_cmdAccepted;
             pfmOC->commandID = cid;
             if (pmodel)
             {
@@ -9118,15 +9168,15 @@ public:
     }
 
     void    TrekFindTarget(int              ttMask,
-                           TrekKey          tk,
-                           TrekKey          tkNearest,
-                           TrekKey          tkPrevious,
-                           AbilityBitMask   abm = 0)
+        TrekKey          tk,
+        TrekKey          tkNearest,
+        TrekKey          tkPrevious,
+        AbilityBitMask   abm = 0)
     {
-        assert ((ttMask & c_ttFront) == 0);
-		if (tk == tkNearest)
+        assert((ttMask & c_ttFront) == 0);
+        if (tk == tkNearest)
             ttMask |= c_ttNearest;
-		else if (tk == tkPrevious) 
+        else if (tk == tkPrevious)
             ttMask |= c_ttPrevious;
 
         const Vector*   pposition;
@@ -9138,53 +9188,56 @@ public:
             else
                 pposition = &(Vector::GetZero());
         }
-		else
-			pposition = &(trekClient.GetShip()->GetPosition());
+        else
+            pposition = &(trekClient.GetShip()->GetPosition());
 
-		ImodelIGC*  m = NULL; //Imago 7/31/09 ALLY 
+        ImodelIGC*  m = NULL; //Imago 7/31/09 ALLY 
 
-		if (trekClient.GetSide()->GetAllies() != NA) { 
+        if (trekClient.GetSide()->GetAllies() != NA) {
 
-			//only target our sides bases unless in a pod
-			if (tkNearest == TK_TargetFriendlyBaseNearest) {
+            //only target our sides bases unless in a pod
+            if (tkNearest == TK_TargetFriendlyBaseNearest) {
 
-				//determine if we're in a pod or not
-				bool bLifepod = false;
-				IhullTypeIGC*   pht = trekClient.GetShip()->GetSourceShip()->GetBaseHullType();
-				if (pht) {
-					HullAbilityBitMask  habm = pht->GetCapabilities();
-					if (habm & c_habmLifepod)
-						bLifepod = true;
-				}
+                //determine if we're in a pod or not
+                bool bLifepod = false;
+                IhullTypeIGC*   pht = trekClient.GetShip()->GetSourceShip()->GetBaseHullType();
+                if (pht) {
+                    HullAbilityBitMask  habm = pht->GetCapabilities();
+                    if (habm & c_habmLifepod)
+                        bLifepod = true;
+                }
 
-				if (!bLifepod)
-					m = FindTarget(trekClient.GetShip()->GetSourceShip(), ttMask, trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
-						trekClient.GetCluster(), pposition, NULL, abm, 0x7fffffff, 0); // false = don't search allied bases
-				else
-					m = FindTarget(trekClient.GetShip()->GetSourceShip(), ttMask, trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
-						trekClient.GetCluster(), pposition, NULL, abm); // true = (default) search allied bases/rescue probes
+                if (!bLifepod)
+                    m = FindTarget(trekClient.GetShip()->GetSourceShip(), ttMask, trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
+                        trekClient.GetCluster(), pposition, NULL, abm, 0x7fffffff, 0); // false = don't search allied bases
+                else
+                    m = FindTarget(trekClient.GetShip()->GetSourceShip(), ttMask, trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
+                        trekClient.GetCluster(), pposition, NULL, abm); // true = (default) search allied bases/rescue probes
 
-			//targets allied bases only
-			} else if (tkNearest == TK_TargetAlliedBaseNearest) {
-				m = FindTarget(trekClient.GetShip()->GetSourceShip(), ttMask, trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
-					trekClient.GetCluster(), pposition, NULL, abm, 0x7fffffff, 2); // 2 = (hack) search allied bases/rescue probes only
+                                                                        //targets allied bases only
+            }
+            else if (tkNearest == TK_TargetAlliedBaseNearest) {
+                m = FindTarget(trekClient.GetShip()->GetSourceShip(), ttMask, trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
+                    trekClient.GetCluster(), pposition, NULL, abm, 0x7fffffff, 2); // 2 = (hack) search allied bases/rescue probes only
 
-			} else {
-				//not after a friendly/allied base, do our regular thing (default)
-				m = FindTarget(trekClient.GetShip()->GetSourceShip(), ttMask, trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
-					trekClient.GetCluster(), pposition, NULL, abm);
-			}
+            }
+            else {
+                //not after a friendly/allied base, do our regular thing (default)
+                m = FindTarget(trekClient.GetShip()->GetSourceShip(), ttMask, trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
+                    trekClient.GetCluster(), pposition, NULL, abm);
+            }
 
-		} else { // team has no allies, do our regular thing
+        }
+        else { // team has no allies, do our regular thing
 
-			m = FindTarget(trekClient.GetShip()->GetSourceShip(),
-				ttMask,
-				trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
-				trekClient.GetCluster(),
-				pposition, NULL, abm);
-		}
+            m = FindTarget(trekClient.GetShip()->GetSourceShip(),
+                ttMask,
+                trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
+                trekClient.GetCluster(),
+                pposition, NULL, abm);
+        }
 
-		SetTarget(m, c_cidDefault);
+        SetTarget(m, c_cidDefault);
     }
 
     void ToggleWeapon(Mount mount)
@@ -9222,14 +9275,14 @@ public:
     int FindPartIndex(IpartIGC* ppart)
     {
         const PartLinkIGC* ppartLink = trekClient.GetShip()->GetParts()->first();
-        int   index                  = 0;
+        int   index = 0;
 
         while (ppartLink->data() != ppart)
         {
             index++;
             ppartLink = ppartLink->next();
 
-            assert (ppartLink);
+            assert(ppartLink);
         }
 
         return index;
@@ -9318,14 +9371,14 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    float   GetHUDStyle (void) const
+    float   GetHUDStyle(void) const
     {
-        return m_pnumberStyleHUD->GetValue ();
+        return m_pnumberStyleHUD->GetValue();
     }
 
-    void    SetHUDStyle (float newStyle)
+    void    SetHUDStyle(float newStyle)
     {
-        m_pnumberStyleHUD->SetValue (newStyle);
+        m_pnumberStyleHUD->SetValue(newStyle);
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -9363,16 +9416,16 @@ public:
 
         bool OnEvent(IEventSource* pevent)
         {
-            m_bOn        = false;
-            m_timeStart  = GetTime();
+            m_bOn = false;
+            m_timeStart = GetTime();
             m_valueStart = m_value;
             return true;
         }
 
         void Toggle(bool bOn)
         {
-            m_bOn        = bOn || !m_bOn;
-            m_timeStart  = GetTime();
+            m_bOn = bOn || !m_bOn;
+            m_timeStart = GetTime();
             m_valueStart = m_value;
         }
 
@@ -9380,7 +9433,8 @@ public:
         {
             if (m_bOn) {
                 m_value = min(1, m_valueStart + (GetTime() - m_timeStart));
-            } else {
+            }
+            else {
                 m_value = max(0, m_valueStart - (GetTime() - m_timeStart));
             }
 
@@ -9398,7 +9452,7 @@ public:
             HKEY hKey;
 
             if (ERROR_SUCCESS != ::RegCreateKeyEx(HKEY_CURRENT_USER, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, "", REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hKey, NULL)
-            ) {
+                ) {
                 return NULL;
             }
 
@@ -9428,7 +9482,7 @@ public:
         HKEY hKey;
 
         if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_CURRENT_USER, ALLEGIANCE_REGISTRY_KEY_ROOT,
-                0, "", REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hKey, NULL)) {
+            0, "", REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hKey, NULL)) {
             char buf[128];
             DWORD dwSize = sizeof(buf);
             DWORD dwType = REG_SZ;
@@ -9457,7 +9511,7 @@ public:
 
         m_phelpPosition = new HelpPosition(GetTime(), m_phelp->GetEventSourceClose());
 
-		GetModeler()->SetColorKeyHint( true );
+        GetModeler()->SetColorKeyHint(true);
 
         m_pwrapImageHelp->SetImage(
             new TransformImage(
@@ -9470,8 +9524,8 @@ public:
             )
         );
 
-		GetModeler()->SetColorKeyHint( false );
-	}
+        GetModeler()->SetColorKeyHint(false);
+    }
 
     void OnHelp(bool bOn)
     {
@@ -9488,68 +9542,68 @@ public:
     bool OnTrekKeyFilter(TrekKey tk)
     {
         if (m_screen != ScreenIDSplashScreen) {
-            switch(tk) {
-				// SR: added ability to take screenshot
-				case TK_ScrnShot:
-					TakeScreenShot();
-					return true;
-				// SR added ability to toggle virtual joystick during launch animation 8/06
-				case TK_ToggleMouse:
-					if (trekClient.IsInGame() &&
-					GetViewMode() == vmOverride &&
-					!trekClient.IsLockedDown()) {
-						m_bEnableVirtualJoystick = !m_bEnableVirtualJoystick;
-						if(m_bEnableVirtualJoystick) m_ptrekInput->ClearButtonStates();//#56
-						return true;
-					}
-					return false;
-
-                case TK_Help:
-                    OnHelp(false);
+            switch (tk) {
+                // SR: added ability to take screenshot
+            case TK_ScrnShot:
+                TakeScreenShot();
+                return true;
+                // SR added ability to toggle virtual joystick during launch animation 8/06
+            case TK_ToggleMouse:
+                if (trekClient.IsInGame() &&
+                    GetViewMode() == vmOverride &&
+                    !trekClient.IsLockedDown()) {
+                    m_bEnableVirtualJoystick = !m_bEnableVirtualJoystick;
+                    if (m_bEnableVirtualJoystick) m_ptrekInput->ClearButtonStates();//#56
                     return true;
+                }
+                return false;
 
-                case TK_MainMenu:
-                    if (
-                           (
-                               !trekClient.IsInGame()
-                            || (GetViewMode() != vmOverride)
-                           )
-                        && !trekClient.IsLockedDown()
-                        && (
-                               m_pconsoleImage == NULL
-                            || !m_pconsoleImage->IsComposing()
-                           )
+            case TK_Help:
+                OnHelp(false);
+                return true;
+
+            case TK_MainMenu:
+                if (
+                    (
+                        !trekClient.IsInGame()
+                        || (GetViewMode() != vmOverride)
+                        )
+                    && !trekClient.IsLockedDown()
+                    && (
+                        m_pconsoleImage == NULL
+                        || !m_pconsoleImage->IsComposing()
+                        )
                     ) {
-                        ShowMainMenu();
-                        return true;
-                    }
-
-                    return false;
-
-                case TK_ChatPageUp:
-                    if (m_pchatListPane != NULL) {
-                        m_pchatListPane->PageUp();
-                    }
+                    ShowMainMenu();
                     return true;
+                }
 
-                case TK_ChatPageDown:
-                    if (m_pchatListPane != NULL) {
-                        m_pchatListPane->PageDown();
-                    }
-                    return true;
+                return false;
 
-                case TK_QuickChatMenu:
-                    if (
-                           trekClient.MyMission()
-                        && (!trekClient.IsInGame() || (GetViewMode() != vmOverride))
-                        && !trekClient.IsLockedDown()
-                        && (m_screen == ScreenIDGameOverScreen
-                            || m_screen == ScreenIDTeamScreen
-                            || m_screen == ScreenIDCombat)
+            case TK_ChatPageUp:
+                if (m_pchatListPane != NULL) {
+                    m_pchatListPane->PageUp();
+                }
+                return true;
+
+            case TK_ChatPageDown:
+                if (m_pchatListPane != NULL) {
+                    m_pchatListPane->PageDown();
+                }
+                return true;
+
+            case TK_QuickChatMenu:
+                if (
+                    trekClient.MyMission()
+                    && (!trekClient.IsInGame() || (GetViewMode() != vmOverride))
+                    && !trekClient.IsLockedDown()
+                    && (m_screen == ScreenIDGameOverScreen
+                        || m_screen == ScreenIDTeamScreen
+                        || m_screen == ScreenIDCombat)
                     ) {
-                        OpenMainQuickChatMenu();
-                    }
-                    return true;
+                    OpenMainQuickChatMenu();
+                }
+                return true;
             }
         }
 
@@ -9561,26 +9615,26 @@ public:
     //
     //
     //////////////////////////////////////////////////////////////////////////////
-    void SetViewToCombatMode (CameraMode newCameraMode)
+    void SetViewToCombatMode(CameraMode newCameraMode)
     {
         // turn off command view overlays
         TurnOffOverlayFlags(c_omBanishablePanes);
 
-        if (GetViewMode () == vmCombat)
+        if (GetViewMode() == vmCombat)
         {
             // if we aren't already facing ahead, face ahead
             m_cameraControl.SetHeadOrientation(0.0f);
 
             // set the desired camera mode
-            SetCameraMode (newCameraMode);
+            SetCameraMode(newCameraMode);
         }
         else if (trekClient.flyingF())
         {
             // set the mode to combat
-            SetViewMode (vmCombat);
+            SetViewMode(vmCombat);
 
             // set the desired camera mode
-            SetCameraMode (newCameraMode);
+            SetCameraMode(newCameraMode);
         }
         else
         {
@@ -9599,1152 +9653,1161 @@ public:
     {
         bool suicideF = false;
 
-        switch(tk)
+        switch (tk)
         {
-            
-            case TK_ChatPageUp: // Imago uncommented for mouse wheel 8/14/09
-                if (m_pchatListPane != NULL && !m_ptrekInput->IsTrekKeyDown(TK_ChatPageUp, true)) {
-                    m_pchatListPane->PageUp();
-                }
-                break;
 
-            case TK_ChatPageDown: // Imago uncommented for mouse wheel 8/14/09
-                if (m_pchatListPane != NULL && !m_ptrekInput->IsTrekKeyDown(TK_ChatPageDown, true)) {
-                    m_pchatListPane->PageDown();
-                }
-                break;
+        case TK_ChatPageUp: // Imago uncommented for mouse wheel 8/14/09
+            if (m_pchatListPane != NULL && !m_ptrekInput->IsTrekKeyDown(TK_ChatPageUp, true)) {
+                m_pchatListPane->PageUp();
+            }
+            break;
+
+        case TK_ChatPageDown: // Imago uncommented for mouse wheel 8/14/09
+            if (m_pchatListPane != NULL && !m_ptrekInput->IsTrekKeyDown(TK_ChatPageDown, true)) {
+                m_pchatListPane->PageDown();
+            }
+            break;
             /*
             case TK_QuickChatMenu:
-                if (
-                       trekClient.MyMission()
-                    && (!trekClient.IsInGame() || (GetViewMode() != vmOverride))
-                    && !trekClient.IsLockedDown()
-                ) {
-                    OpenMainQuickChatMenu();
-                }
-                break;
+            if (
+            trekClient.MyMission()
+            && (!trekClient.IsInGame() || (GetViewMode() != vmOverride))
+            && !trekClient.IsLockedDown()
+            ) {
+            OpenMainQuickChatMenu();
+            }
+            break;
             */
 
-            case TK_ToggleMouse:
-            {
-                m_bEnableVirtualJoystick = !m_bEnableVirtualJoystick;
-            }
-            break;
+        case TK_ToggleMouse:
+        {
+            m_bEnableVirtualJoystick = !m_bEnableVirtualJoystick;
+        }
+        break;
 
-            case TK_TrackCommandView:
-            {
-                m_bTrackCommandView = !m_bTrackCommandView;
-                trekClient.PostText(false, m_bTrackCommandView ? "Command view tracking enabled" : "Command view tracking disabled");
-            }
-            break;
+        case TK_TrackCommandView:
+        {
+            m_bTrackCommandView = !m_bTrackCommandView;
+            trekClient.PostText(false, m_bTrackCommandView ? "Command view tracking enabled" : "Command view tracking disabled");
+        }
+        break;
 
-            case TK_StartChat:
-            {
-                m_pconsoleImage->StartChat();
-                m_ptrekInput->SetFocus(false);
-            }
-            break;
+        case TK_StartChat:
+        {
+            m_pconsoleImage->StartChat();
+            m_ptrekInput->SetFocus(false);
+        }
+        break;
 
-            case TK_ToggleLODSlider:
-            {
-                if (m_pwrapImageLOD->GetImage() == Image::GetEmpty()) {
-                    m_pwrapImageLOD->SetImage(m_pimageLOD);
-                } else {
-                    m_pwrapImageLOD->SetImage(Image::GetEmpty());
-                }
+        case TK_ToggleLODSlider:
+        {
+            if (m_pwrapImageLOD->GetImage() == Image::GetEmpty()) {
+                m_pwrapImageLOD->SetImage(m_pimageLOD);
             }
-            break;
+            else {
+                m_pwrapImageLOD->SetImage(Image::GetEmpty());
+            }
+        }
+        break;
 
-            case TK_LockVector:
+        case TK_LockVector:
+        {
+            if (trekClient.GetShip()->GetParentShip() == NULL)
             {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
+                trekClient.GetShip()->SetStateBits(coastButtonIGC, Training::ApproveActions(trekClient.GetShip()->GetStateM() ^ coastButtonIGC));
+                trekClient.PlaySoundEffect(vectorLockSound);
+            }
+        }
+        break;
+
+        case TK_ToggleCloak:
+        {
+            if (trekClient.GetShip()->GetParentShip() == NULL)
+                trekClient.GetShip()->SetStateBits(cloakActiveIGC, Training::ApproveActions(trekClient.GetShip()->GetStateM() ^ cloakActiveIGC));
+        }
+        break;
+
+        case TK_Ripcord:
+        {
+            if (!Training::IsTraining())
+            {
+                if ((trekClient.GetShip()->GetParentShip() == NULL) &&
+                    trekClient.GetShip()->GetCluster())
                 {
-                    trekClient.GetShip()->SetStateBits(coastButtonIGC, Training::ApproveActions (trekClient.GetShip()->GetStateM() ^ coastButtonIGC));
-                    trekClient.PlaySoundEffect(vectorLockSound);
-                }
-            }
-            break;
-
-            case TK_ToggleCloak:
-            {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
-                    trekClient.GetShip()->SetStateBits(cloakActiveIGC, Training::ApproveActions (trekClient.GetShip()->GetStateM() ^ cloakActiveIGC));
-            }
-            break;
-
-            case TK_Ripcord:
-            {
-                if (!Training::IsTraining ())
-                {
-                    if ((trekClient.GetShip()->GetParentShip() == NULL) &&
-                        trekClient.GetShip()->GetCluster())
+                    if ((trekClient.GetShip()->GetFlag() != NA) ||
+                        trekClient.GetShip()->GetBaseHullType()->HasCapability(c_habmNoRipcord))
                     {
-                        if ((trekClient.GetShip()->GetFlag() != NA) ||
-                            trekClient.GetShip()->GetBaseHullType()->HasCapability(c_habmNoRipcord))
+                        trekClient.PlayNotificationSound(salShipCantRipcordSound, trekClient.GetShip());
+                    }
+                    else
+                    {
+                        IclusterIGC*    pcluster = NULL;
+                        if (!trekClient.GetShip()->fRipcordActive())
                         {
-                            trekClient.PlayNotificationSound(salShipCantRipcordSound, trekClient.GetShip());
+                            ImodelIGC*  pmodel = trekClient.GetShip()->GetCommandTarget(c_cmdCurrent);
+
+                            if (!pmodel)
+                                pmodel = trekClient.GetShip()->GetCommandTarget(c_cmdAccepted);
+
+                            if (pmodel)
+                                pcluster = trekClient.GetCluster(trekClient.GetShip(), pmodel);
+
+                            if (!pcluster)
+                                pcluster = trekClient.GetShip()->GetCluster();
+                            assert(pcluster);
                         }
-                        else
-                        {
-                            IclusterIGC*    pcluster = NULL;
-                            if (!trekClient.GetShip()->fRipcordActive())
-                            {
-                                ImodelIGC*  pmodel = trekClient.GetShip()->GetCommandTarget(c_cmdCurrent);
 
-                                if (!pmodel)
-                                    pmodel = trekClient.GetShip()->GetCommandTarget(c_cmdAccepted);
-
-                                if (pmodel)
-                                    pcluster = trekClient.GetCluster(trekClient.GetShip(), pmodel);
-
-                                if (!pcluster)
-                                    pcluster = trekClient.GetShip()->GetCluster();
-                                assert (pcluster);
-                            }
-
-                            trekClient.RequestRipcord(trekClient.GetShip(), pcluster);
-                        }
+                        trekClient.RequestRipcord(trekClient.GetShip(), pcluster);
                     }
                 }
             }
-            break;
+        }
+        break;
 
-            case TK_PrevWeapon:
+        case TK_PrevWeapon:
+        {
+            if (trekClient.GetShip()->GetParentShip() == NULL)
+                trekClient.PreviousWeapon();
+        }
+        break;
+
+        case TK_NextWeapon:
+        {
+            if (trekClient.GetShip()->GetParentShip() == NULL)
+                trekClient.NextWeapon();
+        }
+        break;
+
+        case TK_ToggleGroupFire:
+        {
+            if (trekClient.GetShip()->GetParentShip() == NULL)
+                trekClient.fGroupFire = !trekClient.fGroupFire;
+
+            if (trekClient.fGroupFire)
+                trekClient.PlaySoundEffect(groupWeaponsSound, trekClient.GetShip());
+            else
+                trekClient.PlaySoundEffect(ungroupWeaponsSound, trekClient.GetShip());
+        }
+        break;
+
+        case TK_SwapWeapon1:
+        {
+            SwapWeapon(0);
+        }
+        break;
+
+        case TK_SwapWeapon2:
+        {
+            SwapWeapon(1);
+        }
+        break;
+
+        case TK_SwapWeapon3:
+        {
+            SwapWeapon(2);
+        }
+        break;
+
+        case TK_SwapWeapon4:
+        {
+            SwapWeapon(3);
+        }
+        break;
+
+        case TK_SwapTurret1:
+        {
+            SwapTurret(0);
+        }
+        break;
+
+        case TK_SwapTurret2:
+        {
+            SwapTurret(1);
+        }
+        break;
+
+        case TK_SwapTurret3:
+        {
+            SwapTurret(2);
+        }
+        break;
+
+        case TK_SwapTurret4:
+        {
+            SwapTurret(3);
+        }
+        break;
+
+        case TK_PromoteTurret1:
+        case TK_PromoteTurret2:
+        case TK_PromoteTurret3:
+        case TK_PromoteTurret4:
+        {
+            IhullTypeIGC*   pht = trekClient.GetShip()->GetBaseHullType();
+            if (pht)
             {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
-                    trekClient.PreviousWeapon();
-            }
-            break;
-
-            case TK_NextWeapon:
-            {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
-                    trekClient.NextWeapon();
-            }
-            break;
-
-            case TK_ToggleGroupFire:
-            {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
-                    trekClient.fGroupFire = !trekClient.fGroupFire;
-
-                if (trekClient.fGroupFire)
-                    trekClient.PlaySoundEffect(groupWeaponsSound, trekClient.GetShip());
-                else
-                    trekClient.PlaySoundEffect(ungroupWeaponsSound, trekClient.GetShip());
-            }
-            break;
-
-            case TK_SwapWeapon1:
-            {
-                SwapWeapon(0);
-            }
-            break;
-
-            case TK_SwapWeapon2:
-            {
-                SwapWeapon(1);
-            }
-            break;
-
-            case TK_SwapWeapon3:
-            {
-                SwapWeapon(2);
-            }
-            break;
-
-            case TK_SwapWeapon4:
-            {
-                SwapWeapon(3);
-            }
-            break;
-
-            case TK_SwapTurret1:
-            {
-                SwapTurret(0);
-            }
-            break;
-
-            case TK_SwapTurret2:
-            {
-                SwapTurret(1);
-            }
-            break;
-
-            case TK_SwapTurret3:
-            {
-                SwapTurret(2);
-            }
-            break;
-
-            case TK_SwapTurret4:
-            {
-                SwapTurret(3);
-            }
-            break;
-
-            case TK_PromoteTurret1:
-            case TK_PromoteTurret2:
-            case TK_PromoteTurret3:
-            case TK_PromoteTurret4:
-            {
-                IhullTypeIGC*   pht = trekClient.GetShip()->GetBaseHullType();
-                if (pht)
+                Mount   turret = Mount(tk - TK_PromoteTurret1) + pht->GetMaxFixedWeapons();
+                if (turret < pht->GetMaxWeapons())
                 {
-                    Mount   turret = Mount(tk - TK_PromoteTurret1) + pht->GetMaxFixedWeapons();
-                    if (turret < pht->GetMaxWeapons())
-                    {
-                        trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
-                        BEGIN_PFM_CREATE(trekClient.m_fm, pfmPromote, C, PROMOTE)
+                    trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
+                    BEGIN_PFM_CREATE(trekClient.m_fm, pfmPromote, C, PROMOTE)
                         END_PFM_CREATE;
 
-                        pfmPromote->mountidPromoted = turret;
-                    }
+                    pfmPromote->mountidPromoted = turret;
                 }
             }
-            break;
+        }
+        break;
 
-            case TK_SwapMissile:
+        case TK_SwapMissile:
+        {
+            SwapPart(ET_Magazine, 0);
+        }
+        break;
+
+        case TK_SwapChaff:
+        {
+            SwapPart(ET_ChaffLauncher, 0);
+        }
+        break;
+
+        case TK_SwapShield:
+        {
+            SwapPart(ET_Shield, 0);
+        }
+        break;
+
+        case TK_SwapCloak:
+        {
+            SwapPart(ET_Cloak, 0);
+        }
+        break;
+
+        case TK_SwapAfterburner:
+        {
+            SwapPart(ET_Afterburner, 0);
+        }
+        break;
+
+        case TK_SwapMine:
+        {
+            SwapPart(ET_Dispenser, 0);
+        }
+        break;
+
+        case TK_NextCargo:
+        {
+            if (trekClient.GetShip()->GetParentShip() == NULL)
             {
-                SwapPart(ET_Magazine, 0);
+                trekClient.NextCargoPart();
+                trekClient.GetCore()->GetIgcSite()->LoadoutChangeEvent(trekClient.GetShip(), trekClient.GetCargoPart(), c_lcCargoSelectionChanged);
             }
-            break;
+        }
+        break;
 
-            case TK_SwapChaff:
+        case TK_ToggleWeapon1:
+        {
+            ToggleWeapon(0);
+        }
+        break;
+
+        case TK_ToggleWeapon2:
+        {
+            ToggleWeapon(1);
+        }
+        break;
+
+        case TK_ToggleWeapon3:
+        {
+            ToggleWeapon(2);
+        }
+        break;
+
+        case TK_ToggleWeapon4:
+        {
+            ToggleWeapon(3);
+        }
+        break;
+
+        case TK_Reload:
+        {
+            if (trekClient.GetShip()->GetParentShip() == NULL)
             {
-                SwapPart(ET_ChaffLauncher, 0);
+                int stateM = trekClient.GetShip()->GetStateM();
+
+                if ((stateM & (oneWeaponIGC | allWeaponsIGC)) == 0)
+                    trekClient.Reload(trekClient.GetShip(), NULL, ET_Weapon);
+
+                if ((stateM & afterburnerButtonIGC) == 0)
+                    trekClient.Reload(trekClient.GetShip(), NULL, ET_Afterburner);
+
+                if ((stateM & missileFireIGC) == 0)
+                    trekClient.Reload(trekClient.GetShip(), (IlauncherIGC*)(trekClient.GetShip()->GetMountedPart(ET_Magazine, 0)), ET_Magazine);
+                if ((stateM & mineFireIGC) == 0)
+                    trekClient.Reload(trekClient.GetShip(), (IlauncherIGC*)(trekClient.GetShip()->GetMountedPart(ET_Dispenser, 0)), ET_Dispenser);
+                if ((stateM & chaffFireIGC) == 0)
+                    trekClient.Reload(trekClient.GetShip(), (IlauncherIGC*)(trekClient.GetShip()->GetMountedPart(ET_ChaffLauncher, 0)), ET_ChaffLauncher);
+
+                trekClient.PlayNotificationSound(salReloadingSound, trekClient.GetShip());
             }
-            break;
+        }
+        break;
 
-            case TK_SwapShield:
+        case TK_DropCargo:
+        {
+            if (trekClient.flyingF() && (trekClient.GetShip()->GetParentShip() == NULL))
             {
-                SwapPart(ET_Shield, 0);
-            }
-            break;
+                IpartIGC* ppart = trekClient.GetCargoPart();
 
-            case TK_SwapCloak:
-            {
-                SwapPart(ET_Cloak, 0);
-            }
-            break;
+                if (ppart)
+                {
+                    // to keep from changing the order of things in the
+                    // inventory pane, always drop the last instance of
+                    // this part type.
+                    IpartTypeIGC *ppartType = ppart->GetPartType();
 
-            case TK_SwapAfterburner:
-            {
-                SwapPart(ET_Afterburner, 0);
-            }
-            break;
+                    for (Mount mount = -c_maxCargo; mount < 0; ++mount)
+                    {
+                        IpartIGC *ppartPrev = trekClient.GetShip()->GetMountedPart(NA, mount);
+                        IpartTypeIGC *ppartTypePrev = ppartPrev ? ppartPrev->GetPartType() : NULL;
 
-            case TK_SwapMine:
-            {
-                SwapPart(ET_Dispenser, 0);
-            }
-            break;
-
-            case TK_NextCargo:
-            {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
+                        if (ppartType == ppartTypePrev)
+                        {
+                            trekClient.DropPart(ppartPrev);
+                            trekClient.PlaySoundEffect(dropSound, trekClient.GetShip());
+                            break;
+                        }
+                    }
+                }
+                else
                 {
                     trekClient.NextCargoPart();
-                    trekClient.GetCore()->GetIgcSite()->LoadoutChangeEvent(trekClient.GetShip(), trekClient.GetCargoPart(), c_lcCargoSelectionChanged);
                 }
+                trekClient.GetCore()->GetIgcSite()->LoadoutChangeEvent(trekClient.GetShip(), trekClient.GetCargoPart(), c_lcCargoSelectionChanged);
             }
-            break;
+        }
+        break;
 
-            case TK_ToggleWeapon1:
+        case TK_ViewRearLeft:
+        {
+            if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
             {
-                ToggleWeapon(0);
+                m_cameraControl.SetHeadOrientation(pi * 1.25f);
             }
-            break;
+        }
+        break;
 
-            case TK_ToggleWeapon2:
+        case TK_ViewRearRight:
+        {
+            if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
             {
-                ToggleWeapon(1);
+                m_cameraControl.SetHeadOrientation(pi * 0.75f);
             }
-            break;
+        }
+        break;
 
-            case TK_ToggleWeapon3:
+        case TK_ViewFrontLeft:
+        {
+            if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
             {
-                ToggleWeapon(2);
+                m_cameraControl.SetHeadOrientation(pi * 1.75f);
             }
-            break;
+        }
+        break;
 
-            case TK_ToggleWeapon4:
+        case TK_ViewFrontRight:
+        {
+            if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
             {
-                ToggleWeapon(3);
+                m_cameraControl.SetHeadOrientation(pi * 0.25f);
             }
-            break;
+        }
+        break;
 
-            case TK_Reload:
+        case TK_ViewRear:
+        {
+            if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
             {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
-                {
-                    int stateM = trekClient.GetShip()->GetStateM();
-
-                    if ((stateM & (oneWeaponIGC | allWeaponsIGC)) == 0)
-                        trekClient.Reload(trekClient.GetShip(), NULL, ET_Weapon);
-
-                    if ((stateM & afterburnerButtonIGC) == 0)
-                        trekClient.Reload(trekClient.GetShip(), NULL, ET_Afterburner);
-
-                    if ((stateM & missileFireIGC) == 0)
-                        trekClient.Reload(trekClient.GetShip(), (IlauncherIGC*)(trekClient.GetShip()->GetMountedPart(ET_Magazine, 0)), ET_Magazine);
-                    if ((stateM & mineFireIGC) == 0)
-                        trekClient.Reload(trekClient.GetShip(), (IlauncherIGC*)(trekClient.GetShip()->GetMountedPart(ET_Dispenser, 0)), ET_Dispenser);
-                    if ((stateM & chaffFireIGC) == 0)
-                        trekClient.Reload(trekClient.GetShip(), (IlauncherIGC*)(trekClient.GetShip()->GetMountedPart(ET_ChaffLauncher, 0)), ET_ChaffLauncher);
-
-                    trekClient.PlayNotificationSound(salReloadingSound, trekClient.GetShip());
-                }
+                m_cameraControl.SetHeadOrientation(pi);
             }
-            break;
+        }
+        break;
 
-            case TK_DropCargo:
+        case TK_ViewLeft:
+        {
+            if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
             {
-                if (trekClient.flyingF() && (trekClient.GetShip()->GetParentShip() == NULL))
-                {
-                    IpartIGC* ppart = trekClient.GetCargoPart();
-
-                    if (ppart)
-                    {
-                        // to keep from changing the order of things in the
-                        // inventory pane, always drop the last instance of
-                        // this part type.
-                        IpartTypeIGC *ppartType = ppart->GetPartType();
-
-                        for (Mount mount = -c_maxCargo; mount < 0; ++mount)
-                        {
-                            IpartIGC *ppartPrev = trekClient.GetShip()->GetMountedPart(NA, mount);
-                            IpartTypeIGC *ppartTypePrev = ppartPrev ? ppartPrev->GetPartType() : NULL;
-
-                            if (ppartType == ppartTypePrev)
-                            {
-                                trekClient.DropPart(ppartPrev);
-                                trekClient.PlaySoundEffect(dropSound, trekClient.GetShip());
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        trekClient.NextCargoPart();
-                    }
-                    trekClient.GetCore()->GetIgcSite()->LoadoutChangeEvent(trekClient.GetShip(), trekClient.GetCargoPart(), c_lcCargoSelectionChanged);
-                }
+                m_cameraControl.SetHeadOrientation(pi * 1.5f);
             }
-            break;
+        }
+        break;
 
-            case TK_ViewRearLeft:
+        case TK_ViewRight:
+        {
+            if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
             {
-                if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
-                {
-                    m_cameraControl.SetHeadOrientation(pi * 1.25f);
-                }
+                m_cameraControl.SetHeadOrientation(pi * 0.5f);
             }
-            break;
+        }
+        break;
 
-            case TK_ViewRearRight:
-            {
-                if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
-                {
-                    m_cameraControl.SetHeadOrientation(pi * 0.75f);
-                }
-            }
-            break;
+        case TK_ViewExternal:
+        {
+            SetViewToCombatMode((GetCameraMode() != cmExternal) ? cmExternal : cmCockpit);
+        }
+        break;
 
-            case TK_ViewFrontLeft:
-            {
-                if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
-                {
-                    m_cameraControl.SetHeadOrientation(pi * 1.75f);
-                }
-            }
-            break;
+        case TK_ViewExternalOrbit:
+        {
+            SetViewToCombatMode((GetCameraMode() != cmExternalOrbit) ? cmExternalOrbit : cmCockpit);
+        }
+        break;
 
-            case TK_ViewFrontRight:
-            {
-                if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
-                {
-                    m_cameraControl.SetHeadOrientation(pi * 0.25f);
-                }
-            }
-            break;
+        case TK_ViewExternalStation:
+        {
+            SetViewToCombatMode((GetCameraMode() != cmExternalStation) ? cmExternalStation : cmCockpit);
+        }
+        break;
 
-            case TK_ViewRear:
-            {
-                if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
-                {
-                    m_cameraControl.SetHeadOrientation(pi);
-                }
-            }
-            break;
+        case TK_ViewFlyby:
+        {
+            SetViewToCombatMode((GetCameraMode() != cmExternalFlyBy) ? cmExternalFlyBy : cmCockpit);
+        }
+        break;
 
-            case TK_ViewLeft:
-            {
-                if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
-                {
-                    m_cameraControl.SetHeadOrientation(pi * 1.5f);
-                }
-            }
-            break;
+        case TK_ViewMissile:
+        {
+            SetViewToCombatMode((GetCameraMode() != cmExternalMissile) ? cmExternalMissile : cmCockpit);
+        }
+        break;
 
-            case TK_ViewRight:
+        case TK_ViewTarget:
+        {
+            if (trekClient.flyingF())
             {
-                if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
-                {
-                    m_cameraControl.SetHeadOrientation(pi * 0.5f);
-                }
-            }
-            break;
-
-            case TK_ViewExternal:
-            {
-                SetViewToCombatMode ((GetCameraMode () != cmExternal) ? cmExternal : cmCockpit);
-            }
-            break;
-
-            case TK_ViewExternalOrbit:
-            {
-                SetViewToCombatMode ((GetCameraMode () != cmExternalOrbit) ? cmExternalOrbit : cmCockpit);
-            }
-            break;
-
-            case TK_ViewExternalStation:
-            {
-                SetViewToCombatMode ((GetCameraMode () != cmExternalStation) ? cmExternalStation : cmCockpit);
-            }
-            break;
-
-            case TK_ViewFlyby:
-            {
-                SetViewToCombatMode ((GetCameraMode () != cmExternalFlyBy) ? cmExternalFlyBy : cmCockpit);
-            }
-            break;
-
-            case TK_ViewMissile:
-            {
-                SetViewToCombatMode ((GetCameraMode () != cmExternalMissile) ? cmExternalMissile : cmCockpit);
-            }
-            break;
-
-            case TK_ViewTarget:
-            {
-                if (trekClient.flyingF())
-                {
-                    if (GetCameraMode() != cmExternalTarget)
-                        SetCameraMode(cmExternalTarget);
-                    else
-                        SetCameraMode(cmCockpit);
-                }
-            }
-            break;
-
-            case TK_ViewChase:
-            {
-                SetViewToCombatMode((GetCameraMode() != cmExternalChase) ? cmExternalChase : cmCockpit);
-/*
-                if (m_bUsePreferChaseView)
-                {
-                    // here we want to treat this as a sticky key press, not a toggle
-                    m_bPreferChaseView = true;
-                    SetViewToCombatMode (cmExternalChase);
-                }
+                if (GetCameraMode() != cmExternalTarget)
+                    SetCameraMode(cmExternalTarget);
                 else
-                {
-                    // here we just toggle the views
-                    SetViewToCombatMode ((GetCameraMode () != cmExternalChase) ? cmExternalChase : cmCockpit);
-                }
-*/
+                    SetCameraMode(cmCockpit);
             }
-            break;
+        }
+        break;
+
+        case TK_ViewChase:
+        {
+            SetViewToCombatMode((GetCameraMode() != cmExternalChase) ? cmExternalChase : cmCockpit);
             /*
-            // This camera mode is not actually handled by the viewing code
-            case TK_ViewTurret:
+            if (m_bUsePreferChaseView)
             {
-                SetViewToCombatMode ((GetCameraMode () != cmExternalTurret) ? cmExternalTurret : cmCockpit);
+            // here we want to treat this as a sticky key press, not a toggle
+            m_bPreferChaseView = true;
+            SetViewToCombatMode (cmExternalChase);
             }
-            break;
+            else
+            {
+            // here we just toggle the views
+            SetViewToCombatMode ((GetCameraMode () != cmExternalChase) ? cmExternalChase : cmCockpit);
+            }
             */
+        }
+        break;
+        /*
+        // This camera mode is not actually handled by the viewing code
+        case TK_ViewTurret:
+        {
+        SetViewToCombatMode ((GetCameraMode () != cmExternalTurret) ? cmExternalTurret : cmCockpit);
+        }
+        break;
+        */
 
-            case TK_ViewBase:
+        case TK_ViewBase:
+        {
+            SetViewToCombatMode((GetCameraMode() != cmExternalBase) ? cmExternalBase : cmCockpit);
+        }
+        break;
+
+        case TK_ConModeGameState:
+        {
+            if (GetViewMode() != vmOverride && trekClient.m_fm.IsConnected())
             {
-                SetViewToCombatMode ((GetCameraMode () != cmExternalBase) ? cmExternalBase : cmCockpit);
+                TurnOffOverlayFlags(c_omBanishablePanes & ~ofGameState);
+                ToggleOverlayFlags(ofGameState);
             }
-            break;
+        }
+        break;
 
-            case TK_ConModeGameState:
+        case TK_ConModeNav:
+        case TK_ViewSector:
+        {
+
+            if (GetViewMode() != vmOverride) {
+                ToggleOverlayFlags(ofSectorPane);
+
+                // BT - 10/17 - Map and Sector Panes are now shown on launch and remember the pilots settings on last dock. 
+                m_bShowSectorMapPane = GetOverlayFlags() & ofSectorPane == ofSectorPane;
+            }
+        }
+        break;
+
+        case TK_ViewCommand:
+        case TK_ConModeCommand:
+        {
+
+            if (CommandCamera(m_cm))
             {
-                if (GetViewMode() != vmOverride && trekClient.m_fm.IsConnected())
-                {
-                    TurnOffOverlayFlags(c_omBanishablePanes & ~ofGameState);
-                    ToggleOverlayFlags(ofGameState);
+                if (GetOverlayFlags() & c_omBanishablePanes) {
+                    TurnOffOverlayFlags(c_omBanishablePanes);
                 }
-            }
-            break;
-
-            case TK_ConModeNav:
-            case TK_ViewSector:
-            {
-				
-                if (GetViewMode() != vmOverride) {
-                    ToggleOverlayFlags(ofSectorPane);
-
-					// BT - 10/17 - Map and Sector Panes are now shown on launch and remember the pilots settings on last dock. 
-					m_bShowSectorMapPane = GetOverlayFlags() & ofSectorPane == ofSectorPane;
-                }
-            }
-            break;
-
-            case TK_ViewCommand:
-            case TK_ConModeCommand:
-            {
-
-                if (CommandCamera(m_cm))
-                {
-                    if (GetOverlayFlags() & c_omBanishablePanes) {
-                        TurnOffOverlayFlags(c_omBanishablePanes);
-                    } else if (!trekClient.GetShip()->IsGhost()) {
-                        if (trekClient.flyingF()) {
-                            SetViewMode(vmCombat);
-                        } else {
-                            SetViewMode(vmHangar);
-                        }
+                else if (!trekClient.GetShip()->IsGhost()) {
+                    if (trekClient.flyingF()) {
+                        SetViewMode(vmCombat);
                     }
+                    else {
+                        SetViewMode(vmHangar);
+                    }
+                }
+            }
+            else
+            {
+                if ((trekClient.GetViewCluster() == NULL) && !trekClient.flyingF())
+                {
+                    IstationIGC*    pstation = trekClient.GetShip()->GetStation();
+                    assert(pstation);
+
+                    IclusterIGC*    pcluster = pstation->GetCluster();
+                    assert(pcluster);
+                    trekClient.RequestViewCluster(pcluster);
+                    SetViewMode(vmCommand);
                 }
                 else
                 {
-                    if ((trekClient.GetViewCluster() == NULL) && !trekClient.flyingF())
-                    {
-                        IstationIGC*    pstation = trekClient.GetShip()->GetStation();
-                        assert (pstation);
-
-                        IclusterIGC*    pcluster = pstation->GetCluster();
-                        assert (pcluster);
-                        trekClient.RequestViewCluster(pcluster);
-                        SetViewMode(vmCommand);
-                    }
-                    else
-                    {
-                        SetViewMode(vmCommand);
-                        PositionCommandView(NULL, 2.0f);
-                    }
-                }
-            }
-            break;
-
-            case TK_ToggleCommand:
-            {
-                if (m_cmPreviousCommand == cmExternalCommandViewTD)
-                {
-                    m_cmPreviousCommand = cmExternalCommandView34;
-                }
-                else if (m_cmPreviousCommand == cmExternalCommandView34)
-                {
-                    m_cmPreviousCommand = cmExternalCommandViewTD;
-                }
-
-                if (CommandCamera(m_cm))
-                {
-                    SetCameraMode(m_cmPreviousCommand);
+                    SetViewMode(vmCommand);
                     PositionCommandView(NULL, 2.0f);
                 }
             }
-            break;
+        }
+        break;
 
-            case TK_CycleRadar: //imago updated 7/8/09
+        case TK_ToggleCommand:
+        {
+            if (m_cmPreviousCommand == cmExternalCommandViewTD)
             {
-                extern const char* c_szRadarLODs[];
-				DWORD value = 0;
-                if (m_cm == cmCockpit && GetViewMode() == vmCombat)
-                {
-                    value = m_radarCockpit = (m_radarCockpit + 1) % (int(RadarImage::c_rlMax) + 1);
-                    m_pradarImage->SetRadarLOD((RadarImage::RadarLOD)m_radarCockpit);
-
-                    trekClient.PostText(false, "%s", c_szRadarLODs[m_radarCockpit]);
-                }
-                else if (GetViewMode() == vmCommand)
-                {
-                    value = m_radarCommand = (m_radarCommand + 1) % (int(RadarImage::c_rlMax) + 1);
-                    m_pradarImage->SetRadarLOD((RadarImage::RadarLOD)m_radarCommand);
-
-                    trekClient.PostText(false, "%s", c_szRadarLODs[m_radarCommand]);
-                }
-				SavePreference("RadarLOD", value); //imago 7/8/09
+                m_cmPreviousCommand = cmExternalCommandView34;
             }
-            break;
-
-            case TK_ConModeCombat:
+            else if (m_cmPreviousCommand == cmExternalCommandView34)
             {
-                if (GetCameraMode() != cmCockpit)
-                {
-                    // save the old default state
-                    bool    bOldPreference = m_bPreferChaseView;
-
-                    // if we are using the prefer chase view option, then make
-                    // chase view unsticky
-                    m_bPreferChaseView = false;
-
-                    // always set the view mode to cockpit
-                    SetViewToCombatMode (cmCockpit);
-
-                    // restore the old default state
-                    m_bPreferChaseView = bOldPreference;
-                }
-                else
-                {
-                    SetViewToCombatMode(cmCockpit);
-                }
+                m_cmPreviousCommand = cmExternalCommandViewTD;
             }
-            break;
 
-            case TK_ConModeInventory:
+            if (CommandCamera(m_cm))
             {
-                if (GetViewMode() == vmOverride) {
-                        // do nothing
-                } else if (trekClient.GetShip()->IsGhost()) {
+                SetCameraMode(m_cmPreviousCommand);
+                PositionCommandView(NULL, 2.0f);
+            }
+        }
+        break;
+
+        case TK_CycleRadar: //imago updated 7/8/09
+        {
+            extern const char* c_szRadarLODs[];
+            DWORD value = 0;
+            if (m_cm == cmCockpit && GetViewMode() == vmCombat)
+            {
+                value = m_radarCockpit = (m_radarCockpit + 1) % (int(RadarImage::c_rlMax) + 1);
+                m_pradarImage->SetRadarLOD((RadarImage::RadarLOD)m_radarCockpit);
+
+                trekClient.PostText(false, "%s", c_szRadarLODs[m_radarCockpit]);
+            }
+            else if (GetViewMode() == vmCommand)
+            {
+                value = m_radarCommand = (m_radarCommand + 1) % (int(RadarImage::c_rlMax) + 1);
+                m_pradarImage->SetRadarLOD((RadarImage::RadarLOD)m_radarCommand);
+
+                trekClient.PostText(false, "%s", c_szRadarLODs[m_radarCommand]);
+            }
+            SavePreference("RadarLOD", value); //imago 7/8/09
+        }
+        break;
+
+        case TK_ConModeCombat:
+        {
+            if (GetCameraMode() != cmCockpit)
+            {
+                // save the old default state
+                bool    bOldPreference = m_bPreferChaseView;
+
+                // if we are using the prefer chase view option, then make
+                // chase view unsticky
+                m_bPreferChaseView = false;
+
+                // always set the view mode to cockpit
+                SetViewToCombatMode(cmCockpit);
+
+                // restore the old default state
+                m_bPreferChaseView = bOldPreference;
+            }
+            else
+            {
+                SetViewToCombatMode(cmCockpit);
+            }
+        }
+        break;
+
+        case TK_ConModeInventory:
+        {
+            if (GetViewMode() == vmOverride) {
+                // do nothing
+            }
+            else if (trekClient.GetShip()->IsGhost()) {
+                TurnOffOverlayFlags(c_omBanishablePanes);
+            }
+            else if (trekClient.GetShip()->GetStation() != NULL) {
+                if (GetViewMode() != vmLoadout)
+                    SetViewMode(vmLoadout);
+                else if (GetOverlayFlags() & c_omBanishablePanes)
                     TurnOffOverlayFlags(c_omBanishablePanes);
-                } else if (trekClient.GetShip()->GetStation() != NULL) {
-                    if (GetViewMode() != vmLoadout)
-                        SetViewMode(vmLoadout);
-                    else if (GetOverlayFlags() & c_omBanishablePanes)
-                        TurnOffOverlayFlags(c_omBanishablePanes);
-                    else
-                        SetViewMode(vmHangar);
-                }
-				else
-				{
-					ToggleOverlayFlags(ofInventory);
-
-					// BT - 10/17 - Map and Sector Panes are now shown on launch and remember the pilots settings on last dock. 
-					m_bShowInventoryPane = GetOverlayFlags() & ofSectorPane == ofSectorPane;
-				}
-            }
-            break;
-
-            case TK_ConModeInvest:
-            {
-
-                if (GetViewMode() != vmOverride && trekClient.m_fm.IsConnected()
-                    && trekClient.MyMission()->AllowDevelopments())
-                {
-                    TurnOffOverlayFlags(c_omBanishablePanes & ~ofInvestment);
-                    ToggleOverlayFlags(ofInvestment);
-                }
-            }
-            break;
-
-            case TK_ConModeTeam:
-            {
-
-                TurnOffOverlayFlags(c_omBanishablePanes & ~(ofTeam | ofExpandedTeam));
-                if (GetViewMode() != vmOverride)
-                {
-                    if (GetOverlayFlags() & ofTeam)
-                    {
-                        TurnOnOverlayFlags(ofExpandedTeam);
-                        TurnOffOverlayFlags(ofTeam);
-                    }
-                    else if (GetOverlayFlags() & ofExpandedTeam)
-                    {
-                        TurnOffOverlayFlags(ofExpandedTeam);
-                    }
-                    else
-                    {
-                        TurnOnOverlayFlags(ofExpandedTeam);
-                    }
-                }
-            }
-            break;
-
-            case TK_ConModeMiniTeam:
-            {
-
-                TurnOffOverlayFlags(c_omBanishablePanes & ~(ofTeam | ofExpandedTeam));
-                if ((GetViewMode() != vmOverride) && trekClient.m_fm.IsConnected())
-                {
-                    if (GetOverlayFlags() & ofTeam)
-                    {
-                        TurnOffOverlayFlags(ofTeam);
-                    }
-                    else if (GetOverlayFlags() & ofExpandedTeam)
-                    {
-                        TurnOnOverlayFlags(ofTeam);
-                        TurnOffOverlayFlags(ofExpandedTeam);
-                    }
-                    else
-                    {
-                        TurnOnOverlayFlags(ofTeam);
-                    }
-                    UpdateOverlayFlags();
-                }
-            }
-            break;
-
-            case TK_ConModeTeleport:
-            {
-
-                TurnOffOverlayFlags(c_omBanishablePanes & ~ofTeleportPane);
-                if (trekClient.GetShip()->GetStation() && !trekClient.GetShip()->IsGhost())
-                {
+                else
                     SetViewMode(vmHangar);
-
-                    if (GetOverlayFlags() & ofTeleportPane)
-                        TurnOffOverlayFlags(ofTeleportPane);
-                    else
-                        TurnOnOverlayFlags(ofTeleportPane);
-                }
             }
-            break;
-
-            case TK_TargetHostile:  // target the thing that has done the most damage to me recently
+            else
             {
-                DamageTrack*    pdt = trekClient.GetShip()->GetDamageTrack();
-                assert (pdt);
-                int n = pdt->GetDamageBuckets()->n();
-                if (n > 0)
+                ToggleOverlayFlags(ofInventory);
+
+                // BT - 10/17 - Map and Sector Panes are now shown on launch and remember the pilots settings on last dock. 
+                m_bShowInventoryPane = GetOverlayFlags() & ofSectorPane == ofSectorPane;
+            }
+        }
+        break;
+
+        case TK_ConModeInvest:
+        {
+
+            if (GetViewMode() != vmOverride && trekClient.m_fm.IsConnected()
+                && trekClient.MyMission()->AllowDevelopments())
+            {
+                TurnOffOverlayFlags(c_omBanishablePanes & ~ofInvestment);
+                ToggleOverlayFlags(ofInvestment);
+            }
+        }
+        break;
+
+        case TK_ConModeTeam:
+        {
+
+            TurnOffOverlayFlags(c_omBanishablePanes & ~(ofTeam | ofExpandedTeam));
+            if (GetViewMode() != vmOverride)
+            {
+                if (GetOverlayFlags() & ofTeam)
                 {
-                    DamageBucketLink* pdbl = pdt->GetDamageBuckets()->first();
-                    assert (pdbl);
-
-                    ImodelIGC*   pmodel = pdbl->data()->model();
-                    if ((n > 1) && (trekClient.GetShip()->GetCommandTarget(c_cmdCurrent) == pmodel))
-                    {
-                        assert (pdbl->next());
-                        pmodel = pdbl->next()->data()->model();
-                    }
-
-                    SetTarget(pmodel, c_cidDefault);
+                    TurnOnOverlayFlags(ofExpandedTeam);
+                    TurnOffOverlayFlags(ofTeam);
+                }
+                else if (GetOverlayFlags() & ofExpandedTeam)
+                {
+                    TurnOffOverlayFlags(ofExpandedTeam);
                 }
                 else
                 {
-                    TrekFindTarget((c_ttShip | c_ttEnemy | c_ttNearest), tk, TK_TargetEnemyNearest, TK_TargetEnemyPrev, c_habmRescue | c_habmMiner | c_habmBuilder);
+                    TurnOnOverlayFlags(ofExpandedTeam);
                 }
             }
-            break;
+        }
+        break;
 
-            case TK_TargetCenter:   // target the ship closest to the reticle
+        case TK_ConModeMiniTeam:
+        {
+
+            TurnOffOverlayFlags(c_omBanishablePanes & ~(ofTeam | ofExpandedTeam));
+            if ((GetViewMode() != vmOverride) && trekClient.m_fm.IsConnected())
             {
-                if (trekClient.flyingF())
+                if (GetOverlayFlags() & ofTeam)
                 {
-                    const Orientation*  porientation = &(trekClient.GetShip()->GetOrientation());
-                    IshipIGC*           pship = trekClient.GetShip()->GetParentShip();
-
-                    if (pship)
-                    {
-                        Mount   turretID = trekClient.GetShip()->GetTurretID();
-                        if (turretID == NA)
-                            porientation = &(pship->GetOrientation());
-                    }
-                    else
-                        pship = trekClient.GetShip();
-
-                    ImodelIGC*  m = FindTarget(pship,
-                                               (c_ttFront | c_ttAllTypes | c_ttAllSides),
-                                               trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
-                                               NULL, NULL,
-                                               porientation);
-
-                    SetTarget(m, c_cidDefault);
+                    TurnOffOverlayFlags(ofTeam);
                 }
-            }
-            break;
-
-            case TK_TargetEnemy:
-            case TK_TargetEnemyNearest:
-            case TK_TargetEnemyPrev:
-            {
-                TrekFindTarget((c_ttShip | c_ttEnemy), tk, TK_TargetEnemyNearest, TK_TargetEnemyPrev, c_habmRescue | c_habmMiner | c_habmBuilder);
-            }
-            break;
-
-            case TK_TargetEnemyBomber:
-            case TK_TargetEnemyBomberNearest:
-            case TK_TargetEnemyBomberPrev:
-            {
-                TrekFindTarget((c_ttShip | c_ttEnemy), tk, TK_TargetEnemyBomberNearest, TK_TargetEnemyBomberPrev, c_habmThreatToStation);
-            }
-            break;
-
-            case TK_TargetEnemyFighter:
-            case TK_TargetEnemyFighterNearest:
-            case TK_TargetEnemyFighterPrev:
-            {
-                TrekFindTarget((c_ttShip | c_ttEnemy), tk, TK_TargetEnemyFighterNearest, TK_TargetEnemyFighterPrev, c_habmFighter);
-            }
-            break;
-
-            case TK_TargetEnemyMiner:
-            case TK_TargetEnemyMinerNearest:
-            case TK_TargetEnemyMinerPrev:
-            {
-                TrekFindTarget((c_ttShip | c_ttEnemy), tk, TK_TargetEnemyMinerNearest, TK_TargetEnemyMinerPrev, c_habmMiner);
-            }
-            break;
-
-            case TK_TargetEnemyConstructor:
-            case TK_TargetEnemyConstructorNearest:
-            case TK_TargetEnemyConstructorPrev:
-            {
-                TrekFindTarget((c_ttShip | c_ttEnemy), tk, TK_TargetEnemyConstructorNearest, TK_TargetEnemyConstructorPrev, c_habmBuilder);
-            }
-            break;
-
-            case TK_TargetEnemyBase:
-            case TK_TargetEnemyBaseNearest:
-            case TK_TargetEnemyBasePrev:
-            {
-                TrekFindTarget((c_ttStation | c_ttEnemy | c_ttAnyCluster), tk, TK_TargetEnemyBaseNearest, TK_TargetEnemyBasePrev, ~c_sabmPedestal);
-            }
-            break;
-
-            case TK_TargetEnemyMajorBase:
-            case TK_TargetEnemyMajorBaseNearest:
-            case TK_TargetEnemyMajorBasePrev:
-            {
-                TrekFindTarget((c_ttStation | c_ttEnemy | c_ttAnyCluster), tk, TK_TargetEnemyMajorBaseNearest, TK_TargetEnemyMajorBasePrev, c_sabmFlag);
-            }
-            break;
-
-            case TK_TargetFriendlyBase:
-            case TK_TargetFriendlyBaseNearest:
-            case TK_TargetFriendlyBasePrev:
-            {
-                int             ttMask = (c_ttStation | c_ttFriendly | c_ttAnyCluster);
-                AbilityBitMask  abm = c_sabmLand;
-
+                else if (GetOverlayFlags() & ofExpandedTeam)
                 {
-                    IhullTypeIGC*   pht = trekClient.GetShip()->GetSourceShip()->GetBaseHullType();
-                    if (pht)
-                    {
-                        HullAbilityBitMask  habm = pht->GetCapabilities();
-
-                        if (habm & c_habmLifepod)
-                        {
-                            abm = c_sabmRescue | c_sabmRescueAny | c_sabmLand;
-                            ttMask |= c_ttProbe;
-                        }
-                        else if ((habm & c_habmFighter) == 0)
-                            abm = c_sabmCapLand;
-                    }
+                    TurnOnOverlayFlags(ofTeam);
+                    TurnOffOverlayFlags(ofExpandedTeam);
                 }
-
-                TrekFindTarget(ttMask, tk, TK_TargetFriendlyBaseNearest, TK_TargetFriendlyBasePrev,
-                               abm);
-            }
-            break;
-
-            case TK_TargetAlliedBase:
-            case TK_TargetAlliedBaseNearest:
-            case TK_TargetAlliedBasePrev:
-            {
-                int             ttMask = (c_ttStation | c_ttFriendly | c_ttAnyCluster);
-                AbilityBitMask  abm = c_sabmLand;
-
+                else
                 {
-                    IhullTypeIGC*   pht = trekClient.GetShip()->GetSourceShip()->GetBaseHullType();
-                    if (pht)
-                    {
-                        HullAbilityBitMask  habm = pht->GetCapabilities();
-
-                        if (habm & c_habmLifepod)
-                        {
-                            abm = c_sabmRescue | c_sabmRescueAny | c_sabmLand;
-                            ttMask |= c_ttProbe;
-                        }
-                        else if ((habm & c_habmFighter) == 0)
-                            abm = c_sabmCapLand;
-                    }
+                    TurnOnOverlayFlags(ofTeam);
                 }
-
-                TrekFindTarget(ttMask, tk, TK_TargetAlliedBaseNearest, TK_TargetAlliedBasePrev,
-                               abm);
+                UpdateOverlayFlags();
             }
-            break;
+        }
+        break;
 
-            case TK_TargetFriendlyMajorBase:
-            case TK_TargetFriendlyMajorBaseNearest:
-            case TK_TargetFriendlyMajorBasePrev:
+        case TK_ConModeTeleport:
+        {
+
+            TurnOffOverlayFlags(c_omBanishablePanes & ~ofTeleportPane);
+            if (trekClient.GetShip()->GetStation() && !trekClient.GetShip()->IsGhost())
             {
-                TrekFindTarget((c_ttStation | c_ttFriendly | c_ttAnyCluster), tk, TK_TargetFriendlyMajorBaseNearest, TK_TargetFriendlyMajorBasePrev, c_sabmFlag);
+                SetViewMode(vmHangar);
+
+                if (GetOverlayFlags() & ofTeleportPane)
+                    TurnOffOverlayFlags(ofTeleportPane);
+                else
+                    TurnOnOverlayFlags(ofTeleportPane);
             }
-            break;
+        }
+        break;
 
-            case TK_Target:
-            case TK_TargetNearest:
-            case TK_TargetPrev:
+        case TK_TargetHostile:  // target the thing that has done the most damage to me recently
+        {
+            DamageTrack*    pdt = trekClient.GetShip()->GetDamageTrack();
+            assert(pdt);
+            int n = pdt->GetDamageBuckets()->n();
+            if (n > 0)
             {
-                ImodelIGC*  pmodel = trekClient.GetShip()->GetCommandTarget(c_cmdCurrent);
+                DamageBucketLink* pdbl = pdt->GetDamageBuckets()->first();
+                assert(pdbl);
 
-                TrekFindTarget(pmodel && (pmodel != trekClient.GetShip())
-                               ? GetSimilarTargetMask(pmodel)
-                               : (c_ttShipTypes | c_ttEnemy),
-                               tk, TK_TargetNearest, TK_TargetPrev);
-            }
-            break;
-
-            case TK_TargetFriendly:
-            case TK_TargetFriendlyNearest:
-            case TK_TargetFriendlyPrev:
-            {
-                TrekFindTarget((c_ttShip | c_ttFriendly), tk, TK_TargetFriendlyNearest, TK_TargetFriendlyPrev);
-            }
-            break;
-
-            case TK_TargetFriendlyBomber:
-            case TK_TargetFriendlyBomberNearest:
-            case TK_TargetFriendlyBomberPrev:
-            {
-                TrekFindTarget((c_ttShip | c_ttFriendly), tk, TK_TargetFriendlyBomberNearest, TK_TargetFriendlyBomberPrev, c_habmThreatToStation);
-            }
-            break;
-
-            case TK_TargetFriendlyFighter:
-            case TK_TargetFriendlyFighterNearest:
-            case TK_TargetFriendlyFighterPrev:
-            {
-                TrekFindTarget((c_ttShip | c_ttFriendly), tk, TK_TargetFriendlyFighterNearest, TK_TargetFriendlyFighterPrev, c_habmFighter);
-            }
-            break;
-
-            case TK_TargetFriendlyMiner:
-            case TK_TargetFriendlyMinerNearest:
-            case TK_TargetFriendlyMinerPrev:
-            {
-                TrekFindTarget((c_ttShip | c_ttFriendly), tk, TK_TargetFriendlyMinerNearest, TK_TargetFriendlyMinerPrev, c_habmMiner);
-            }
-            break;
-
-            case TK_TargetFriendlyConstructor:
-            case TK_TargetFriendlyConstructorNearest:
-            case TK_TargetFriendlyConstructorPrev:
-            {
-                TrekFindTarget((c_ttShip | c_ttFriendly), tk, TK_TargetFriendlyConstructorNearest, TK_TargetFriendlyConstructorPrev, c_habmBuilder);
-            }
-            break;
-
-            case TK_TargetFriendlyLifepod:
-            case TK_TargetFriendlyLifepodNearest:
-            case TK_TargetFriendlyLifepodPrev:
-            {
-                TrekFindTarget((c_ttShip | c_ttFriendly), tk, TK_TargetFriendlyLifepodNearest, TK_TargetFriendlyLifepodPrev, c_habmLifepod);
-            }
-            break;
-
-            case TK_TargetArtifact:
-            case TK_TargetArtifactNearest:
-            case TK_TargetArtifactPrev:
-            {
-                TrekFindTarget((c_ttTreasure | c_ttNeutral), tk, TK_TargetArtifactNearest, TK_TargetArtifactPrev, 1);
-            }
-            break;
-
-            case TK_TargetFlag:
-            case TK_TargetFlagNearest:
-            case TK_TargetFlagPrev:
-            {
-                TrekFindTarget((c_ttTreasure | c_ttEnemy), tk, TK_TargetFlagNearest, TK_TargetFlagPrev, 1);
-            }
-            break;
-
-            case TK_TargetWarp:
-            case TK_TargetWarpNearest:
-            case TK_TargetWarpPrev:
-            {
-                TrekFindTarget((c_ttWarp | c_ttNeutral), tk, TK_TargetWarpNearest, TK_TargetWarpPrev);
-            }
-            break;
-
-            case TK_ToggleAutoPilot:
-            {
-                if (trekClient.autoPilot())
+                ImodelIGC*   pmodel = pdbl->data()->model();
+                if ((n > 1) && (trekClient.GetShip()->GetCommandTarget(c_cmdCurrent) == pmodel))
                 {
-                    trekClient.SetAutoPilot(false);
-                    SwitchToJoyThrottle();
-                    trekClient.PlaySoundEffect(salAutopilotDisengageSound);
+                    assert(pdbl->next());
+                    pmodel = pdbl->next()->data()->model();
                 }
-                else if ((trekClient.GetShip()->GetParentShip() == NULL) && (trekClient.GetShip()->GetStation() == NULL))
-                {
-                    //m_timeAutopilotWarning = Time::Now();
-                    trekClient.SetAutoPilot(true);
-                    trekClient.bInitTrekJoyStick = true;
-                    trekClient.PlaySoundEffect(salAutopilotEngageSound);
-                }
-            }
-            break;
 
-            case TK_VoteYes:
-            {
-                trekClient.Vote(true);
+                SetTarget(pmodel, c_cidDefault);
             }
-            break;
-
-            case TK_VoteNo:
+            else
             {
-                trekClient.Vote(false);
+                TrekFindTarget((c_ttShip | c_ttEnemy | c_ttNearest), tk, TK_TargetEnemyNearest, TK_TargetEnemyPrev, c_habmRescue | c_habmMiner | c_habmBuilder);
             }
-            break;
+        }
+        break;
 
-            case TK_ExecuteCommand:
-            case TK_AcceptCommand:     // queued command becomes accepted command
+        case TK_TargetCenter:   // target the ship closest to the reticle
+        {
+            if (trekClient.flyingF())
             {
-                AcceptQueuedCommand(tk == TK_ExecuteCommand);
-            }
-            break;
-
-            case TK_RejectCommand:
-            {
-                RejectQueuedCommand(true, true);
-            }
-            break;
-
-            case TK_ClearCommand:     // clear accepted command
-            {
-                SetAccepted(NULL, c_cidNone);
-            }
-            break;
-
-            case TK_TargetCommand:
-            {
-                SetTarget(trekClient.GetShip()->GetCommandTarget(c_cmdAccepted),
-                          trekClient.GetShip()->GetCommandID(c_cmdAccepted));
-            }
-            break;
-
-            case TK_LODUp:
-            {
-                m_pscrollPane->PageUp();
-            }
-            break;
-
-            case TK_LODDown:
-            {
-                m_pscrollPane->PageDown();
-            }
-            break;
-
-            case TK_Suicide:
-            {
-                suicideF = true;
-            }
-            break;
-
-            case TK_ToggleGrid:
-            {
-                m_bCommandGrid = !m_bCommandGrid;
-				SavePreference("ShowGrid", m_bCommandGrid); //imago 7/8/09 #24
-            }
-            break;
-
-            case TK_TargetSelf:
-            {
-                SetTarget(trekClient.GetShip(), c_cidNone);
-            }
-            break;
-
-            case TK_TargetNothing:
-            {
-                SetTarget(NULL, c_cidNone);
-            }
-            break;
-
-            case TK_OccupyNextTurret:
-            {
-                IshipIGC* pship = trekClient.GetShip()->GetParentShip();
+                const Orientation*  porientation = &(trekClient.GetShip()->GetOrientation());
+                IshipIGC*           pship = trekClient.GetShip()->GetParentShip();
 
                 if (pship)
                 {
-                    trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
-                    BEGIN_PFM_CREATE(trekClient.m_fm, pfmBoardShip, C, BOARD_SHIP)
+                    Mount   turretID = trekClient.GetShip()->GetTurretID();
+                    if (turretID == NA)
+                        porientation = &(pship->GetOrientation());
+                }
+                else
+                    pship = trekClient.GetShip();
+
+                ImodelIGC*  m = FindTarget(pship,
+                    (c_ttFront | c_ttAllTypes | c_ttAllSides),
+                    trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
+                    NULL, NULL,
+                    porientation);
+
+                SetTarget(m, c_cidDefault);
+            }
+        }
+        break;
+
+        case TK_TargetEnemy:
+        case TK_TargetEnemyNearest:
+        case TK_TargetEnemyPrev:
+        {
+            TrekFindTarget((c_ttShip | c_ttEnemy), tk, TK_TargetEnemyNearest, TK_TargetEnemyPrev, c_habmRescue | c_habmMiner | c_habmBuilder);
+        }
+        break;
+
+        case TK_TargetEnemyBomber:
+        case TK_TargetEnemyBomberNearest:
+        case TK_TargetEnemyBomberPrev:
+        {
+            TrekFindTarget((c_ttShip | c_ttEnemy), tk, TK_TargetEnemyBomberNearest, TK_TargetEnemyBomberPrev, c_habmThreatToStation);
+        }
+        break;
+
+        case TK_TargetEnemyFighter:
+        case TK_TargetEnemyFighterNearest:
+        case TK_TargetEnemyFighterPrev:
+        {
+            TrekFindTarget((c_ttShip | c_ttEnemy), tk, TK_TargetEnemyFighterNearest, TK_TargetEnemyFighterPrev, c_habmFighter);
+        }
+        break;
+
+        case TK_TargetEnemyMiner:
+        case TK_TargetEnemyMinerNearest:
+        case TK_TargetEnemyMinerPrev:
+        {
+            TrekFindTarget((c_ttShip | c_ttEnemy), tk, TK_TargetEnemyMinerNearest, TK_TargetEnemyMinerPrev, c_habmMiner);
+        }
+        break;
+
+        case TK_TargetEnemyConstructor:
+        case TK_TargetEnemyConstructorNearest:
+        case TK_TargetEnemyConstructorPrev:
+        {
+            TrekFindTarget((c_ttShip | c_ttEnemy), tk, TK_TargetEnemyConstructorNearest, TK_TargetEnemyConstructorPrev, c_habmBuilder);
+        }
+        break;
+
+        case TK_TargetEnemyBase:
+        case TK_TargetEnemyBaseNearest:
+        case TK_TargetEnemyBasePrev:
+        {
+            TrekFindTarget((c_ttStation | c_ttEnemy | c_ttAnyCluster), tk, TK_TargetEnemyBaseNearest, TK_TargetEnemyBasePrev, ~c_sabmPedestal);
+        }
+        break;
+
+        case TK_TargetEnemyMajorBase:
+        case TK_TargetEnemyMajorBaseNearest:
+        case TK_TargetEnemyMajorBasePrev:
+        {
+            TrekFindTarget((c_ttStation | c_ttEnemy | c_ttAnyCluster), tk, TK_TargetEnemyMajorBaseNearest, TK_TargetEnemyMajorBasePrev, c_sabmFlag);
+        }
+        break;
+
+        case TK_TargetFriendlyBase:
+        case TK_TargetFriendlyBaseNearest:
+        case TK_TargetFriendlyBasePrev:
+        {
+            int             ttMask = (c_ttStation | c_ttFriendly | c_ttAnyCluster);
+            AbilityBitMask  abm = c_sabmLand;
+
+            {
+                IhullTypeIGC*   pht = trekClient.GetShip()->GetSourceShip()->GetBaseHullType();
+                if (pht)
+                {
+                    HullAbilityBitMask  habm = pht->GetCapabilities();
+
+                    if (habm & c_habmLifepod)
+                    {
+                        abm = c_sabmRescue | c_sabmRescueAny | c_sabmLand;
+                        ttMask |= c_ttProbe;
+                    }
+                    else if ((habm & c_habmFighter) == 0)
+                        abm = c_sabmCapLand;
+                }
+            }
+
+            TrekFindTarget(ttMask, tk, TK_TargetFriendlyBaseNearest, TK_TargetFriendlyBasePrev,
+                abm);
+        }
+        break;
+
+        case TK_TargetAlliedBase:
+        case TK_TargetAlliedBaseNearest:
+        case TK_TargetAlliedBasePrev:
+        {
+            int             ttMask = (c_ttStation | c_ttFriendly | c_ttAnyCluster);
+            AbilityBitMask  abm = c_sabmLand;
+
+            {
+                IhullTypeIGC*   pht = trekClient.GetShip()->GetSourceShip()->GetBaseHullType();
+                if (pht)
+                {
+                    HullAbilityBitMask  habm = pht->GetCapabilities();
+
+                    if (habm & c_habmLifepod)
+                    {
+                        abm = c_sabmRescue | c_sabmRescueAny | c_sabmLand;
+                        ttMask |= c_ttProbe;
+                    }
+                    else if ((habm & c_habmFighter) == 0)
+                        abm = c_sabmCapLand;
+                }
+            }
+
+            TrekFindTarget(ttMask, tk, TK_TargetAlliedBaseNearest, TK_TargetAlliedBasePrev,
+                abm);
+        }
+        break;
+
+        case TK_TargetFriendlyMajorBase:
+        case TK_TargetFriendlyMajorBaseNearest:
+        case TK_TargetFriendlyMajorBasePrev:
+        {
+            TrekFindTarget((c_ttStation | c_ttFriendly | c_ttAnyCluster), tk, TK_TargetFriendlyMajorBaseNearest, TK_TargetFriendlyMajorBasePrev, c_sabmFlag);
+        }
+        break;
+
+        case TK_Target:
+        case TK_TargetNearest:
+        case TK_TargetPrev:
+        {
+            ImodelIGC*  pmodel = trekClient.GetShip()->GetCommandTarget(c_cmdCurrent);
+
+            TrekFindTarget(pmodel && (pmodel != trekClient.GetShip())
+                ? GetSimilarTargetMask(pmodel)
+                : (c_ttShipTypes | c_ttEnemy),
+                tk, TK_TargetNearest, TK_TargetPrev);
+        }
+        break;
+
+        case TK_TargetFriendly:
+        case TK_TargetFriendlyNearest:
+        case TK_TargetFriendlyPrev:
+        {
+            TrekFindTarget((c_ttShip | c_ttFriendly), tk, TK_TargetFriendlyNearest, TK_TargetFriendlyPrev);
+        }
+        break;
+
+        case TK_TargetFriendlyBomber:
+        case TK_TargetFriendlyBomberNearest:
+        case TK_TargetFriendlyBomberPrev:
+        {
+            TrekFindTarget((c_ttShip | c_ttFriendly), tk, TK_TargetFriendlyBomberNearest, TK_TargetFriendlyBomberPrev, c_habmThreatToStation);
+        }
+        break;
+
+        case TK_TargetFriendlyFighter:
+        case TK_TargetFriendlyFighterNearest:
+        case TK_TargetFriendlyFighterPrev:
+        {
+            TrekFindTarget((c_ttShip | c_ttFriendly), tk, TK_TargetFriendlyFighterNearest, TK_TargetFriendlyFighterPrev, c_habmFighter);
+        }
+        break;
+
+        case TK_TargetFriendlyMiner:
+        case TK_TargetFriendlyMinerNearest:
+        case TK_TargetFriendlyMinerPrev:
+        {
+            TrekFindTarget((c_ttShip | c_ttFriendly), tk, TK_TargetFriendlyMinerNearest, TK_TargetFriendlyMinerPrev, c_habmMiner);
+        }
+        break;
+
+        case TK_TargetFriendlyConstructor:
+        case TK_TargetFriendlyConstructorNearest:
+        case TK_TargetFriendlyConstructorPrev:
+        {
+            TrekFindTarget((c_ttShip | c_ttFriendly), tk, TK_TargetFriendlyConstructorNearest, TK_TargetFriendlyConstructorPrev, c_habmBuilder);
+        }
+        break;
+
+        case TK_TargetFriendlyLifepod:
+        case TK_TargetFriendlyLifepodNearest:
+        case TK_TargetFriendlyLifepodPrev:
+        {
+            TrekFindTarget((c_ttShip | c_ttFriendly), tk, TK_TargetFriendlyLifepodNearest, TK_TargetFriendlyLifepodPrev, c_habmLifepod);
+        }
+        break;
+
+        case TK_TargetArtifact:
+        case TK_TargetArtifactNearest:
+        case TK_TargetArtifactPrev:
+        {
+            TrekFindTarget((c_ttTreasure | c_ttNeutral), tk, TK_TargetArtifactNearest, TK_TargetArtifactPrev, 1);
+        }
+        break;
+
+        case TK_TargetFlag:
+        case TK_TargetFlagNearest:
+        case TK_TargetFlagPrev:
+        {
+            TrekFindTarget((c_ttTreasure | c_ttEnemy), tk, TK_TargetFlagNearest, TK_TargetFlagPrev, 1);
+        }
+        break;
+
+        case TK_TargetWarp:
+        case TK_TargetWarpNearest:
+        case TK_TargetWarpPrev:
+        {
+            TrekFindTarget((c_ttWarp | c_ttNeutral), tk, TK_TargetWarpNearest, TK_TargetWarpPrev);
+        }
+        break;
+
+        case TK_ToggleAutoPilot:
+        {
+            if (trekClient.autoPilot())
+            {
+                trekClient.SetAutoPilot(false);
+                SwitchToJoyThrottle();
+                trekClient.PlaySoundEffect(salAutopilotDisengageSound);
+            }
+            else if ((trekClient.GetShip()->GetParentShip() == NULL) && (trekClient.GetShip()->GetStation() == NULL))
+            {
+                //m_timeAutopilotWarning = Time::Now();
+                trekClient.SetAutoPilot(true);
+                trekClient.bInitTrekJoyStick = true;
+                trekClient.PlaySoundEffect(salAutopilotEngageSound);
+            }
+        }
+        break;
+
+        case TK_VoteYes:
+        {
+            trekClient.Vote(true);
+        }
+        break;
+
+        case TK_VoteNo:
+        {
+            trekClient.Vote(false);
+        }
+        break;
+
+        case TK_ExecuteCommand:
+        case TK_AcceptCommand:     // queued command becomes accepted command
+        {
+            AcceptQueuedCommand(tk == TK_ExecuteCommand);
+        }
+        break;
+
+        case TK_RejectCommand:
+        {
+            RejectQueuedCommand(true, true);
+        }
+        break;
+
+        case TK_ClearCommand:     // clear accepted command
+        {
+            SetAccepted(NULL, c_cidNone);
+        }
+        break;
+
+        case TK_TargetCommand:
+        {
+            SetTarget(trekClient.GetShip()->GetCommandTarget(c_cmdAccepted),
+                trekClient.GetShip()->GetCommandID(c_cmdAccepted));
+        }
+        break;
+
+        case TK_LODUp:
+        {
+            m_pscrollPane->PageUp();
+        }
+        break;
+
+        case TK_LODDown:
+        {
+            m_pscrollPane->PageDown();
+        }
+        break;
+
+        case TK_Suicide:
+        {
+            suicideF = true;
+        }
+        break;
+
+        case TK_ToggleGrid:
+        {
+            m_bCommandGrid = !m_bCommandGrid;
+            SavePreference("ShowGrid", m_bCommandGrid); //imago 7/8/09 #24
+        }
+        break;
+
+        case TK_TargetSelf:
+        {
+            SetTarget(trekClient.GetShip(), c_cidNone);
+        }
+        break;
+
+        case TK_TargetNothing:
+        {
+            SetTarget(NULL, c_cidNone);
+        }
+        break;
+
+        case TK_OccupyNextTurret:
+        {
+            IshipIGC* pship = trekClient.GetShip()->GetParentShip();
+
+            if (pship)
+            {
+                trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
+                BEGIN_PFM_CREATE(trekClient.m_fm, pfmBoardShip, C, BOARD_SHIP)
                     END_PFM_CREATE;
 
-                    pfmBoardShip->sidParent = pship->GetObjectID();
-                }
+                pfmBoardShip->sidParent = pship->GetObjectID();
             }
-            break;
+        }
+        break;
 
-            //begin imago 8/14/09 mouse wheel
-			
-            case TK_ZoomOut:
-            case TK_ZoomIn:
-            {
-                if (!m_ptrekInput->IsTrekKeyDown(TK_ZoomOut, true) && !m_ptrekInput->IsTrekKeyDown(TK_ZoomIn, true)) {
-                    float dt = 0.1f;
-                    if (CommandCamera(m_cm) && !m_pconsoleImage->DrawSelectionBox()) {
-                        float delta = dt * m_distanceCommandCamera;
-                        if (tk == TK_ZoomIn) {
-                            m_distanceCommandCamera -= delta * 2.0f;
-                            if (m_distanceCommandCamera < s_fCommandViewDistanceMin)
-                                m_distanceCommandCamera = s_fCommandViewDistanceMin;
-                        } else {
-                            m_distanceCommandCamera += delta * 2.0f;
-                            if (m_distanceCommandCamera > s_fCommandViewDistanceMax)
-                                m_distanceCommandCamera = s_fCommandViewDistanceMax;
-                        }
-                    } else if (m_cm == cmExternalChase || !NoCameraControl(m_cm)) {
-                        if (tk == TK_ZoomIn) {
-                            m_distanceExternalCamera -= dt * m_distanceExternalCamera;
-                            if (m_distanceExternalCamera < s_fExternalViewDistanceMin)
-                                m_distanceExternalCamera = s_fExternalViewDistanceMin;
-                        } else {
-                            m_distanceExternalCamera += dt * m_distanceExternalCamera;
-                            if (m_distanceExternalCamera > s_fExternalViewDistanceMax)
-                                m_distanceExternalCamera = s_fExternalViewDistanceMax;
-                        }
-                    } 
-					else if (m_cm == cmCockpit) {
-                        float   fov = m_cameraControl.GetFOV();
-                        if (tk == TK_ZoomIn) {
-                            fov -= dt;
-                            if (fov < s_fMinFOV)
-                                fov = s_fMinFOV;
-                            m_cameraControl.SetFOV(fov);
-                        } else {
-                            fov += dt;
-                            if (fov > s_fMaxFOV)
-                                fov = s_fMaxFOV;
-                            m_cameraControl.SetFOV(fov);
-                        }
+        //begin imago 8/14/09 mouse wheel
+
+        case TK_ZoomOut:
+        case TK_ZoomIn:
+        {
+            if (!m_ptrekInput->IsTrekKeyDown(TK_ZoomOut, true) && !m_ptrekInput->IsTrekKeyDown(TK_ZoomIn, true)) {
+                float dt = 0.1f;
+                if (CommandCamera(m_cm) && !m_pconsoleImage->DrawSelectionBox()) {
+                    float delta = dt * m_distanceCommandCamera;
+                    if (tk == TK_ZoomIn) {
+                        m_distanceCommandCamera -= delta * 2.0f;
+                        if (m_distanceCommandCamera < s_fCommandViewDistanceMin)
+                            m_distanceCommandCamera = s_fCommandViewDistanceMin;
                     }
-					
+                    else {
+                        m_distanceCommandCamera += delta * 2.0f;
+                        if (m_distanceCommandCamera > s_fCommandViewDistanceMax)
+                            m_distanceCommandCamera = s_fCommandViewDistanceMax;
+                    }
                 }
-            }
-            break;
-			
-            case TK_ThrottleUp:
-            {
-                if (trekClient.flyingF() && trekClient.GetShip() && !m_ptrekInput->IsTrekKeyDown(TK_ThrottleUp, true)) {
-					trekClient.trekThrottle = (trekClient.trekThrottle < 0.8f) ? (trekClient.trekThrottle + 0.2f) : 1.0f;  //Imago matched orig values below - was 0.7 - 0.3 6/10 - cleaned up 7/10
-					trekClient.joyThrottle = false; //#116 7/10 Imago
-				}
-            }
-            break;
+                else if (m_cm == cmExternalChase || !NoCameraControl(m_cm)) {
+                    if (tk == TK_ZoomIn) {
+                        m_distanceExternalCamera -= dt * m_distanceExternalCamera;
+                        if (m_distanceExternalCamera < s_fExternalViewDistanceMin)
+                            m_distanceExternalCamera = s_fExternalViewDistanceMin;
+                    }
+                    else {
+                        m_distanceExternalCamera += dt * m_distanceExternalCamera;
+                        if (m_distanceExternalCamera > s_fExternalViewDistanceMax)
+                            m_distanceExternalCamera = s_fExternalViewDistanceMax;
+                    }
+                }
+                else if (m_cm == cmCockpit) {
+                    float   fov = m_cameraControl.GetFOV();
+                    if (tk == TK_ZoomIn) {
+                        fov -= dt;
+                        if (fov < s_fMinFOV)
+                            fov = s_fMinFOV;
+                        m_cameraControl.SetFOV(fov);
+                    }
+                    else {
+                        fov += dt;
+                        if (fov > s_fMaxFOV)
+                            fov = s_fMaxFOV;
+                        m_cameraControl.SetFOV(fov);
+                    }
+                }
 
-            case TK_ThrottleDown:
-            {
-                if (trekClient.flyingF() && trekClient.GetShip() && !m_ptrekInput->IsTrekKeyDown(TK_ThrottleDown, true)) {
-					trekClient.trekThrottle = (trekClient.trekThrottle > -0.8f) ? (trekClient.trekThrottle - 0.2f) : -1.0f; //Imago matched orig values below - was 0.7 - 0.3 6/10 - cleaned up 7/10
-					trekClient.joyThrottle = false; //#116 7/10 Imago
-				}
             }
-            break;
-			
-            // end imago
+        }
+        break;
 
-            case TK_DebugTest1:
-            case TK_DebugTest2:
-            case TK_DebugTest3:
-            case TK_DebugTest4:
-            case TK_DebugTest5:
-            case TK_DebugTest6:
-            case TK_DebugTest7:
-            case TK_DebugTest8:
-            case TK_DebugTest9:
-            {
-                // do nothing
+        case TK_ThrottleUp:
+        {
+            if (trekClient.flyingF() && trekClient.GetShip() && !m_ptrekInput->IsTrekKeyDown(TK_ThrottleUp, true)) {
+                trekClient.trekThrottle = (trekClient.trekThrottle < 0.8f) ? (trekClient.trekThrottle + 0.2f) : 1.0f;  //Imago matched orig values below - was 0.7 - 0.3 6/10 - cleaned up 7/10
+                trekClient.joyThrottle = false; //#116 7/10 Imago
             }
-            break;
+        }
+        break;
 
-            default:
-                return;
+        case TK_ThrottleDown:
+        {
+            if (trekClient.flyingF() && trekClient.GetShip() && !m_ptrekInput->IsTrekKeyDown(TK_ThrottleDown, true)) {
+                trekClient.trekThrottle = (trekClient.trekThrottle > -0.8f) ? (trekClient.trekThrottle - 0.2f) : -1.0f; //Imago matched orig values below - was 0.7 - 0.3 6/10 - cleaned up 7/10
+                trekClient.joyThrottle = false; //#116 7/10 Imago
+            }
+        }
+        break;
+
+        // end imago
+
+        case TK_DebugTest1:
+        case TK_DebugTest2:
+        case TK_DebugTest3:
+        case TK_DebugTest4:
+        case TK_DebugTest5:
+        case TK_DebugTest6:
+        case TK_DebugTest7:
+        case TK_DebugTest8:
+        case TK_DebugTest9:
+        {
+            // do nothing
+        }
+        break;
+
+        default:
+            return;
         }
 
         if (suicideF)
@@ -10754,7 +10817,7 @@ public:
                 m_suicideTime = Time::Now();
             else if (Time::Now().clock() - m_suicideTime.clock() > 3000)
             {
-                assert (m_suicideCount != 0);
+                assert(m_suicideCount != 0);
                 m_suicideCount = 0;
             }
             else if (m_suicideCount == 3)
@@ -10765,7 +10828,7 @@ public:
                 {
                     trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
                     BEGIN_PFM_CREATE(trekClient.m_fm, pfm, C, SUICIDE)
-                    END_PFM_CREATE
+                        END_PFM_CREATE
                 }
                 else
                     trekClient.KillShipEvent(Time::Now(), trekClient.GetShip(), NULL, 1.0f, trekClient.GetShip()->GetPosition(), Vector::GetZero());
@@ -10791,7 +10854,7 @@ public:
                     if (pshipSender != trekClient.GetShip())
                     {
                         trekClient.SendChat(trekClient.GetShip(), CHAT_INDIVIDUAL, pshipSender->GetObjectID(),
-                                            voNegativeSound, "Negative.");
+                            voNegativeSound, "Negative.");
                     }
                 }
                 trekClient.SetLastSender(NULL);
@@ -10810,7 +10873,7 @@ public:
                     if (pshipSender != trekClient.GetShip())
                     {
                         trekClient.SendChat(trekClient.GetShip(), CHAT_INDIVIDUAL, pshipSender->GetObjectID(),
-                                            voNegativeSound, "Negative.");
+                            voNegativeSound, "Negative.");
                     }
                 }
                 trekClient.SetLastSender(NULL);
@@ -10866,14 +10929,14 @@ public:
                         {
                             //Tell the other person to pick me up as well
                             trekClient.SendChat(trekClient.GetShip(),
-                                                CHAT_INDIVIDUAL,
-                                                pmodel->GetObjectID(),
-                                                NA,
-                                                NULL,
-                                                c_cidPickup,
-                                                OT_ship,
-                                                trekClient.GetShipID(),
-                                                trekClient.GetShip());
+                                CHAT_INDIVIDUAL,
+                                pmodel->GetObjectID(),
+                                NA,
+                                NULL,
+                                c_cidPickup,
+                                OT_ship,
+                                trekClient.GetShipID(),
+                                trekClient.GetShip());
                         }
 
                         SetTarget(pmodel, cid);
@@ -10900,7 +10963,7 @@ public:
         {
             if (pshipSender != trekClient.GetShip())
                 trekClient.SendChat(trekClient.GetShip(), CHAT_INDIVIDUAL, pshipSender->GetObjectID(),
-                                    voAffirmativeSound, "Affirmative.");
+                    voAffirmativeSound, "Affirmative.");
             trekClient.SetLastSender(NULL);
         }
 
@@ -10908,13 +10971,13 @@ public:
     }
 
     void    SetQueuedCommand(IshipIGC*  pshipSender,
-                             CommandID  cid,
-                             ImodelIGC* pmodelTarget)
+        CommandID  cid,
+        ImodelIGC* pmodelTarget)
     {
         if (pshipSender != trekClient.GetLastSender())
             RejectQueuedCommand();
 
-        if (!Training::IsTraining ())
+        if (!Training::IsTraining())
             m_timeRejectQueuedCommand = trekClient.m_now + c_dtRejectQueuedCommand;
 
         trekClient.SetLastSender(pshipSender);
@@ -10923,8 +10986,8 @@ public:
     }
 
     void    SetQueuedCommand(IshipIGC*  pshipSender,
-                             Money      money,
-                             HullID     hid)
+        Money      money,
+        HullID     hid)
     {
         if (pshipSender != trekClient.GetLastSender())
             RejectQueuedCommand();
@@ -10939,16 +11002,16 @@ public:
         {
             static const ZString c_str1(" has requested $");
             static const ZString c_str2(" to buy a ");
-			static const ZString c_str3("  Press the [Insert] key to approve it.");
+            static const ZString c_str3("  Press the [Insert] key to approve it.");
 
-            assert (pshipSender);
+            assert(pshipSender);
             IhullTypeIGC*   pht = trekClient.m_pCoreIGC->GetHullType(hid);
-            assert (pht);
+            assert(pht);
 
             trekClient.PostText(true, "%s",
-                                (const char*)((pshipSender->GetName() + c_str1) +
-                                              (ZString(money) + c_str2) +
-                                              (pht->GetName() + c_str3)));
+                (const char*)((pshipSender->GetName() + c_str1) +
+                (ZString(money) + c_str2) +
+                    (pht->GetName() + c_str3)));
         }
     }
 
@@ -10962,14 +11025,14 @@ public:
     void SetLobbyChatTarget(ChatTarget ct, ObjectID recip = NA)
     {
         m_ctLobbyChat = ct;
-	//#8 Imago 7/10 added recip
-		m_ctLobbyChatRecip = recip; 
+        //#8 Imago 7/10 added recip
+        m_ctLobbyChatRecip = recip;
     }
     ObjectID GetLobbyChatRecip()
     {
         return m_ctLobbyChatRecip;
     }
-	//
+    //
 
     ChatTarget GetLobbyChatTarget()
     {
@@ -10987,7 +11050,7 @@ public:
             value = 0.0f;
 
         if (!m_bLinearControls)
-            value *= fabsf (value);
+            value *= fabsf(value);
 
         return value;
     }
@@ -11021,23 +11084,25 @@ public:
         //
 
         if (m_pjoystickImage->GetJoystickEnabled()) {
-            js->controls.jsValues[c_axisYaw  ] = m_pjoystickImage->GetValue(0)->GetValue();
+            js->controls.jsValues[c_axisYaw] = m_pjoystickImage->GetValue(0)->GetValue();
             js->controls.jsValues[c_axisPitch] = m_pjoystickImage->GetValue(1)->GetValue();
-            js->controls.jsValues[c_axisRoll ] = 0;
-        } else {
+            js->controls.jsValues[c_axisRoll] = 0;
+        }
+        else {
             if (m_ptrekInput->IsTrekKeyDown(TK_RollModifier, bReadKeyboard)) {
-                js->controls.jsValues[c_axisYaw ] = 0;
+                js->controls.jsValues[c_axisYaw] = 0;
                 js->controls.jsValues[c_axisRoll] = MapJoystick(m_ptrekInput->GetAxis(0));
-            } else {
-                js->controls.jsValues[c_axisYaw ] = MapJoystick(m_ptrekInput->GetAxis(0));
+            }
+            else {
+                js->controls.jsValues[c_axisYaw] = MapJoystick(m_ptrekInput->GetAxis(0));
                 js->controls.jsValues[c_axisRoll] = MapJoystick(m_ptrekInput->GetAxis(2));
             }
 
-            js->controls.jsValues[c_axisPitch   ] =  MapJoystick(m_ptrekInput->GetAxis(1));
+            js->controls.jsValues[c_axisPitch] = MapJoystick(m_ptrekInput->GetAxis(1));
         }
 
         js->controls.jsValues[c_axisThrottle] = -m_ptrekInput->GetAxis(3);
-        js->hat                               =  m_ptrekInput->GetAxis(4) * pi;
+        js->hat = m_ptrekInput->GetAxis(4) * pi;
 
         //
         // Flip the y axis if requested
@@ -11070,12 +11135,12 @@ public:
         // Read buttons and keyboard
         //
 
-        bool newButton1 = m_ptrekInput->IsTrekKeyDown(TK_FireWeapon , bReadKeyboard);
+        bool newButton1 = m_ptrekInput->IsTrekKeyDown(TK_FireWeapon, bReadKeyboard);
         bool newButton2 = m_ptrekInput->IsTrekKeyDown(TK_FireMissile, bReadKeyboard);
         bool newButton3 = m_ptrekInput->IsTrekKeyDown(TK_FireBooster, bReadKeyboard);
         //bool newButton4 = m_ptrekInput->GetButton(3); // !!! was next weapon
         //bool newButton5 = m_ptrekInput->GetButton(4); // !!! was vector lock
-        bool newButton6 = m_ptrekInput->IsTrekKeyDown(TK_MatchSpeed , bReadKeyboard);
+        bool newButton6 = m_ptrekInput->IsTrekKeyDown(TK_MatchSpeed, bReadKeyboard);
 
         if (bInternalCamera)
         {
@@ -11083,7 +11148,8 @@ public:
 
             if (m_ptrekInput->IsTrekKeyDown(TK_RollRight, bReadKeyboard)) {
                 js->controls.jsValues[c_axisRoll] = -1.0f;
-            } else if (m_ptrekInput->IsTrekKeyDown(TK_RollLeft, bReadKeyboard)) {
+            }
+            else if (m_ptrekInput->IsTrekKeyDown(TK_RollLeft, bReadKeyboard)) {
                 js->controls.jsValues[c_axisRoll] = 1.0f;
             }
 
@@ -11092,13 +11158,16 @@ public:
             if (m_ptrekInput->IsTrekKeyDown(TK_RollModifier, bReadKeyboard)) {
                 if (m_ptrekInput->IsTrekKeyDown(TK_YawRight, bReadKeyboard)) {
                     js->controls.jsValues[c_axisRoll] = -1.0f;
-                } else if (m_ptrekInput->IsTrekKeyDown(TK_YawLeft, bReadKeyboard)) {
+                }
+                else if (m_ptrekInput->IsTrekKeyDown(TK_YawLeft, bReadKeyboard)) {
                     js->controls.jsValues[c_axisRoll] = 1.0f;
                 }
-            } else {
+            }
+            else {
                 if (m_ptrekInput->IsTrekKeyDown(TK_YawRight, bReadKeyboard)) {
                     js->controls.jsValues[c_axisYaw] = -1.0f;
-                } else if (m_ptrekInput->IsTrekKeyDown(TK_YawLeft, bReadKeyboard)) {
+                }
+                else if (m_ptrekInput->IsTrekKeyDown(TK_YawLeft, bReadKeyboard)) {
                     js->controls.jsValues[c_axisYaw] = 1.0f;
                 }
             }
@@ -11107,29 +11176,30 @@ public:
 
             if (m_ptrekInput->IsTrekKeyDown(TK_PitchDown, bReadKeyboard)) {
                 js->controls.jsValues[c_axisPitch] = -1.0f;
-            } else if (m_ptrekInput->IsTrekKeyDown(TK_PitchUp, bReadKeyboard)) {
+            }
+            else if (m_ptrekInput->IsTrekKeyDown(TK_PitchUp, bReadKeyboard)) {
                 js->controls.jsValues[c_axisPitch] = 1.0f;
             }
 
             if (bHandleThrottle && m_ptrekInput->IsTrekKeyDown(TK_ThrottleUp, bReadKeyboard)) //Spunky #76
             {
                 trekClient.trekThrottle =
-                      (trekClient.trekThrottle < 0.8f)
+                    (trekClient.trekThrottle < 0.8f)
                     ? (trekClient.trekThrottle + 0.2f)
                     : 1.0f;
                 trekClient.joyThrottle = false;
                 bThrottleChange = true;
-				bHandleThrottle=false;
+                bHandleThrottle = false;
             }
             else if (bHandleThrottle && m_ptrekInput->IsTrekKeyDown(TK_ThrottleDown, bReadKeyboard)) //Spunky #76
             {
                 trekClient.trekThrottle =
-                      (trekClient.trekThrottle > -0.8f)
+                    (trekClient.trekThrottle > -0.8f)
                     ? (trekClient.trekThrottle - 0.2f)
                     : -1.0f;
                 trekClient.joyThrottle = false;
                 bThrottleChange = true;
-				bHandleThrottle=false;
+                bHandleThrottle = false;
             }
         }
 
@@ -11216,88 +11286,89 @@ public:
     {
         HRESULT hr = S_OK;  //handled by default
 
-        switch(pfm->fmid)
+        switch (pfm->fmid)
         {
-            case FM_S_LOGONACK:
+        case FM_S_LOGONACK:
+        {
+            CASTPFM(pfmLogonAck, S, LOGONACK, pfm);
+
+            if (!pfmLogonAck->fValidated)
+                hr = S_FALSE; // don't do anything mission control will handle
+        }
+        break;
+
+        case FM_S_GAME_OVER:
+        {
+            CASTPFM(pfmGameOver, S, GAME_OVER, pfm);
+
+            TriggerMusic(pfmGameOver->iSideWinner == trekClient.GetSide()->GetObjectID()
+                ? gameOverWonMusicSound
+                : gameOverLostMusicSound);
+            trekClient.SetGameoverInfo(pfmGameOver);
+
+            if (trekClient.GetSideID() != SIDE_TEAMLOBBY)
+                screen(ScreenIDGameOverScreen);
+        }
+        break;
+
+        case FM_S_GAME_OVER_PLAYERS:
+        {
+            CASTPFM(pfmGameoverPlayers, S, GAME_OVER_PLAYERS, pfm);
+            int nCount = pfmGameoverPlayers->cbrgPlayerInfo / sizeof(PlayerEndgameInfo);
+            PlayerEndgameInfo* vPlayerEndgameInfo
+                = (PlayerEndgameInfo*)FM_VAR_REF(pfmGameoverPlayers, rgPlayerInfo);
+            trekClient.AddGameoverPlayers(vPlayerEndgameInfo, nCount);
+        }
+        break;
+
+        case FM_S_ICQ_CHAT_ACK:
+        {
+            CASTPFM(pfmICQChat, S, ICQ_CHAT_ACK, pfm);
+            __try
             {
-                CASTPFM(pfmLogonAck, S, LOGONACK, pfm);
-
-                if (!pfmLogonAck->fValidated)
-                    hr = S_FALSE; // don't do anything mission control will handle
-            }
-            break;
-
-            case FM_S_GAME_OVER:
-            {
-                CASTPFM(pfmGameOver, S, GAME_OVER, pfm);
-
-                TriggerMusic(pfmGameOver->iSideWinner == trekClient.GetSide()->GetObjectID()
-                   ? gameOverWonMusicSound
-                   : gameOverLostMusicSound);
-                trekClient.SetGameoverInfo(pfmGameOver);
-
-                if (trekClient.GetSideID() != SIDE_TEAMLOBBY)
-                    screen(ScreenIDGameOverScreen);
-            }
-            break;
-
-            case FM_S_GAME_OVER_PLAYERS:
-            {
-                CASTPFM(pfmGameoverPlayers, S, GAME_OVER_PLAYERS, pfm);
-                int nCount = pfmGameoverPlayers->cbrgPlayerInfo / sizeof(PlayerEndgameInfo);
-                PlayerEndgameInfo* vPlayerEndgameInfo
-                    = (PlayerEndgameInfo*)FM_VAR_REF(pfmGameoverPlayers, rgPlayerInfo);
-                trekClient.AddGameoverPlayers(vPlayerEndgameInfo, nCount);
-            }
-            break;
-
-            case FM_S_ICQ_CHAT_ACK:
-            {
-                CASTPFM(pfmICQChat, S, ICQ_CHAT_ACK, pfm);
-                __try
+                static bool fICQInit = false;
+                if (!fICQInit)
                 {
-                  static bool fICQInit = false;
-                  if (!fICQInit)
-                  {
                     //ICQAPICall_SetLicenseKey("Microsoft", "hankukkk", "EDB699A39FE5BAE8");
                     fICQInit = true;
-                  }
-                  //ICQAPICall_SendMessage(pfmICQChat->icqid, FM_VAR_REF(pfmICQChat, Message));
-                  //ICQAPICall_SendExternal(pfmICQChat->icqid, "", FM_VAR_REF(pfmICQChat, Message), true);
                 }
-                __except(DelayLoadDllExceptionFilter(GetExceptionInformation()))
-                {
-                  // nothing to do here
-                }
+                //ICQAPICall_SendMessage(pfmICQChat->icqid, FM_VAR_REF(pfmICQChat, Message));
+                //ICQAPICall_SendExternal(pfmICQChat->icqid, "", FM_VAR_REF(pfmICQChat, Message), true);
             }
-            break;
-
-			// w0dk4 player-pings feature
-			case FM_S_PINGDATA:
-			{
-				CASTPFM(pfmPingData, S, PINGDATA, pfm);
-				if(pfmPingData->shipID != -1){
-					PlayerInfo* playerInfo = trekClient.FindPlayer(pfmPingData->shipID);
-					if(playerInfo)
-						playerInfo->SetConnectionData(pfmPingData->ping,pfmPingData->loss);
-
-				} else {
-					if (pfmPingData->ping == 1)
-						TrekWindowImpl::ShowPlayerPings();
-				}
-			}
-			break;
-
-            case FM_S_TREASURE_SETS:
+            __except (DelayLoadDllExceptionFilter(GetExceptionInformation()))
             {
-                // NYI
+                // nothing to do here
             }
-            break;
+        }
+        break;
 
-            default:
-            {
-                hr = S_FALSE;
+        // w0dk4 player-pings feature
+        case FM_S_PINGDATA:
+        {
+            CASTPFM(pfmPingData, S, PINGDATA, pfm);
+            if (pfmPingData->shipID != -1) {
+                PlayerInfo* playerInfo = trekClient.FindPlayer(pfmPingData->shipID);
+                if (playerInfo)
+                    playerInfo->SetConnectionData(pfmPingData->ping, pfmPingData->loss);
+
             }
+            else {
+                if (pfmPingData->ping == 1)
+                    TrekWindowImpl::ShowPlayerPings();
+            }
+        }
+        break;
+
+        case FM_S_TREASURE_SETS:
+        {
+            // NYI
+        }
+        break;
+
+        default:
+        {
+            hr = S_FALSE;
+        }
         }
 
         return hr;
@@ -11346,7 +11417,7 @@ public:
             else
                 nTimeLeft = max(0, int(
                     trekClient.MyMission()->GetMissionParams().GetCountDownTime()
-                        - (Time::Now() - trekClient.MyMission()->GetMissionParams().timeStart) + 1));
+                    - (Time::Now() - trekClient.MyMission()->GetMissionParams().timeStart) + 1));
 
             if (nTimeLeft != m_nLastCountdown)
             {
@@ -11446,9 +11517,9 @@ public:
         }
     }
 
-    void  SoundEngineUpdate (void)
+    void  SoundEngineUpdate(void)
     {
-        ZSucceeded(m_pSoundEngine->Update ());
+        ZSucceeded(m_pSoundEngine->Update());
     }
 
     TRef<ISoundInstance>  StartSound(ISoundTemplate* ptemplate, ISoundPositionSource* psource = NULL)
@@ -11519,9 +11590,9 @@ TrekWindowImpl::FlagsWinConditionInfo          TrekWindowImpl::s_flagsWinConditi
 TRef<TrekWindow> TrekWindow::Create(
     EffectApp*     papp,
     const ZString& strCommandLine,
-// BUILD_DX9
-	const ZString& strArtPath,					// Added for DX9 build, due to reordered startup.
-// BUILD_DX9
+    // BUILD_DX9
+    const ZString& strArtPath,					// Added for DX9 build, due to reordered startup.
+                                                // BUILD_DX9
     bool           bMovies,
     bool           bSoftware,
     bool           bHardware,
@@ -11532,9 +11603,9 @@ TRef<TrekWindow> TrekWindow::Create(
         new TrekWindowImpl(
             papp,
             strCommandLine,
-// BUILD_DX9
-			strArtPath,
-// BUILD_DX9
+            // BUILD_DX9
+            strArtPath,
+            // BUILD_DX9
             bMovies,
             bSoftware,
             bHardware,

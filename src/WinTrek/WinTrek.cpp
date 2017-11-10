@@ -162,8 +162,7 @@ DWORD WINAPI DDVidCreateThreadProc(LPVOID param) {
     HWND hwndFound = NULL;
     if (pData->bWindowed) {
         hwndFound = FindWindow(NULL, TrekWindow::GetWindowTitle()); // BT - 9/17 - Updated to dynamic value.
-    }
-    else {
+	} else {
         //this window will have our "intro" in it...
         hwndFound = ::CreateWindow("MS_ZLib_Window", "Intro", WS_VISIBLE | WS_POPUP, 0, 0,
             GetSystemMetrics(SM_CXFULLSCREEN), GetSystemMetrics(SM_CYFULLSCREEN), NULL, NULL,
@@ -200,8 +199,7 @@ DWORD WINAPI DDVidCreateThreadProc(LPVOID param) {
 
         ::ShowCursor(TRUE);
         DDVid->DestroyDDVid();
-    }
-    else {
+	} else {
         DDVid->DestroyDirectDraw();
     }
 
@@ -978,8 +976,7 @@ public:
             //
 
             return CreateQuickChatMenu((QuickChatMenu*)pnode);
-        }
-        else {
+        } else {
             //
             // It's a command
             //
@@ -1051,8 +1048,7 @@ public:
                     (char)pitem->GetChar(),
                     pmenuCommandSinkQuickChat
                 );
-            }
-            else {
+            } else {
                 pmenu->AddMenuItem(index, pitem->GetString(), (char)pitem->GetChar());
             }
 
@@ -1483,8 +1479,7 @@ public:
 
         if (m_mapAnimatedImages.Find(str, pimage)) {
             return new AnimatedImage(ptime, pimage);
-        }
-        else {
+        } else {
             TRef<Surface> psurface = GetModeler()->LoadSurface(str, true);
 
             if (psurface == NULL) {
@@ -1583,14 +1578,12 @@ public:
 
             if (pmp->GetConquestPercentage() == 100) {
                 m_pstringPaneConquest->SetString("1st team to own all of the starbases wins");
-            }
-            else {
+            } else {
                 m_pstringPaneConquest->SetString(
                     "1st team to own " + ZString(pmp->GetConquestPercentage()) + "% of the starbases wins"
                 );
             }
-        }
-        else {
+        } else {
             m_pstringGridImageConquest = NULL;
         }
 
@@ -1607,8 +1600,7 @@ public:
                 "1st team to own " + ZString((50 + trekClient.m_pCoreIGC->GetClusters()->n() *
                     pmp->GetTerritoryPercentage()) / 100) + " sectors wins"
             );
-        }
-        else {
+        } else {
             m_pstringGridImageTerritory = NULL;
         }
 
@@ -1624,8 +1616,7 @@ public:
             m_pstringPaneProsperity->SetString(
                 "First team to purchase reinforcements wins"
             );
-        }
-        else {
+        } else {
             m_pstringGridImageProsperity = NULL;
         }
 
@@ -1640,8 +1631,7 @@ public:
             m_pstringPaneArtifacts->SetString(
                 "First team to own " + ZString(pmp->nGoalArtifactsCount) + " artifacts wins"
             );
-        }
-        else {
+        } else {
             m_pstringGridImageArtifacts = NULL;
         }
 
@@ -1656,8 +1646,7 @@ public:
             m_pstringPaneFlags->SetString(
                 "First team to capture " + ZString(pmp->nGoalFlagsCount) + " flags wins"
             );
-        }
-        else {
+        } else {
             m_pstringGridImageFlags = NULL;
         }
 
@@ -1823,8 +1812,7 @@ public:
         {
             if (pside1->GetKills() == pside2->GetKills()) {
                 return pside1->GetDeaths() < pside2->GetDeaths();
-            }
-            else {
+            } else {
                 return pside1->GetKills() > pside2->GetKills();
             }
         }
@@ -1849,8 +1837,7 @@ public:
         {
             if (pship1->GetKills() == pship2->GetKills()) {
                 return pship1->GetDeaths() < pship2->GetDeaths();
-            }
-            else {
+            } else {
                 return pship1->GetKills() > pship2->GetKills();
             }
         }
@@ -2413,13 +2400,11 @@ public:
                             {
                                 DDVid->m_Running = FALSE;
                                 DDVid->m_pVideo->Stop();
-                            }
-                            else {
+									} else	{
                                 DDVid->m_pVideo->Draw(DDVid->m_lpDDSBack);
                                 if (m_pengine->IsFullscreen()) {
                                     DDVid->m_lpDDSPrimary->Flip(0, DDFLIP_WAIT);
-                                }
-                                else {
+										} else {
                                     bOk = DDVid->Flip();
                                 }
                             }
@@ -2428,8 +2413,7 @@ public:
                         ::ShowCursor(TRUE);
                         DDVid->DestroyDDVid();
 
-                    }
-                    else {
+							} else {
                         DDVid->DestroyDirectDraw();
                     }
 
@@ -3313,8 +3297,7 @@ public:
         if (bSoftware || bHardware) {
             bAllow3DAcceleration = bHardware;
             SavePreference("Allow3DAcceleration", bAllow3DAcceleration);
-        }
-        else {
+        } else {
             bAllow3DAcceleration = LoadPreference("Allow3DAcceleration", TRUE) != 0;
         }
 
@@ -3325,8 +3308,7 @@ public:
         if (bSecondary || bPrimary) {
             bAllowSecondary = bSecondary;
             SavePreference("AllowSecondary", bAllowSecondary);
-        }
-        else {
+        } else {
             bAllowSecondary = LoadPreference("AllowSecondary", TRUE) != 0;
         }
 
@@ -4756,8 +4738,7 @@ public:
         if (m_pwrapGeoDebris->GetGeo() == Geo::GetEmpty()) {
             m_pwrapGeoDebris->SetGeo(m_pgeoDebris);
             SavePreference("Debris", TRUE);
-        }
-        else {
+        } else {
             m_pwrapGeoDebris->SetGeo(Geo::GetEmpty());
             SavePreference("Debris", FALSE);
         }
@@ -4772,8 +4753,7 @@ public:
         if (m_pwrapImageEnvironment->GetImage() == m_pimageEnvironment || IsWine()) { //Imago 8/17/09
             m_pwrapImageEnvironment->SetImage(Image::GetEmpty());
             SavePreference("Environment", FALSE);
-        }
-        else {
+        } else {
             m_pwrapImageEnvironment->SetImage(m_pimageEnvironment);
             SavePreference("Environment", TRUE);
         }
@@ -4993,8 +4973,7 @@ public:
         if (m_pwrapImageStars->GetImage() == Image::GetEmpty()) {
             m_pwrapImageStars->SetImage(m_pimageStars);
             SavePreference("Stars", TRUE);
-        }
-        else {
+        } else {
             m_pwrapImageStars->SetImage(Image::GetEmpty());
             SavePreference("Stars", FALSE);
         }
@@ -5009,8 +4988,7 @@ public:
         if (m_pwrapImagePosters->GetImage() == Image::GetEmpty()) {
             m_pwrapImagePosters->SetImage(m_pwrapImagePostersInside);
             SavePreference("Posters", TRUE);
-        }
-        else {
+        } else {
             m_pwrapImagePosters->SetImage(Image::GetEmpty());
             SavePreference("Posters", FALSE);
         }
@@ -5029,8 +5007,7 @@ public:
         if (!CommandCamera(m_cm)) {
             if (m_bLensFlare) {
                 m_pwrapImageLensFlare->SetImage(m_pimageLensFlare);
-            }
-            else {
+            } else {
                 m_pwrapImageLensFlare->SetImage(Image::GetEmpty());
             }
         }
@@ -5045,8 +5022,7 @@ public:
         if (m_bBidirectionalLighting) {
             m_pimageScene->SetLight(m_color, m_colorAlt);
             m_pimageScene->SetAmbientLevel(m_ambientLevelBidirectional);
-        }
-        else {
+        } else {
             m_pimageScene->SetLight(m_color);
             m_pimageScene->SetAmbientLevel(m_ambientLevel);
         }
@@ -5288,8 +5264,7 @@ public:
         if (value == 2) { //imago 8/16/09
             ThingGeo::SetPerformance(true);
             ThingGeo::SetShowSmoke(1);
-        }
-        else {
+        } else {
             ThingGeo::SetShowSmoke(int(value));
         }
     }
@@ -5518,8 +5493,7 @@ public:
     {
         if (bSmaller && GetFullscreen()) {
             m_pwrapNumberStyleHUD->SetWrappedValue(new Number(1.0f));
-        }
-        else {
+        } else {
             m_pwrapNumberStyleHUD->SetWrappedValue(m_pnumberStyleHUD);
         }
     }
@@ -6248,8 +6222,7 @@ public:
 
                 str1 += "<Color|cyan>Your Connection Info<Color|white><p>Ping: " + formatPing + ZString((int)m_ping) + "ms<Color|white>	Packet Loss: " + formatLoss + ZString((int)m_loss) + "%<Color|white><p><p>";
 
-            }
-            else if ((pPlayerInfo = (PlayerInfo*)s->GetPrivateData()) && pPlayerInfo->IsHuman()) {
+			} else if ((pPlayerInfo = (PlayerInfo*)s->GetPrivateData()) && pPlayerInfo->IsHuman()) {
                 pPlayerInfo->GetConnectionData(&m_ping, &m_loss);
 
                 if (m_ping > 1000)
@@ -7573,8 +7546,7 @@ public:
                 + ZString((int)myPosition.X()) + ","
                 + ZString((int)myPosition.Y()) + ","
                 + ZString((int)myPosition.Z()) + ")";
-        }
-        else {
+        } else {
             strPosition = " pos: (Dead)";
         }
 
@@ -8419,8 +8391,7 @@ public:
                     pfmReady->shipID = trekClient.GetShipID();
                     //trekClient.SendChat(trekClient.GetShip(), CHAT_EVERYONE, NA, NA, "I'm back from being AFK!");
                 }
-            }
-            else {
+			} else {
                 int inactive_threshold; // mmf added this so those in NOAT go afk quicker
                 if (trekClient.GetSideID() == SIDE_TEAMLOBBY) inactive_threshold = 90000;
                 else inactive_threshold = 180000;
@@ -8538,8 +8509,7 @@ public:
                                 trekClient.PlaySoundEffect(salAutopilotDisengageSound);
                                 g_bActivity = true; // Imago: Joystick movment while Autopiloting = active!
                             }
-                        }
-                        else //Imago: Joystick movment while not Autopiloting = active!
+                        } else //Imago: Joystick movment while not Autopiloting = active!
                         {
                             if (oldButtonsM != buttonsM)
                                 bControlsInUse = true;
@@ -8706,8 +8676,7 @@ public:
                         point.SetY(GetScreenRectValue()->GetValue().YMax() - 1 - point.Y());
                         bInside = rectImage.Inside(point);
                         point = point - rectImage.Min();
-                    }
-                    else {
+                    } else {
                         WinPoint   xy;
                         bInside = false;
                         if (GetCursorPos(&xy)) {
@@ -8723,8 +8692,7 @@ public:
 
                         if (point.X() < gutter) {
                             dRight = delta * (point.X() - gutter) / maxGutter;
-                        }
-                        else {
+                        } else {
                             float x = rectImage.XSize() - point.X();
                             if (x < gutter) {
                                 dRight = delta * (gutter - x) / maxGutter;
@@ -8733,8 +8701,7 @@ public:
 
                         if (point.Y() < gutter) {
                             dUp = delta * (point.Y() - gutter) / maxGutter;
-                        }
-                        else {
+                        } else {
                             float y = rectImage.YSize() - point.Y();
                             if (y < gutter) {
                                 dUp = delta * (gutter - y) / maxGutter;
@@ -8920,8 +8887,7 @@ public:
             // End interception for training missions
             //------------------------------------------------------------------------------
 
-        }
-        else {
+		} else {
 
             // //-Imago 7/13/09 we're not actually in a sector playing the game...
             // this is the right time & place place to rest our CPU. We can also give it more of a break now.
@@ -8987,8 +8953,7 @@ public:
     {
         if (!GetUI()) {
             return m_pconsoleImage->OnChar(ks);
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -9215,20 +9180,17 @@ public:
                         trekClient.GetCluster(), pposition, NULL, abm); // true = (default) search allied bases/rescue probes
 
                                                                         //targets allied bases only
-            }
-            else if (tkNearest == TK_TargetAlliedBaseNearest) {
+			} else if (tkNearest == TK_TargetAlliedBaseNearest) {
                 m = FindTarget(trekClient.GetShip()->GetSourceShip(), ttMask, trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
                     trekClient.GetCluster(), pposition, NULL, abm, 0x7fffffff, 2); // 2 = (hack) search allied bases/rescue probes only
 
-            }
-            else {
+			} else {
                 //not after a friendly/allied base, do our regular thing (default)
                 m = FindTarget(trekClient.GetShip()->GetSourceShip(), ttMask, trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
                     trekClient.GetCluster(), pposition, NULL, abm);
             }
 
-        }
-        else { // team has no allies, do our regular thing
+		} else { // team has no allies, do our regular thing
 
             m = FindTarget(trekClient.GetShip()->GetSourceShip(),
                 ttMask,
@@ -9433,8 +9395,7 @@ public:
         {
             if (m_bOn) {
                 m_value = min(1, m_valueStart + (GetTime() - m_timeStart));
-            }
-            else {
+            } else {
                 m_value = max(0, m_valueStart - (GetTime() - m_timeStart));
             }
 
@@ -9703,8 +9664,7 @@ public:
         {
             if (m_pwrapImageLOD->GetImage() == Image::GetEmpty()) {
                 m_pwrapImageLOD->SetImage(m_pimageLOD);
-            }
-            else {
+                } else {
                 m_pwrapImageLOD->SetImage(Image::GetEmpty());
             }
         }
@@ -10157,12 +10117,10 @@ public:
             {
                 if (GetOverlayFlags() & c_omBanishablePanes) {
                     TurnOffOverlayFlags(c_omBanishablePanes);
-                }
-                else if (!trekClient.GetShip()->IsGhost()) {
+                    } else if (!trekClient.GetShip()->IsGhost()) {
                     if (trekClient.flyingF()) {
                         SetViewMode(vmCombat);
-                    }
-                    else {
+                        } else {
                         SetViewMode(vmHangar);
                     }
                 }
@@ -10257,11 +10215,9 @@ public:
         {
             if (GetViewMode() == vmOverride) {
                 // do nothing
-            }
-            else if (trekClient.GetShip()->IsGhost()) {
+                } else if (trekClient.GetShip()->IsGhost()) {
                 TurnOffOverlayFlags(c_omBanishablePanes);
-            }
-            else if (trekClient.GetShip()->GetStation() != NULL) {
+                } else if (trekClient.GetShip()->GetStation() != NULL) {
                 if (GetViewMode() != vmLoadout)
                     SetViewMode(vmLoadout);
                 else if (GetOverlayFlags() & c_omBanishablePanes)
@@ -10733,20 +10689,17 @@ public:
                         m_distanceCommandCamera -= delta * 2.0f;
                         if (m_distanceCommandCamera < s_fCommandViewDistanceMin)
                             m_distanceCommandCamera = s_fCommandViewDistanceMin;
-                    }
-                    else {
+                        } else {
                         m_distanceCommandCamera += delta * 2.0f;
                         if (m_distanceCommandCamera > s_fCommandViewDistanceMax)
                             m_distanceCommandCamera = s_fCommandViewDistanceMax;
                     }
-                }
-                else if (m_cm == cmExternalChase || !NoCameraControl(m_cm)) {
+                    } else if (m_cm == cmExternalChase || !NoCameraControl(m_cm)) {
                     if (tk == TK_ZoomIn) {
                         m_distanceExternalCamera -= dt * m_distanceExternalCamera;
                         if (m_distanceExternalCamera < s_fExternalViewDistanceMin)
                             m_distanceExternalCamera = s_fExternalViewDistanceMin;
-                    }
-                    else {
+                        } else {
                         m_distanceExternalCamera += dt * m_distanceExternalCamera;
                         if (m_distanceExternalCamera > s_fExternalViewDistanceMax)
                             m_distanceExternalCamera = s_fExternalViewDistanceMax;
@@ -10759,8 +10712,7 @@ public:
                         if (fov < s_fMinFOV)
                             fov = s_fMinFOV;
                         m_cameraControl.SetFOV(fov);
-                    }
-                    else {
+                        } else {
                         fov += dt;
                         if (fov > s_fMaxFOV)
                             fov = s_fMaxFOV;
@@ -11087,13 +11039,11 @@ public:
             js->controls.jsValues[c_axisYaw] = m_pjoystickImage->GetValue(0)->GetValue();
             js->controls.jsValues[c_axisPitch] = m_pjoystickImage->GetValue(1)->GetValue();
             js->controls.jsValues[c_axisRoll] = 0;
-        }
-        else {
+        } else {
             if (m_ptrekInput->IsTrekKeyDown(TK_RollModifier, bReadKeyboard)) {
                 js->controls.jsValues[c_axisYaw] = 0;
                 js->controls.jsValues[c_axisRoll] = MapJoystick(m_ptrekInput->GetAxis(0));
-            }
-            else {
+            } else {
                 js->controls.jsValues[c_axisYaw] = MapJoystick(m_ptrekInput->GetAxis(0));
                 js->controls.jsValues[c_axisRoll] = MapJoystick(m_ptrekInput->GetAxis(2));
             }
@@ -11148,8 +11098,7 @@ public:
 
             if (m_ptrekInput->IsTrekKeyDown(TK_RollRight, bReadKeyboard)) {
                 js->controls.jsValues[c_axisRoll] = -1.0f;
-            }
-            else if (m_ptrekInput->IsTrekKeyDown(TK_RollLeft, bReadKeyboard)) {
+            } else if (m_ptrekInput->IsTrekKeyDown(TK_RollLeft, bReadKeyboard)) {
                 js->controls.jsValues[c_axisRoll] = 1.0f;
             }
 
@@ -11158,16 +11107,13 @@ public:
             if (m_ptrekInput->IsTrekKeyDown(TK_RollModifier, bReadKeyboard)) {
                 if (m_ptrekInput->IsTrekKeyDown(TK_YawRight, bReadKeyboard)) {
                     js->controls.jsValues[c_axisRoll] = -1.0f;
-                }
-                else if (m_ptrekInput->IsTrekKeyDown(TK_YawLeft, bReadKeyboard)) {
+                } else if (m_ptrekInput->IsTrekKeyDown(TK_YawLeft, bReadKeyboard)) {
                     js->controls.jsValues[c_axisRoll] = 1.0f;
                 }
-            }
-            else {
+            } else {
                 if (m_ptrekInput->IsTrekKeyDown(TK_YawRight, bReadKeyboard)) {
                     js->controls.jsValues[c_axisYaw] = -1.0f;
-                }
-                else if (m_ptrekInput->IsTrekKeyDown(TK_YawLeft, bReadKeyboard)) {
+                } else if (m_ptrekInput->IsTrekKeyDown(TK_YawLeft, bReadKeyboard)) {
                     js->controls.jsValues[c_axisYaw] = 1.0f;
                 }
             }
@@ -11176,8 +11122,7 @@ public:
 
             if (m_ptrekInput->IsTrekKeyDown(TK_PitchDown, bReadKeyboard)) {
                 js->controls.jsValues[c_axisPitch] = -1.0f;
-            }
-            else if (m_ptrekInput->IsTrekKeyDown(TK_PitchUp, bReadKeyboard)) {
+            } else if (m_ptrekInput->IsTrekKeyDown(TK_PitchUp, bReadKeyboard)) {
                 js->controls.jsValues[c_axisPitch] = 1.0f;
             }
 
@@ -11351,8 +11296,7 @@ public:
                 if (playerInfo)
                     playerInfo->SetConnectionData(pfmPingData->ping, pfmPingData->loss);
 
-            }
-            else {
+				} else {
                 if (pfmPingData->ping == 1)
                     TrekWindowImpl::ShowPlayerPings();
             }

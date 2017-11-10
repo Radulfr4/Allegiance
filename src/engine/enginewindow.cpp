@@ -21,7 +21,7 @@ void EngineWindow::MenuCommandSink::OnMenuCommand(IMenuItem* pitem)
 
 //See also engine.cpp(180) if changing this list.
 EngineWindow::ModeData EngineWindow::s_pmodes[] = //imago updated 6/29/09 NYI letterbox/strech non 4:3
-{
+    {
     ModeData(WinPoint(640, 480), false),
     ModeData(WinPoint(800, 600), false),
     ModeData(WinPoint(1024, 768), false),
@@ -34,15 +34,15 @@ EngineWindow::ModeData EngineWindow::s_pmodes[] = //imago updated 6/29/09 NYI le
     ModeData(WinPoint(1920, 1080), false),
     ModeData(WinPoint(1920, 1200), false),
     ModeData(WinPoint(2560, 1440), false)
-};
+    };
 
 int EngineWindow::s_countModes = 11; //this is not the count, this number is the largest available index.
 
-                                     //////////////////////////////////////////////////////////////////////////////
-                                     //
-                                     // Keyboard Input Filter
-                                     //
-                                     //////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//
+// Keyboard Input Filter
+//
+//////////////////////////////////////////////////////////////////////////////
 
 class EngineWindowKeyboardInput : public IKeyboardInput {
 private:
@@ -57,7 +57,7 @@ public:
     bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
     {
         if (ks.bDown && ks.bAlt) {
-            switch (ks.vk) {
+            switch(ks.vk) {
             case VK_F4:
                 m_pwindow->StartClose();
                 return true;
@@ -70,7 +70,7 @@ public:
                 m_pwindow->ToggleShowFPS();
                 return true;
 
-#ifdef ICAP
+                #ifdef ICAP
             case 'P':
                 m_pwindow->ToggleProfiling(-1);
                 return true;
@@ -78,9 +78,9 @@ public:
             case 'O':
                 m_pwindow->ToggleProfiling(1);
                 return true;
-#endif
+                #endif
 
-#ifdef _DEBUG
+                #ifdef _DEBUG
             case VK_F9:
                 if (ks.bShift) {
                     ZError("Forced Assert");
@@ -92,7 +92,7 @@ public:
                     *(DWORD*)NULL = 0;
                 }
                 return true;
-#endif
+                #endif
             }
         }
 
@@ -112,13 +112,13 @@ public:
 //
 //////////////////////////////////////////////////////////////////////////////
 
-EngineWindow::EngineWindow(EngineApp *			papp,
+EngineWindow::EngineWindow(	EngineApp *			papp,
     const ZString&		strCommandLine,
     const ZString&		strTitle,
     bool				bStartFullscreen,
     const WinRect&		rect,
     const WinPoint&		sizeMin,
-    HMENU				hmenu) :
+							HMENU				hmenu ) :
     Window(NULL, rect, strTitle, ZString(), 0, hmenu),
     m_pengine(papp->GetEngine()),
     m_pmodeler(papp->GetModeler()),
@@ -328,18 +328,14 @@ void EngineWindow::ParseCommandLine(const ZString& strCommandLine, bool& bStartF
         if (token.IsMinus(str)) {
             if (str == "mdllog") {
                 g_bMDLLog = true;
-            }
-            else if (str == "windowlog") {
+            } else if (str == "windowlog") {
                 g_bWindowLog = true;
-            }
-            else if (str == "windowed") {
+            } else if (str == "windowed") {
                 bStartFullscreen = false;
-            }
-            else if (str == "fullscreen") {
+            } else if (str == "fullscreen") {
                 bStartFullscreen = true;
             }
-        }
-        else {
+        } else {
             token.IsString(str);
         }
     }
@@ -389,8 +385,7 @@ void EngineWindow::UpdateSurfacePointer()
             DDCall(pDev->ResetDevice(true, size.X(), size.Y()));
         }
 
-    }
-    else {
+	} else {
         WinPoint point = m_pengine->GetFullscreenSize();
         m_psurface = m_pengine->CreateDummySurface(point, NULL);
         ZAssert(m_psurface != NULL && m_psurface->IsValid());
@@ -494,8 +489,7 @@ void EngineWindow::UpdateWindowStyle()
         );
 
         SetClientRect(rect);
-    }
-    else {
+    } else {
         WinPoint size = m_pengine->GetFullscreenSize();
 
         // get the currently selected monitor's resolution
@@ -567,8 +561,7 @@ void EngineWindow::UpdateRectValues()
 
         m_prectValueScreen->SetValue(rect);
         m_pmouse->SetClipRect(rect);
-    }
-    else {
+    } else {
         WinRect rect(WinPoint(0, 0), m_pengine->GetFullscreenSize());
         if (g_bWindowLog) {
             ZDebugOutput("  Windowed: " + GetString(0, rect) + "\n");
@@ -598,8 +591,7 @@ void EngineWindow::UpdateRectValues()
         );
 
         m_pwrapRectValueRender->SetWrappedValue(m_prectValueRender);
-    }
-    else {
+    } else {
         m_pwrapRectValueRender->SetWrappedValue(m_prectValueScreen);
     }
 }
@@ -615,11 +607,9 @@ void EngineWindow::UpdateCursor()
 
     if (m_pengine->IsFullscreen()) {
         bGameCursor = true;
-    }
-    else if (m_bCaptured) {
+    } else if (m_bCaptured) {
         bGameCursor = m_prectValueScreen->GetValue().Inside(m_ppointMouse->GetValue());
-    }
-    else {
+    } else {
         bGameCursor = m_bMouseInside;
     }
 
@@ -635,8 +625,7 @@ void EngineWindow::UpdateCursor()
             ) {
             m_ptransformImageCursor->SetImage(m_pimageCursor);
             s_cursorIsHidden = false;
-        }
-        else {
+        } else {
             /*
             if (m_bMoveOnHide) {
             HandleMouseMessage(0, Point(0, 0));
@@ -646,8 +635,7 @@ void EngineWindow::UpdateCursor()
             s_cursorIsHidden = true;
         }
         ShowMouse(false);
-    }
-    else {
+    } else {
         m_ptransformImageCursor->SetImage(Image::GetEmpty());
         ShowMouse(m_bShowCursor);
     }
@@ -790,8 +778,7 @@ WinPoint EngineWindow::GetSize()
 {
     if (m_pengine->IsFullscreen()) {
         return GetFullscreenSize();
-    }
-    else {
+    } else {
         return GetWindowedSize();
     }
 }
@@ -1193,8 +1180,7 @@ bool EngineWindow::ShouldDrawFrame()
 {
     if (m_pengine->IsFullscreen()) {
         return true;
-    }
-    else {
+    } else {
         return !m_bMinimized;
     }
 }
@@ -1267,8 +1253,7 @@ void EngineWindow::DoIdle()
                 return;
             }
         }
-    }
-    else {
+    } else {
         //
         // We don't have access to the device just update the frame
         //
@@ -1308,13 +1293,11 @@ void EngineWindow::ToggleShowFPS()
     if (m_bFPS) {
         if (m_indexFPS == 0) {
             m_indexFPS = 1;
-        }
-        else {
+        } else {
             m_bFPS = false;
             m_indexFPS = 0;
         }
-    }
-    else {
+    } else {
         m_bFPS = true;
     }
 }
@@ -1440,8 +1423,7 @@ void EngineWindow::SetCursorPos(const Point& point)
     if (m_pmouse->IsEnabled()) {
         m_pmouse->SetPosition(point);
         //HandleMouseMessage(WM_MOUSEMOVE, point);
-    }
-    else {
+    } else {
         //If disabled, send a new mouse position to the window.
         Window::SetCursorPos(point);
     }
@@ -1543,8 +1525,7 @@ void EngineWindow::HandleMouseMessage(UINT message, const Point& point, UINT nFl
             if (m_bHit) {
                 pimage->MouseEnter(this, point);
             }
-        }
-        else if (m_bHit) {
+        } else if (m_bHit) {
             pimage->MouseMove(this, point, false, true);
         }
 
@@ -1585,17 +1566,14 @@ void EngineWindow::HandleMouseMessage(UINT message, const Point& point, UINT nFl
                     mouseResult = pimage->Button(this, point, 8, m_bCaptured, m_bHit, true);
                     if (!m_pmouse->IsEnabled())
                         mouseResult = pimage->Button(this, point, 8, m_bCaptured, m_bHit, false);
-                }
-                else {
+                    } else {
                     mouseResult = pimage->Button(this, point, 9, m_bCaptured, m_bHit, true);
                     if (!m_pmouse->IsEnabled())
                         mouseResult = pimage->Button(this, point, 9, m_bCaptured, m_bHit, false);
                 }
-            }
-            else if (nFlags == 1) {
+                } else if (nFlags == 1) {
                 mouseResult = pimage->Button(this, point, 8, m_bCaptured, m_bHit, false);
-            }
-            else if (nFlags == 0) {
+                } else if (nFlags == 0) {
                 mouseResult = pimage->Button(this, point, 9, m_bCaptured, m_bHit, false);
             }
             break;
@@ -1615,8 +1593,7 @@ void EngineWindow::HandleMouseMessage(UINT message, const Point& point, UINT nFl
             pimage->RemoveCapture();
             ReleaseMouse();
             m_bCaptured = false;
-        }
-        else if (mouseResult.Test(MouseResultCapture())) {
+        } else if (mouseResult.Test(MouseResultCapture())) {
             CaptureMouse();
             m_bCaptured = true;
         }
@@ -1643,83 +1620,64 @@ bool EngineWindow::OnEvent(ButtonEvent::Source* pevent, ButtonEventData be)
     if (be.GetButton() == 0) {
         if (be.IsDown()) {
             HandleMouseMessage(WM_LBUTTONDOWN, m_pmouse->GetPosition());
-        }
-        else {
+        } else {
             HandleMouseMessage(WM_LBUTTONUP, m_pmouse->GetPosition());
         }
-    }
-    else if (be.GetButton() == 1) {
+    } else if (be.GetButton() == 1) {
         if (be.IsDown()) {
             HandleMouseMessage(WM_RBUTTONDOWN, m_pmouse->GetPosition());
-        }
-        else {
+        } else {
             HandleMouseMessage(WM_RBUTTONUP, m_pmouse->GetPosition());
         }
-    }
-    else if (be.GetButton() == 2) {
+    } else if (be.GetButton() == 2) {
         if (be.IsDown()) {
             HandleMouseMessage(WM_MBUTTONDOWN, m_pmouse->GetPosition());
-        }
-        else {
+        } else {
             HandleMouseMessage(WM_MBUTTONUP, m_pmouse->GetPosition());
         }
 
         //Imago 8/15/09
-    }
-    else if (be.GetButton() == 3) {
+    } else if (be.GetButton() == 3) {
         if (be.IsDown()) {
             HandleMouseMessage(WM_XBUTTONDOWN, m_pmouse->GetPosition(), MAKEWPARAM(0, 1));
-        }
-        else {
+        } else {
             HandleMouseMessage(WM_XBUTTONUP, m_pmouse->GetPosition(), MAKEWPARAM(0, 1));
         }
-    }
-    else if (be.GetButton() == 4) {
+    } else if (be.GetButton() == 4) {
         if (be.IsDown()) {
             HandleMouseMessage(WM_XBUTTONDOWN, m_pmouse->GetPosition(), MAKEWPARAM(0, 2));
-        }
-        else {
+        } else {
             HandleMouseMessage(WM_XBUTTONUP, m_pmouse->GetPosition(), MAKEWPARAM(0, 2));
         }
-    }
-    else if (be.GetButton() == 5) {
+    } else if (be.GetButton() == 5) {
         if (be.IsDown()) {
             HandleMouseMessage(WM_XBUTTONDOWN, m_pmouse->GetPosition(), MAKEWPARAM(0, 3));
-        }
-        else {
+        } else {
             HandleMouseMessage(WM_XBUTTONUP, m_pmouse->GetPosition(), MAKEWPARAM(0, 3));
         }
-    }
-    else if (be.GetButton() == 6) {
+    } else if (be.GetButton() == 6) {
         if (be.IsDown()) {
             HandleMouseMessage(WM_XBUTTONDOWN, m_pmouse->GetPosition(), MAKEWPARAM(0, 4));
-        }
-        else {
+        } else {
             HandleMouseMessage(WM_XBUTTONUP, m_pmouse->GetPosition(), MAKEWPARAM(0, 4));
         }
-    }
-    else if (be.GetButton() == 7) {
+    } else if (be.GetButton() == 7) {
         if (be.IsDown()) {
             HandleMouseMessage(WM_XBUTTONDOWN, m_pmouse->GetPosition(), MAKEWPARAM(0, 5));
-        }
-        else {
+        } else {
             HandleMouseMessage(WM_XBUTTONUP, m_pmouse->GetPosition(), MAKEWPARAM(0, 5));
         }
 
-    }
-    else if (be.GetButton() == 8) {
+    } else if (be.GetButton() == 8) {
         if (be.IsDown()) {
             HandleMouseMessage(WM_MOUSEWHEEL, m_pmouse->GetPosition(), -WHEEL_DELTA);
-        }
-        else {
+        } else {
             HandleMouseMessage(WM_MOUSEWHEEL, m_pmouse->GetPosition(), 1);
         }
-    }
-    else if (be.GetButton() == 9) {
+    } else if (be.GetButton() == 9) {
         if (be.IsDown()) {
             HandleMouseMessage(WM_MOUSEWHEEL, m_pmouse->GetPosition(), WHEEL_DELTA);
-        }
-        else {
+        } else {
             HandleMouseMessage(WM_MOUSEWHEEL, m_pmouse->GetPosition(), 0);
         }
     }
@@ -1779,8 +1737,7 @@ void EngineWindow::OnCaptionRestore()
 {
     if (GetFullscreen()) {
         m_bRestore = true;
-    }
-    else {
+    } else {
         PostMessage(WM_SYSCOMMAND, SC_RESTORE);
     }
 }

@@ -42,6 +42,17 @@ HRESULT         ChullTypeIGC::Initialize(ImissionIGC* pMission,
             m_preferredPartTypes.last(ppt);
         }
     }
+    {
+        for (int i = 0;
+            ((i < c_cMaxPreferredPartTypes) && (m_data->preferredCargoPartsTypes[i] != NA));
+            i++)
+        {
+            IpartTypeIGC*  ppt = pMission->GetPartType(m_data->preferredCargoPartsTypes[i]);
+            assert(ppt);
+            ppt->AddRef();
+            m_preferredCargoPartTypes.last(ppt);
+        }
+    }
 
     IIgcSite*   pigc = pMission->GetIgcSite();
     pigc->Preload(m_data->modelName, iswalpha(m_data->textureName[0])

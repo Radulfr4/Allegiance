@@ -1772,6 +1772,7 @@ struct  DataHullTypeIGC : public DataBuyableIGC
     short               capacityChaffLauncher;
 
     PartID              preferredPartsTypes[c_cMaxPreferredPartTypes];
+    PartID              preferredCargoPartsTypes[c_cMaxPreferredPartTypes];
 
     HullAbilityBitMask  habmCapabilities;
     char                textureName[c_cbFileName];

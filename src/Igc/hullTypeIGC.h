@@ -342,6 +342,10 @@ class       ChullTypeIGC : public IhullTypeIGC
         {
             return &m_preferredPartTypes;
         }
+        virtual const PartTypeListIGC*      GetPreferredCargoPartTypes(void) const
+        {
+            return &m_preferredCargoPartTypes;
+        }
         virtual float GetScale() const
         {
             return m_scale;
@@ -406,6 +410,7 @@ class       ChullTypeIGC : public IhullTypeIGC
         TRef<IObject>       m_poIcon;
         DataHullTypeIGC*    m_data;
         PartTypeListIGC     m_preferredPartTypes;
+        PartTypeListIGC     m_preferredCargoPartTypes;
         Vector              m_cockpit;
 		Vector				m_chaff;	 // TurkeyXIII 11/09 #94
         Vector              m_positionWeapons[c_maxMountedWeapons];
